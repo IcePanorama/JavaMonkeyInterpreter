@@ -1,7 +1,7 @@
 package token;
 
 public class Token {
-    String type;
+    public String type;
     String literal;
 
     /* Token Types */
@@ -19,4 +19,9 @@ public class Token {
     public final static String RBRACE = "}";
     public final static String FUNCTION = "FUNCTION";
     public final static String LET = "LET";
+
+    public Token (String type, String literal){
+        this.type = type;
+        this.literal = literal;
+    }
 }
