@@ -5,18 +5,18 @@ public class Token {
     String literal;
 
     /* Token Types */
-    final static String ILLEGAL = "ILLEGAL";
-    final static String EOF = "EOF";
-    final static String IDENT = "IDENT";
-    final static String INT = "INT";
-    final static String ASSIGN = "=";
-    final static String PLUS = "+";
-    final static String COMMA = ",";
-    final static String SEMICOLON = ";";
-    final static String LPAREN = "(";
-    final static String RPAREN = ")";
-    final static String LBRACE = "{";
-    final static String RBRACE = "}";
-    final static String FUNCTION = "FUNCTION";
-    final static String LET = "LET";
+    public final static String ILLEGAL = "ILLEGAL";
+    public final static String EOF = "EOF";
+    public final static String IDENT = "IDENT";
+    public final static String INT = "INT";
+    public final static String ASSIGN = "=";
+    public final static String PLUS = "+";
+    public final static String COMMA = ",";
+    public final static String SEMICOLON = ";";
+    public final static String LPAREN = "(";
+    public final static String RPAREN = ")";
+    public final static String LBRACE = "{";
+    public final static String RBRACE = "}";
+    public final static String FUNCTION = "FUNCTION";
+    public final static String LET = "LET";
 }
