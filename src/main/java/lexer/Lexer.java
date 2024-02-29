@@ -25,6 +25,8 @@ public class Lexer {
     Token nextToken () {
         Token token = null;
 
+        skipWhitespace();
+
         switch (ch) {
             case '=':
                 token = new Token(Token.ASSIGN, Character.toString(ch));
@@ -54,11 +56,45 @@ public class Lexer {
                 token = new Token(Token.EOF, Character.toString(ch));
                 break;
             default:
-                if (Character.isLetter(ch)) {
+                if (isLetter(ch)) {
+                    String literal = readIdentifier();
+                    // must return here as we don't want to readChar below
+                    return new Token(Token.lookupIdent(literal), literal);
+                } else if (Character.isDigit(ch)){
+                    return new Token(Token.INT, readNumber());
+                }else {
+                    token = new Token(Token.ILLEGAL, "ILLEGAL");
                 }
         }
 
         readChar();
         return token;
+    }
+
+    String readIdentifier() {
+        int start_pos = position;
+        while (isLetter(ch)){
+            readChar();
+        }
+
+        return input.substring(start_pos, position);
+    }
+
+    String readNumber() {
+        int start_pos = position;
+        while (Character.isDigit(ch)){
+            readChar();
+        }
+        return input.substring(start_pos, position);
+    }
+
+    boolean isLetter(char ch){
+        return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_';
+    }
+
+    void skipWhitespace() {
+        while (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') {
+            readChar();
+        }
     }
 }

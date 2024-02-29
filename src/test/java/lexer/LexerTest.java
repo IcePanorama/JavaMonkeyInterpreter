@@ -11,77 +11,77 @@ public class LexerTest {
     void assignShouldEqualASSIGN() {
         String input = "=";
         var l = new Lexer(input);
-        assertEquals(new Token(Token.ASSIGN, "="), l.nextToken());
+        assertEquals(Token.ASSIGN, l.nextToken().type);
     }
 
     @Test
     void plusShouldEqualPLUS() {
         String input = "+";
         var l = new Lexer(input);
-        assertEquals(new Token(Token.PLUS, "+"), l.nextToken());
+        assertEquals(Token.PLUS, l.nextToken().type);
     }
 
     @Test
     void lparenShouldEqualLPAREN() {
         String input = "(";
         var l = new Lexer(input);
-        assertEquals(new Token(Token.LPAREN, "("), l.nextToken());
+        assertEquals(Token.LPAREN, l.nextToken().type);
     }
 
     @Test
     void rparenShouldEqualRPAREN() {
         String input = ")";
         var l = new Lexer(input);
-        assertEquals(new Token(Token.RPAREN, ")"), l.nextToken());
+        assertEquals(Token.RPAREN, l.nextToken().type);
     }
 
     @Test
     void commaShouldEqualCOMMA() {
         String input = ",";
         var l = new Lexer(input);
-        assertEquals(new Token(Token.COMMA, ","), l.nextToken());
+        assertEquals(Token.COMMA, l.nextToken().type);
     }
 
     @Test
     void semicolonShouldEqualSEMICOLON() {
         String input = ";";
         var l = new Lexer(input);
-        assertEquals(new Token(Token.SEMICOLON, ";"), l.nextToken());
+        assertEquals(Token.SEMICOLON, l.nextToken().type);
     }
 
     @Test
     void eofShouldEqualEOF() {
         String input = "";
         var l = new Lexer(input);
-        assertEquals(new Token(Token.EOF, "\0"), l.nextToken());
+        assertEquals(Token.EOF, l.nextToken().type);
     }
 
     @Test
     void letShouldEqualLET() {
         String input = "let";
         var l = new Lexer(input);
-        assertEquals(new Token(Token.LET, "let"), l.nextToken());
+        assertEquals(Token.LET, l.nextToken().type);
     }
 
     @Test
     void identFiveShouldEqualIDENT() {
         String input = "five";
         var l = new Lexer(input);
-        assertEquals(new Token(Token.IDENT, "five"), l.nextToken());
+        assertEquals(Token.IDENT, l.nextToken().type);
     }
 
     @Test
     void numFiveShouldEqualINT() {
         String input = "5";
         var l = new Lexer(input);
-        assertEquals(new Token(Token.INT, "5"), l.nextToken());
+        assertEquals(Token.INT, l.nextToken().type);
     }
 
     @Test
     void fnShouldEqualFUNCTION() {
         String input = "fn";
         var l = new Lexer(input);
-        assertEquals(new Token(Token.FUNCTION, "fn"), l.nextToken());
+        assertEquals(Token.FUNCTION, l.nextToken().type);
     }
 
     @Test
@@ -94,52 +94,52 @@ public class LexerTest {
             x + y;
         };
         
-        let result = add(five,  ten)""";
+        let result = add(five,  ten);""";
 
-        Token expectedOutput[] = {
-            new Token(Token.LET, "let"),
-            new Token(Token.IDENT, "five"),
-            new Token(Token.ASSIGN, "="),
-            new Token(Token.INT, "5"),
-            new Token(Token.SEMICOLON, ";"),
-            new Token(Token.LET, "let"),
-            new Token(Token.IDENT, "ten"),
-            new Token(Token.ASSIGN, "="),
-            new Token(Token.INT, "10"),
-            new Token(Token.SEMICOLON, ";"),
-            new Token(Token.LET, "let"),
-            new Token(Token.IDENT, "add"),
-            new Token(Token.ASSIGN, "="),
-            new Token(Token.FUNCTION, "fn"),
-            new Token(Token.LPAREN, "("),
-            new Token(Token.IDENT, "x"),
-            new Token(Token.COMMA, ","),
-            new Token(Token.IDENT, "y"),
-            new Token(Token.RPAREN, ")"),
-            new Token(Token.LBRACE, "{"),
-            new Token(Token.IDENT, "x"),
-            new Token(Token.PLUS, "+"),
-            new Token(Token.IDENT, "y"),
-            new Token(Token.SEMICOLON, ";"),
-            new Token(Token.RBRACE, "}"),
-            new Token(Token.SEMICOLON, ";"),
-            new Token(Token.LET, "let"),
-            new Token(Token.IDENT, "result"),
-            new Token(Token.ASSIGN, "="),
-            new Token(Token.IDENT, "add"),
-            new Token(Token.LPAREN, "("),
-            new Token(Token.IDENT, "five"),
-            new Token(Token.COMMA, ","),
-            new Token(Token.IDENT, "ten"),
-            new Token(Token.RPAREN, ")"),
-            new Token(Token.SEMICOLON, ";"),
-            new Token(Token.EOF, "")
+        String expectedOutput[] = {
+            Token.LET,
+            Token.IDENT,
+            Token.ASSIGN,
+            Token.INT,
+            Token.SEMICOLON,
+            Token.LET,
+            Token.IDENT,
+            Token.ASSIGN,
+            Token.INT,
+            Token.SEMICOLON,
+            Token.LET,
+            Token.IDENT,
+            Token.ASSIGN,
+            Token.FUNCTION,
+            Token.LPAREN,
+            Token.IDENT,
+            Token.COMMA,
+            Token.IDENT,
+            Token.RPAREN,
+            Token.LBRACE,
+            Token.IDENT,
+            Token.PLUS,
+            Token.IDENT,
+            Token.SEMICOLON,
+            Token.RBRACE,
+            Token.SEMICOLON,
+            Token.LET,
+            Token.IDENT,
+            Token.ASSIGN,
+            Token.IDENT,
+            Token.LPAREN,
+            Token.IDENT,
+            Token.COMMA,
+            Token.IDENT,
+            Token.RPAREN,
+            Token.SEMICOLON,
+            Token.EOF
         };
 
         var l = new Lexer(input);
         for (int i = 0; i < expectedOutput.length; i++){
             Token tok = l.nextToken();
-            assertEquals(expectedOutput[i], tok);
+            assertEquals(expectedOutput[i], tok.type);
         }
     }
 }

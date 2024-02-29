@@ -1,5 +1,7 @@
 package token;
 
+import java.util.Map;
+
 public class Token {
     public String type;
     String literal;
@@ -19,6 +21,10 @@ public class Token {
     public final static String RBRACE = "}";
     public final static String FUNCTION = "FUNCTION";
     public final static String LET = "LET";
+    public final static Map<String, String> keywords = Map.of(
+        "fn", FUNCTION, 
+        "let", LET
+    );
 
     public Token (String type, String literal){
         this.type = type;
@@ -33,5 +39,12 @@ public class Token {
 
         return (type.equals(((Token)(o)).type) && 
                 literal.equals(((Token)(o)).literal));
+    }
+
+    public static String lookupIdent(String ident) {
+        if (keywords.containsKey(ident)){
+            return keywords.get(ident);
+        }
+        return IDENT;
     }
 }
