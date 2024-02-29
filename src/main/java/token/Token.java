@@ -24,4 +24,14 @@ public class Token {
         this.type = type;
         this.literal = literal;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Token)){
+            return false;
+        }
+
+        return (type.equals(((Token)(o)).type) && 
+                literal.equals(((Token)(o)).literal));
+    }
 }
