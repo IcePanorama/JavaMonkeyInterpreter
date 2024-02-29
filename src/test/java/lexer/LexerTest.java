@@ -11,77 +11,77 @@ public class LexerTest {
     void assignShouldEqualASSIGN() {
         String input = "=";
         var l = new Lexer(input);
-        assertEquals(Token.ASSIGN, l.nextToken().type);
+        assertEquals(new Token(Token.ASSIGN, "="), l.nextToken());
     }
 
     @Test
     void plusShouldEqualPLUS() {
         String input = "+";
         var l = new Lexer(input);
-        assertEquals(Token.PLUS, l.nextToken().type);
+        assertEquals(new Token(Token.PLUS, "+"), l.nextToken());
     }
 
     @Test
     void lparenShouldEqualLPAREN() {
         String input = "(";
         var l = new Lexer(input);
-        assertEquals(Token.LPAREN, l.nextToken().type);
+        assertEquals(new Token(Token.LPAREN, "("), l.nextToken());
     }
 
     @Test
     void rparenShouldEqualRPAREN() {
         String input = ")";
         var l = new Lexer(input);
-        assertEquals(Token.RPAREN, l.nextToken().type);
+        assertEquals(new Token(Token.RPAREN, ")"), l.nextToken());
     }
 
     @Test
     void commaShouldEqualCOMMA() {
         String input = ",";
         var l = new Lexer(input);
-        assertEquals(Token.COMMA, l.nextToken().type);
+        assertEquals(new Token(Token.COMMA, ","), l.nextToken());
     }
 
     @Test
     void semicolonShouldEqualSEMICOLON() {
         String input = ";";
         var l = new Lexer(input);
-        assertEquals(Token.SEMICOLON, l.nextToken().type);
+        assertEquals(new Token(Token.SEMICOLON, ";"), l.nextToken());
     }
 
     @Test
     void eofShouldEqualEOF() {
         String input = "";
         var l = new Lexer(input);
-        assertEquals(Token.EOF, l.nextToken().type);
+        assertEquals(new Token(Token.EOF, "\0"), l.nextToken());
     }
 
     @Test
     void letShouldEqualLET() {
         String input = "let";
         var l = new Lexer(input);
-        assertEquals(Token.LET, l.nextToken().type);
+        assertEquals(new Token(Token.LET, "let"), l.nextToken());
     }
 
     @Test
     void identFiveShouldEqualIDENT() {
         String input = "five";
         var l = new Lexer(input);
-        assertEquals(Token.IDENT, l.nextToken().type);
+        assertEquals(new Token(Token.IDENT, "five"), l.nextToken());
     }
 
     @Test
     void numFiveShouldEqualINT() {
-        String input = "five";
+        String input = "5";
         var l = new Lexer(input);
-        assertEquals(Token.INT, l.nextToken().type);
+        assertEquals(new Token(Token.INT, "5"), l.nextToken());
     }
 
     @Test
     void fnShouldEqualFUNCTION() {
         String input = "fn";
         var l = new Lexer(input);
-        assertEquals(Token.FUNCTION, l.nextToken().type);
+        assertEquals(new Token(Token.FUNCTION, "fn"), l.nextToken());
     }
 
     @Test

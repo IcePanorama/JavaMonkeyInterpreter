@@ -53,6 +53,9 @@ public class Lexer {
             case '\0':
                 token = new Token(Token.EOF, Character.toString(ch));
                 break;
+            default:
+                if (Character.isLetter(ch)) {
+                }
         }
 
         readChar();
