@@ -1,9 +1,7 @@
 package lexer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
-
 import token.Token;
 
 public class LexerTest {
