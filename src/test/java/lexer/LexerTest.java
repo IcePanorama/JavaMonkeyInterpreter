@@ -127,6 +127,20 @@ public class LexerTest {
     }
 
     @Test
+    void doubleEqualsShouldEqualEQ() {
+        String input = "==";
+        var l = new Lexer(input);
+        assertEquals(Token.EQ, l.nextToken().type);
+    }
+
+    @Test
+    void exclamationEqualsShouldEqualNOTEQ() {
+        String input = "!=";
+        var l = new Lexer(input);
+        assertEquals(Token.NOTEQ, l.nextToken().type);
+    }
+
+    @Test
     void letShouldEqualLET() {
         String input = "let";
         var l = new Lexer(input);
@@ -141,7 +155,38 @@ public class LexerTest {
     }
 
     @Test
-    void addTwoNumbersLexerTestShouldParseSucessfully() {
+    void trueShouldEqualTRUE() {
+//TODO: refactor other test cases to be formatted like this
+        var l = new Lexer("true");
+        assertEquals(Token.TRUE, l.nextToken().type);
+    }
+
+    @Test
+    void falseShouldEqualFALSE() {
+        var l = new Lexer("false");
+        assertEquals(Token.FALSE, l.nextToken().type);
+    }
+
+    @Test
+    void ifShouldEqualIF() {
+        var l = new Lexer("if");
+        assertEquals(Token.IF, l.nextToken().type);
+    }
+
+    @Test
+    void elseShouldEqualELSE() {
+        var l = new Lexer("else");
+        assertEquals(Token.ELSE, l.nextToken().type);
+    }
+
+    @Test
+    void returnShouldEqualRETURN() {
+        var l = new Lexer("return");
+        assertEquals(Token.RETURN, l.nextToken().type);
+    }
+
+    @Test
+    void addTwoNumbersLexerTestShouldReadSuccessfully() {
         String input = """
         let five = 5;
         let ten = 10;
@@ -200,7 +245,7 @@ public class LexerTest {
     }
 
     @Test
-    void ifElseLexerTextShouldParseSuccessfully() {
+    void ifElseLexerTextShouldReadSuccessfully() {
         String input = """
         !-/*5;
         5 < 10 > 5;
@@ -240,7 +285,32 @@ public class LexerTest {
             Token.RETURN,
             Token.FALSE,
             Token.SEMICOLON,
-            Token.RBRACE
+            Token.RBRACE,
+            Token.EOF
+        };
+
+        var l = new Lexer(input);
+        for (int i = 0; i < expectedOutput.length; i++) {
+            Token tok = l.nextToken();
+            assertEquals(expectedOutput[i], tok.type);
+        }
+    }
+
+    @Test
+    void equalityLexerTestShouldBeReadSuccessfully(){
+        String input = """
+            10 == 10;
+            10 != 9;""";
+        String expectedOutput[] = {
+            Token.INT,
+            Token.EQ,
+            Token.INT,
+            Token.SEMICOLON,
+            Token.INT,
+            Token.NOTEQ,
+            Token.INT,
+            Token.SEMICOLON,
+            Token.EOF
         };
 
         var l = new Lexer(input);

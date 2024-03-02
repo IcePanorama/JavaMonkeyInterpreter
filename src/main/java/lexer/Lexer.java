@@ -22,6 +22,13 @@ public class Lexer {
         readPosition++;
     }
 
+    char peekChar() {
+        if (readPosition >= input.length()) {
+            return '\0';
+        }
+        return input.charAt(readPosition);
+    }
+
     Token nextToken () {
         Token token = null;
 
@@ -32,6 +39,12 @@ public class Lexer {
                 token = new Token(Token.EOF, Character.toString(ch));
                 break;
             case '=':
+                if (peekChar() == '=') {
+                    char firstCh = ch;
+                    readChar();
+                    token = new Token(Token.EQ, firstCh + "" + ch);
+                    break;
+                }
                 token = new Token(Token.ASSIGN, Character.toString(ch));
                 break;
             case '+':
@@ -41,6 +54,12 @@ public class Lexer {
                 token = new Token(Token.MINUS, Character.toString(ch));
                 break;
             case '!':
+                if (peekChar() == '=') {
+                    char firstCh = ch;
+                    readChar();
+                    token = new Token(Token.NOTEQ, firstCh + "" + ch);
+                    break;
+                }
                 token = new Token(Token.BANG, Character.toString(ch));
                 break;
             case '*':

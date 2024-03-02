@@ -25,6 +25,8 @@ public class Token {
     public final static String RBRACE = "}";
     public final static String LT = "<";
     public final static String GT = ">";
+    public final static String EQ = "==";
+    public final static String NOTEQ = "!=";
     public final static String FUNCTION = "FUNCTION";
     public final static String LET = "LET";
     public final static String TRUE = "TRUE";
