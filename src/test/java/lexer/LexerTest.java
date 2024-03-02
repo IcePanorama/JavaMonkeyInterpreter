@@ -141,7 +141,7 @@ public class LexerTest {
     }
 
     @Test
-    void addTwoNumbersLexerTestShouldPass() {
+    void addTwoNumbersLexerTestShouldParseSucessfully() {
         String input = """
         let five = 5;
         let ten = 10;
@@ -194,6 +194,57 @@ public class LexerTest {
 
         var l = new Lexer(input);
         for (int i = 0; i < expectedOutput.length; i++){
+            Token tok = l.nextToken();
+            assertEquals(expectedOutput[i], tok.type);
+        }
+    }
+
+    @Test
+    void ifElseLexerTextShouldParseSuccessfully() {
+        String input = """
+        !-/*5;
+        5 < 10 > 5;
+        
+        if (5 < 10) {
+            return true;
+        } else {
+            return false;
+        }
+        """;
+        String expectedOutput[] = {
+            Token.BANG,
+            Token.MINUS,
+            Token.SLASH,
+            Token.ASTERISK,
+            Token.INT,
+            Token.SEMICOLON,
+            Token.INT,
+            Token.LT,
+            Token.INT,
+            Token.GT,
+            Token.INT,
+            Token.SEMICOLON,
+            Token.IF,
+            Token.LPAREN,
+            Token.INT,
+            Token.LT,
+            Token.INT,
+            Token.RPAREN,
+            Token.LBRACE,
+            Token.RETURN,
+            Token.TRUE,
+            Token.SEMICOLON,
+            Token.RBRACE,
+            Token.ELSE,
+            Token.LBRACE,
+            Token.RETURN,
+            Token.FALSE,
+            Token.SEMICOLON,
+            Token.RBRACE
+        };
+
+        var l = new Lexer(input);
+        for (int i = 0; i < expectedOutput.length; i++) {
             Token tok = l.nextToken();
             assertEquals(expectedOutput[i], tok.type);
         }

@@ -27,9 +27,19 @@ public class Token {
     public final static String GT = ">";
     public final static String FUNCTION = "FUNCTION";
     public final static String LET = "LET";
+    public final static String TRUE = "TRUE";
+    public final static String FALSE = "FALSE";
+    public final static String IF = "IF";
+    public final static String ELSE = "ELSE";
+    public final static String RETURN = "RETURN";
     public final static Map<String, String> keywords = Map.of(
         "fn", FUNCTION, 
-        "let", LET
+        "let", LET,
+        "true", TRUE,
+        "false", FALSE,
+        "if", IF,
+        "else", ELSE,
+        "return", RETURN
     );
 
     public Token (String type, String literal){
