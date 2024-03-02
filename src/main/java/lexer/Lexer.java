@@ -28,8 +28,29 @@ public class Lexer {
         skipWhitespace();
 
         switch (ch) {
+            case '\0':
+                token = new Token(Token.EOF, Character.toString(ch));
+                break;
             case '=':
                 token = new Token(Token.ASSIGN, Character.toString(ch));
+                break;
+            case '+':
+                token = new Token(Token.PLUS, Character.toString(ch));
+                break;
+            case '-':
+                token = new Token(Token.MINUS, Character.toString(ch));
+                break;
+            case '!':
+                token = new Token(Token.BANG, Character.toString(ch));
+                break;
+            case '*':
+                token = new Token(Token.ASTERISK, Character.toString(ch));
+                break;
+            case '/':
+                token = new Token(Token.SLASH, Character.toString(ch));
+                break;
+            case ',':
+                token = new Token(Token.COMMA, Character.toString(ch));
                 break;
             case ';':
                 token = new Token(Token.SEMICOLON, Character.toString(ch));
@@ -40,20 +61,17 @@ public class Lexer {
             case ')':
                 token = new Token(Token.RPAREN, Character.toString(ch));
                 break;
-            case ',':
-                token = new Token(Token.COMMA, Character.toString(ch));
-                break;
-            case '+':
-                token = new Token(Token.PLUS, Character.toString(ch));
-                break;
             case '{':
                 token = new Token(Token.LBRACE, Character.toString(ch));
                break;
             case '}':
                 token = new Token(Token.RBRACE, Character.toString(ch));
                 break;
-            case '\0':
-                token = new Token(Token.EOF, Character.toString(ch));
+            case '<':
+                token = new Token(Token.LT, Character.toString(ch));
+                break;
+            case '>':
+                token = new Token(Token.GT, Character.toString(ch));
                 break;
             default:
                 if (isLetter(ch)) {

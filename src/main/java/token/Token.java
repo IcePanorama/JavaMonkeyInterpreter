@@ -13,12 +13,18 @@ public class Token {
     public final static String INT = "INT";
     public final static String ASSIGN = "=";
     public final static String PLUS = "+";
+    public final static String MINUS = "-";
+    public final static String BANG = "!";
+    public final static String ASTERISK = "*";
+    public final static String SLASH = "/";
     public final static String COMMA = ",";
     public final static String SEMICOLON = ";";
     public final static String LPAREN = "(";
     public final static String RPAREN = ")";
     public final static String LBRACE = "{";
     public final static String RBRACE = "}";
+    public final static String LT = "<";
+    public final static String GT = ">";
     public final static String FUNCTION = "FUNCTION";
     public final static String LET = "LET";
     public final static Map<String, String> keywords = Map.of(

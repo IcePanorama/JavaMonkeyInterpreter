@@ -8,6 +8,27 @@ import token.Token;
 
 public class LexerTest {
     @Test
+    void eofShouldEqualEOF() {
+        String input = "";
+        var l = new Lexer(input);
+        assertEquals(Token.EOF, l.nextToken().type);
+    }
+
+    @Test
+    void identFiveShouldEqualIDENT() {
+        String input = "five";
+        var l = new Lexer(input);
+        assertEquals(Token.IDENT, l.nextToken().type);
+    }
+
+    @Test
+    void numFiveShouldEqualINT() {
+        String input = "5";
+        var l = new Lexer(input);
+        assertEquals(Token.INT, l.nextToken().type);
+    }
+
+    @Test
     void assignShouldEqualASSIGN() {
         String input = "=";
         var l = new Lexer(input);
@@ -22,17 +43,31 @@ public class LexerTest {
     }
 
     @Test
-    void lparenShouldEqualLPAREN() {
-        String input = "(";
+    void minusShouldEqualMINUS() {
+        String input = "-";
         var l = new Lexer(input);
-        assertEquals(Token.LPAREN, l.nextToken().type);
+        assertEquals(Token.MINUS, l.nextToken().type);
     }
 
     @Test
-    void rparenShouldEqualRPAREN() {
-        String input = ")";
+    void exclamationShouldEqualBang() {
+        String input = "!";
         var l = new Lexer(input);
-        assertEquals(Token.RPAREN, l.nextToken().type);
+        assertEquals(Token.BANG, l.nextToken().type);
+    }
+
+    @Test
+    void asteriskShouldEqualASTERISK() {
+        String input = "*";
+        var l = new Lexer(input);
+        assertEquals(Token.ASTERISK, l.nextToken().type);
+    }
+
+    @Test
+    void slashShouldEqualSLASH() {
+        String input = "/";
+        var l = new Lexer(input);
+        assertEquals(Token.SLASH, l.nextToken().type);
     }
 
     @Test
@@ -50,10 +85,45 @@ public class LexerTest {
     }
 
     @Test
-    void eofShouldEqualEOF() {
-        String input = "";
+    void lparenShouldEqualLPAREN() {
+        String input = "(";
         var l = new Lexer(input);
-        assertEquals(Token.EOF, l.nextToken().type);
+        assertEquals(Token.LPAREN, l.nextToken().type);
+    }
+
+    @Test
+    void rparenShouldEqualRPAREN() {
+        String input = ")";
+        var l = new Lexer(input);
+        assertEquals(Token.RPAREN, l.nextToken().type);
+    }
+
+    @Test
+    void lbraceShouldEqualLBRACE() {
+        String input = "{";
+        var l = new Lexer(input);
+        assertEquals(Token.LBRACE, l.nextToken().type);
+    }
+
+    @Test
+    void rbraceShouldEqualRBRACE() {
+        String input = "}";
+        var l = new Lexer(input);
+        assertEquals(Token.RBRACE, l.nextToken().type);
+    }
+
+    @Test
+    void lessThanShouldEqualLT() {
+        String input = "<";
+        var l = new Lexer(input);
+        assertEquals(Token.LT, l.nextToken().type);
+    }
+
+    @Test
+    void greaterThanShouldEqualGT() {
+        String input = ">";
+        var l = new Lexer(input);
+        assertEquals(Token.GT, l.nextToken().type);
     }
 
     @Test
@@ -61,20 +131,6 @@ public class LexerTest {
         String input = "let";
         var l = new Lexer(input);
         assertEquals(Token.LET, l.nextToken().type);
-    }
-
-    @Test
-    void identFiveShouldEqualIDENT() {
-        String input = "five";
-        var l = new Lexer(input);
-        assertEquals(Token.IDENT, l.nextToken().type);
-    }
-
-    @Test
-    void numFiveShouldEqualINT() {
-        String input = "5";
-        var l = new Lexer(input);
-        assertEquals(Token.INT, l.nextToken().type);
     }
 
     @Test
