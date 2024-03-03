@@ -8,7 +8,7 @@ public class Lexer {
     int readPosition;   // after current char
     char ch;
 
-    Lexer (String input){
+    public Lexer (String input){
         this.input = input;
         readChar();
     }
@@ -29,7 +29,7 @@ public class Lexer {
         return input.charAt(readPosition);
     }
 
-    Token nextToken () {
+    public Token nextToken () {
         Token token = null;
 
         skipWhitespace();

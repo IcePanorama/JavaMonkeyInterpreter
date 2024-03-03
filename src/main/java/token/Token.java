@@ -65,4 +65,9 @@ public class Token {
         }
         return IDENT;
     }
+
+    @Override
+    public String toString() {
+        return "{Type:" + type + " Literal:" + literal+ "}";
+    }
 }
