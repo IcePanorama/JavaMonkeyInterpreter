@@ -42,12 +42,12 @@ public class ParserTest {
         if (program == null){
             fail("parseProgram() returned null.");
         }
-        if (program.statements.length != 3){
+        if (program.statements.size() != 3){
             fail("program.Statements does not contain 3 statements.");
         }
 
-        for (int i = 0; i < input.length(); i++){
-            Statement stmt = program.statements[i];
+        for (int i = 0; i < expectedOutput.length; i++){
+            Statement stmt = program.statements.get(i);
             testLetStatement(stmt, expectedOutput[i]);
         }
     }

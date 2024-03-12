@@ -1,11 +1,13 @@
 package ast;
 
+import java.util.ArrayList;
+
 public class Program {
-    public Statement statements[];
+    public ArrayList<Statement> statements;
 
     String TokenLiteral() {
-        if (statements.length > 0){
-            return statements[0].TokenLiteral();
+        if (statements.size() > 0){
+            return statements.get(0).TokenLiteral();
         }
         return "";
     }

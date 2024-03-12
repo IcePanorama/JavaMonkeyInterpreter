@@ -7,6 +7,10 @@ public class LetStatement implements Statement {
     public Identifier name;
     Expression value;
 
+    public LetStatement(Token token){
+        this.token = token;
+    }
+
     public void statementNode(){
         return;
     }
