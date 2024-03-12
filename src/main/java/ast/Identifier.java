@@ -2,9 +2,9 @@ package ast;
 
 import token.Token;
 
-class Identifier implements Expression {
+public class Identifier implements Expression {
     Token token;
-    String value;
+    public String value;
 
     public void expressionNode() {
         return;

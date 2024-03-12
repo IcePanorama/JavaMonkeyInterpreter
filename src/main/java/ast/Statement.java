@@ -1,5 +1,5 @@
 package ast;
 
-interface Statement extends Node{
+public interface Statement extends Node{
     void statementNode();
 }

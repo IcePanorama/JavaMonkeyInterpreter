@@ -1,8 +1,8 @@
 package parser;
 
 import lexer.Lexer;
-import token.Token;
 import ast.Program;
+import token.Token;
 
 class Parser {
     Lexer l;

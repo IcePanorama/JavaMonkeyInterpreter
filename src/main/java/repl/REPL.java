@@ -24,5 +24,7 @@ public class REPL {
                     System.out.printf("%s\n", tok.toString());
             }
         }
+
+        scnr.close();
     }
 }

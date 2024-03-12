@@ -1,7 +1,7 @@
 package ast;
 
 public class Program {
-    Statement statements[];
+    public Statement statements[];
 
     String TokenLiteral() {
         if (statements.length > 0){

@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import token.Token;
 
-public class LexerTest {
-    void testMultilineInput(String input, String[] expectedOutput) {
-        var l = new Lexer(input);
+public class LexerTest{
+    public static void testMultilineInput(String output, String[] expectedOutput) {
+        var l = new Lexer(output);
         for (int i = 0; i < expectedOutput.length; i++) {
             Token tok = l.nextToken();
             assertEquals(expectedOutput[i], tok.type);

@@ -2,9 +2,9 @@ package ast;
 
 import token.Token;
 
-class LetStatement implements Statement {
+public class LetStatement implements Statement {
     Token token;
-    Identifier name;
+    public Identifier name;
     Expression value;
 
     public void statementNode(){
