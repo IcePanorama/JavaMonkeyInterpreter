@@ -43,19 +43,20 @@ class Parser {
 
     LetStatement parseLetStatement(){
         LetStatement stmt = new LetStatement(curToken);
-        if (!expectPeek(new Token(Token.IDENT, ""))){
+
+        if (!expectPeek(new Token(Token.IDENT))){
             return null;
         }
 
         stmt.name = new Identifier(curToken, curToken.literal);
 
-        if (!expectPeek(new Token(Token.ASSIGN, ""))){
+        if (!expectPeek(new Token(Token.ASSIGN))){
             return null;
         }
 
         //TODO: We're skipping the expressions
         //      until we encounter a semicolon
-        while (curTokenIs(new Token(Token.SEMICOLON, ""))){
+        while (!curTokenIs(new Token(Token.SEMICOLON))){
             nextToken();
         }
         
@@ -75,7 +76,7 @@ class Parser {
         Program program = new Program();
         program.statements = new ArrayList<Statement>();
 
-        while (curToken.type != Token.EOF){
+        while (!curTokenIs(new Token(Token.EOF))){
             Statement stmt = parseStatement();
             if (stmt != null){
                 program.statements.add(stmt);

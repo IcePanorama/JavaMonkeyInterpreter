@@ -44,6 +44,10 @@ public class Token {
         "return", RETURN
     );
 
+    public Token (String type){
+        this.type = type;
+    }
+
     public Token (String type, String literal){
         this.type = type;
         this.literal = literal;
