@@ -4,7 +4,7 @@ import java.util.Map;
 
 public class Token {
     public String type;
-    String literal;
+    public String literal;
 
     /* Token Types */
     public final static String ILLEGAL = "ILLEGAL";
