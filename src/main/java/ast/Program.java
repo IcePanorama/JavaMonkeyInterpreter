@@ -1,6 +1,6 @@
 package ast;
 
-class Program {
+public class Program {
     Statement statements[];
 
     String TokenLiteral() {
