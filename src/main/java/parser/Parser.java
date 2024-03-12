@@ -13,9 +13,11 @@ class Parser {
     Lexer l;
     Token curToken;
     Token peekToken;
+    ArrayList<String> errors;
 
     Parser(Lexer l) {
         this.l = l;
+        errors = new ArrayList<String>();
         nextToken();
         nextToken();
     }
@@ -38,6 +40,7 @@ class Parser {
             nextToken();
             return true;
         }
+        peekError(t);
         return false;
     }
 
@@ -86,4 +89,10 @@ class Parser {
 
         return program;
     }
+
+    void peekError(Token t){
+        String msg = String.format("Expected next token to be %s, got %s.", t, 
+                                    peekToken.type);
+        errors.add(msg);
+    } 
 }

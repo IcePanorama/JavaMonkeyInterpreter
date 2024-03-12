@@ -72,6 +72,9 @@ public class Token {
 
     @Override
     public String toString() {
+        if (literal == null){
+            return type;
+        }
         return "{Type:" + type + " Literal:" + literal+ "}";
     }
 }

@@ -12,8 +12,6 @@ import ast.LetStatement;
 
 public class ParserTest {
     void testLetStatement(Statement s, String name){
-        // Should this func even return anything if 
-        // we're gonna use fail anyways?
         assertEquals(s.TokenLiteral(), "let");
 
         assertInstanceOf(LetStatement.class, s);
@@ -39,16 +37,33 @@ public class ParserTest {
         var l = new Lexer(input);
         var p = new Parser(l);
         var program = p.parseProgram();
+        checkParseErrors(p);
         if (program == null){
             fail("parseProgram() returned null.");
         }
         if (program.statements.size() != 3){
-            fail("program.Statements does not contain 3 statements.");
+            fail(String.format(
+                "program.Statements does not contain 3 statements; got %d.",
+                program.statements.size())
+            );
         }
 
         for (int i = 0; i < expectedOutput.length; i++){
             Statement stmt = program.statements.get(i);
             testLetStatement(stmt, expectedOutput[i]);
         }
+    }
+
+    void checkParseErrors(Parser p){
+        if (p.errors.size() == 0){
+            return;
+        }
+
+        System.err.printf("Parser has %d errors.\n", p.errors.size());
+        for (var err : p.errors){
+            System.err.printf("Parser error: %s\n", err);
+        }
+
+        fail();
     }
 }
