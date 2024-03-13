@@ -23,6 +23,7 @@ class Parser {
         nextToken();
     }
 
+    /* Helper Functions */
     void nextToken() {
         curToken = peekToken;
         peekToken = l.nextToken();
@@ -43,6 +44,39 @@ class Parser {
         }
         peekError(t);
         return false;
+    }
+
+    void peekError(Token t){
+        String msg = String.format("Expected next token to be %s, got %s.", t, 
+                                    peekToken.type);
+        errors.add(msg);
+    } 
+
+    /* Actual Parser Stuff */
+    Program parseProgram() {
+        Program program = new Program();
+        program.statements = new ArrayList<Statement>();
+
+        while (!curTokenIs(new Token(Token.EOF))){
+            Statement stmt = parseStatement();
+            if (stmt != null){
+                program.statements.add(stmt);
+            }
+            nextToken();
+        }
+
+        return program;
+    }
+
+    Statement parseStatement(){
+        switch (curToken.type) {
+            case Token.LET:
+                return parseLetStatement();
+            case Token.RETURN:
+                return parseReturnStatement();
+            default:
+                return null;
+        }
     }
 
     LetStatement parseLetStatement(){
@@ -66,38 +100,6 @@ class Parser {
         
         return stmt;
     }
-
-    Statement parseStatement(){
-        switch (curToken.type) {
-            case Token.LET:
-                return parseLetStatement();
-            case Token.RETURN:
-                return parseReturnStatement();
-            default:
-                return null;
-        }
-    }
-
-    Program parseProgram() {
-        Program program = new Program();
-        program.statements = new ArrayList<Statement>();
-
-        while (!curTokenIs(new Token(Token.EOF))){
-            Statement stmt = parseStatement();
-            if (stmt != null){
-                program.statements.add(stmt);
-            }
-            nextToken();
-        }
-
-        return program;
-    }
-
-    void peekError(Token t){
-        String msg = String.format("Expected next token to be %s, got %s.", t, 
-                                    peekToken.type);
-        errors.add(msg);
-    } 
 
     ReturnStatement parseReturnStatement() {
         ReturnStatement stmt = new ReturnStatement(curToken);
