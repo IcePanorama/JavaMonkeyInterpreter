@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
-import ast.Statement;
 import ast.LetStatement;
+import ast.Statement;
 import ast.ReturnStatement;
 import lexer.Lexer;
 
