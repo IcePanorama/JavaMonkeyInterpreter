@@ -3,6 +3,7 @@ package parser;
 import ast.Identifier;
 import ast.LetStatement;
 import ast.Program;
+import ast.ReturnStatement;
 import ast.Statement;
 import lexer.Lexer;
 import token.Token;
@@ -70,6 +71,8 @@ class Parser {
         switch (curToken.type) {
             case Token.LET:
                 return parseLetStatement();
+            case Token.RETURN:
+                return parseReturnStatement();
             default:
                 return null;
         }
@@ -95,4 +98,17 @@ class Parser {
                                     peekToken.type);
         errors.add(msg);
     } 
+
+    ReturnStatement parseReturnStatement() {
+        ReturnStatement stmt = new ReturnStatement(curToken);
+        nextToken();
+
+        //TODO: We're skipping the expression until
+        //we ecounter a semicolon;
+        while (!(curTokenIs(new Token(Token.SEMICOLON)))){
+            nextToken();
+        }
+
+        return stmt;
+    }
 }
