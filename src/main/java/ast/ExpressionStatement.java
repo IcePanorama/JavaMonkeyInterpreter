@@ -4,7 +4,11 @@ import token.Token;
 
 public class ExpressionStatement implements Statement{
    Token token; 
-   Expression expression;
+   public Expression expression;
+
+   public ExpressionStatement(Token token) {
+      this.token = token;
+   }
 
    public void statementNode() {}
 

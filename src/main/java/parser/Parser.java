@@ -1,5 +1,7 @@
 package parser;
 
+import ast.Expression;
+import ast.ExpressionStatement;
 import ast.Identifier;
 import ast.LetStatement;
 import ast.Program;
@@ -9,16 +11,32 @@ import lexer.Lexer;
 import token.Token;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class Parser {
     Lexer l;
     Token curToken;
     Token peekToken;
     ArrayList<String> errors;
+    HashMap<String, PrefixParseFn> prefixParseFns;
+    HashMap<String, InfixParseFn> infixParseFns;
+
+    private static enum ExpressionType {
+        //_t,
+        LOWEST,
+        EQUALS,
+        LESSGREATER,
+        SUM,
+        PRODUCT,
+        PREFIX,
+        CALL
+    };
 
     Parser(Lexer l) {
         this.l = l;
         errors = new ArrayList<String>();
+        prefixParseFns = new HashMap<>();
+        registerPrefix(Token.IDENT, this::parseIdentifier);
         nextToken();
         nextToken();
     }
@@ -75,7 +93,7 @@ class Parser {
             case Token.RETURN:
                 return parseReturnStatement();
             default:
-                return null;
+                return parseExpressionStatement();
         }
     }
 
@@ -112,5 +130,36 @@ class Parser {
         }
 
         return stmt;
+    }
+
+    void registerPrefix(String tokenType, PrefixParseFn fn) {
+        this.prefixParseFns.put(tokenType, fn);
+    }
+
+    void registerInfix(String tokenType, InfixParseFn fn) {
+        this.infixParseFns.put(tokenType, fn);
+    }
+
+    ExpressionStatement parseExpressionStatement() {
+        ExpressionStatement stmt = new ExpressionStatement(curToken);
+        stmt.expression = parseExpression(ExpressionType.LOWEST);
+
+        if (peekTokenIs(new Token(Token.SEMICOLON))) {
+            nextToken();
+        }
+
+        return stmt;
+    }
+
+    private Expression parseExpression(ExpressionType precedence) {
+        var prefix = prefixParseFns.get(curToken.type);
+        if (prefix == null)
+            return null;
+
+        return prefix.call();
+    } 
+
+    private Expression parseIdentifier() {
+        return new Identifier(curToken, curToken.literal);
     }
 }
