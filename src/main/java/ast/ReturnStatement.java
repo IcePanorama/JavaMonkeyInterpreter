@@ -17,4 +17,13 @@ public class ReturnStatement implements Statement{
     public String TokenLiteral() {
         return token.literal;
     }
+
+    public String toString() {
+        String output = TokenLiteral() + " ";
+        if (returnValue != null)
+        {
+            output += returnValue.toString();
+        }
+        return output + ";";
+    }
 }

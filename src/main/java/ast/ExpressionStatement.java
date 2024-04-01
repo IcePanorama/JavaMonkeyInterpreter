@@ -11,4 +11,8 @@ public class ExpressionStatement implements Statement{
    public String TokenLiteral() {
     return token.literal;
    }
+
+   public String toString() {
+      return expression == null ? "" : expression.toString();
+   }
 }

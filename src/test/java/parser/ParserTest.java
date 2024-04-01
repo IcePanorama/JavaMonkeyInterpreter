@@ -94,4 +94,16 @@ public class ParserTest {
             assertEquals(returnStmt.TokenLiteral(), "return");
         }
     }
+
+    @Test
+    void toStringReturnsInputAsString() {
+        String input = "let myVar = anotherVar;";
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        assertEquals(input, prog.toString());
+    }
 }
