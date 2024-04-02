@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import ast.ExpressionStatement;
 import ast.Identifier;
 import ast.LetStatement;
+import ast.Program;
 import ast.Statement;
 import ast.ReturnStatement;
 import lexer.Lexer;
@@ -35,6 +36,15 @@ public class ParserTest {
         }
 
         fail();
+    }
+
+    void checkProgHasExpectedNumStatements(Program p, int expectedNoStmts) {
+        if (p.statements.size() != expectedNoStmts) {
+            fail(String.format(
+                    "Program doesn't have enough statements. Got %d.", 
+                    p.statements.size()
+                ));
+        }
     }
 
     @Test
@@ -118,12 +128,7 @@ public class ParserTest {
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        if (prog.statements.size() != 1) {
-            fail(String.format(
-                    "Program doesn't have enough statements. Got %d.", 
-                    prog.statements.size()
-                ));
-        }
+        checkProgHasExpectedNumStatements(prog, 1);
 
         var stmt = prog.statements.get(0);
         assertInstanceOf(ExpressionStatement.class, stmt);
@@ -134,5 +139,27 @@ public class ParserTest {
         var val = (Identifier)(ident);
         assertEquals("foobar", val.toString());
         assertEquals("foobar", val.TokenLiteral());
+    }
+
+    @Test
+    void exampleIntegerLiteralExpressionTest() {
+        String input = "5;";
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        checkProgHasExpectedNumStatements(prog, 1);
+        
+        var stmt = prog.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+
+        var literal = ((ExpressionStatement)(stmt)).TokenLiteral();
+        assertInstanceOf(IntegerLiteral.class, literal);
+
+        var value = ((IntegerLiteral)(literal)).value;
+        assertEquals(5, value);
+        assertEquals("foobar", value.TokenLiteral());
     }
 }
