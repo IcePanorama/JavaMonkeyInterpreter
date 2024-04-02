@@ -3,6 +3,7 @@ package parser;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.Identifier;
+import ast.IntegerLiteral;
 import ast.LetStatement;
 import ast.Program;
 import ast.ReturnStatement;
@@ -35,8 +36,11 @@ class Parser {
     Parser(Lexer l) {
         this.l = l;
         errors = new ArrayList<String>();
+
         prefixParseFns = new HashMap<>();
         registerPrefix(Token.IDENT, this::parseIdentifier);
+        registerPrefix(Token.INT, this::parseIntegerLiteral);
+
         nextToken();
         nextToken();
     }
@@ -161,5 +165,24 @@ class Parser {
 
     private Expression parseIdentifier() {
         return new Identifier(curToken, curToken.literal);
+    }
+
+    private Expression parseIntegerLiteral() {
+        var lit = new IntegerLiteral(curToken);
+
+        long value;
+        try {
+            value = Long.parseLong(curToken.literal);
+        }
+        catch (NumberFormatException e) {
+            errors.add(String.format(
+                        "Could not parse %s as a long.",
+                        curToken.literal
+                    ));
+            return null;
+        }
+
+        lit.value = value;
+        return lit;
     }
 }

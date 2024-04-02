@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import ast.ExpressionStatement;
 import ast.Identifier;
+import ast.IntegerLiteral;
 import ast.LetStatement;
 import ast.Program;
 import ast.Statement;
@@ -155,11 +156,11 @@ public class ParserTest {
         var stmt = prog.statements.get(0);
         assertInstanceOf(ExpressionStatement.class, stmt);
 
-        var literal = ((ExpressionStatement)(stmt)).TokenLiteral();
+        var literal = ((ExpressionStatement)(stmt)).expression;
         assertInstanceOf(IntegerLiteral.class, literal);
 
         var value = ((IntegerLiteral)(literal)).value;
         assertEquals(5, value);
-        assertEquals("foobar", value.TokenLiteral());
+        assertEquals("5", ((IntegerLiteral)(literal)).TokenLiteral());
     }
 }
