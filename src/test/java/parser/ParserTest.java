@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
+import ast.Expression;
 import ast.ExpressionStatement;
 import ast.Identifier;
 import ast.IntegerLiteral;
@@ -162,5 +163,39 @@ public class ParserTest {
         var value = ((IntegerLiteral)(literal)).value;
         assertEquals(5, value);
         assertEquals("5", ((IntegerLiteral)(literal)).TokenLiteral());
+    }
+
+    @Test
+    void examplePrefixExpressionTest() {
+        String input = "!5; -15;";
+        String[] operators = { "!", "-" };
+        long[] integerValues = { 5, 15 };
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        checkProgHasExpectedNumStatements(prog, 2);
+
+        for (int i = 0; i < prog.statements.size(); i++) {
+            var stmt = prog.statements.get(i);
+            // is it worth moving this one line to a new func?
+            assertInstanceOf(ExpressionStatement.class, stmt);
+
+            var expression = ((ExpressionStatement)(stmt)).expression;
+            assertInstanceOf(PrefixExpression.class, literal);
+
+            assertEquals(operators[i], expression.Operator);
+            testIntegerLiteral(expression.Right, integerValues[i]);
+        }
+    }
+
+    void testIntegerLiteral(Expression intLiteral, long value) {
+        assertInstanceOf(IntegerLiteral.class, intLiteral);
+        
+        var integer = (IntegerLiteral)intLiteral;
+        assertEquals(value, integer.value);
+        assertEquals(String.format("%ld", value), integer.TokenLiteral());
     }
 }
