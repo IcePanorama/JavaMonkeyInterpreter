@@ -5,6 +5,7 @@ import ast.ExpressionStatement;
 import ast.Identifier;
 import ast.IntegerLiteral;
 import ast.LetStatement;
+import ast.PrefixExpression;
 import ast.Program;
 import ast.ReturnStatement;
 import ast.Statement;
@@ -40,6 +41,8 @@ class Parser {
         prefixParseFns = new HashMap<>();
         registerPrefix(Token.IDENT, this::parseIdentifier);
         registerPrefix(Token.INT, this::parseIntegerLiteral);
+        registerPrefix(Token.BANG, this::parsePrefixExpression);
+        registerPrefix(Token.MINUS, this::parsePrefixExpression);
 
         nextToken();
         nextToken();
@@ -157,11 +160,21 @@ class Parser {
 
     private Expression parseExpression(ExpressionType precedence) {
         var prefix = prefixParseFns.get(curToken.type);
-        if (prefix == null)
+
+        if (prefix == null) {
+            noPrefixParseFnError(curToken.type);
             return null;
+        }
 
         return prefix.call();
-    } 
+    }
+
+    private void noPrefixParseFnError(String tokenType) {
+        errors.add(String.format(
+                    "No prefix parse function for %s found.", 
+                    tokenType)
+                );
+    }
 
     private Expression parseIdentifier() {
         return new Identifier(curToken, curToken.literal);
@@ -184,5 +197,13 @@ class Parser {
 
         lit.value = value;
         return lit;
+    }
+
+    Expression parsePrefixExpression() {
+        PrefixExpression expr = new PrefixExpression(curToken, 
+                                                     curToken.literal);
+        nextToken();
+        expr.right = parseExpression(ExpressionType.PREFIX);
+        return expr;
     }
 }

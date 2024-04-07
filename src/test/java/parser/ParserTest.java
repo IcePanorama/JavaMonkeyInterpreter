@@ -170,14 +170,14 @@ public class ParserTest {
     void examplePrefixExpressionTest() {
         String input = "!5; -15;";
         String[] operators = { "!", "-" };
-        long[] integerValues = { 5, 15 };
+        long[] integerValues = { 5L, 15L };
 
         var l = new Lexer(input);
         var p = new Parser(l);
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        checkProgHasExpectedNumStatements(prog, 1);
+        checkProgHasExpectedNumStatements(prog, 2);
 
         for (int i = 0; i < prog.statements.size(); i++) {
             var stmt = prog.statements.get(i);
@@ -187,8 +187,10 @@ public class ParserTest {
             var expression = ((ExpressionStatement)(stmt)).expression;
             assertInstanceOf(PrefixExpression.class, expression);
 
-            assertEquals(operators[i], expression.operator);
-            testIntegerLiteral(expression.right, integerValues[i]);
+            var prefixExpr = (PrefixExpression)expression;
+            assertEquals(operators[i], prefixExpr.operator);
+            System.out.println(prefixExpr.right + " " + integerValues[i]);
+            testIntegerLiteral(prefixExpr.right, integerValues[i]);
         }
     }
 
@@ -197,6 +199,6 @@ public class ParserTest {
         
         var integer = (IntegerLiteral)intLiteral;
         assertEquals(value, integer.value);
-        assertEquals(String.format("%ld", value), integer.TokenLiteral());
+        assertEquals(String.format("%d", value), integer.TokenLiteral());
     }
 }
