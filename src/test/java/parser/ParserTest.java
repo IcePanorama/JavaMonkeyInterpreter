@@ -11,6 +11,7 @@ import ast.ExpressionStatement;
 import ast.Identifier;
 import ast.IntegerLiteral;
 import ast.LetStatement;
+import ast.PrefixExpression;
 import ast.Program;
 import ast.Statement;
 import ast.ReturnStatement;
@@ -176,7 +177,7 @@ public class ParserTest {
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        checkProgHasExpectedNumStatements(prog, 2);
+        checkProgHasExpectedNumStatements(prog, 1);
 
         for (int i = 0; i < prog.statements.size(); i++) {
             var stmt = prog.statements.get(i);
@@ -184,10 +185,10 @@ public class ParserTest {
             assertInstanceOf(ExpressionStatement.class, stmt);
 
             var expression = ((ExpressionStatement)(stmt)).expression;
-            assertInstanceOf(PrefixExpression.class, literal);
+            assertInstanceOf(PrefixExpression.class, expression);
 
-            assertEquals(operators[i], expression.Operator);
-            testIntegerLiteral(expression.Right, integerValues[i]);
+            assertEquals(operators[i], expression.operator);
+            testIntegerLiteral(expression.right, integerValues[i]);
         }
     }
 
