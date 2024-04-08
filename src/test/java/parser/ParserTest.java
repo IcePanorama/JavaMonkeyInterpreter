@@ -50,6 +50,7 @@ public class ParserTest {
         }
     }
 
+//TODO: Refactor test. Write more proper tests w/ better coverage
     @Test
     void testLetStatements() {
         String input = """
@@ -200,5 +201,70 @@ public class ParserTest {
         var integer = (IntegerLiteral)intLiteral;
         assertEquals(value, integer.value);
         assertEquals(String.format("%d", value), integer.TokenLiteral());
+    }
+
+    @Test
+    void exampleInfixExpressionTest() {
+        String input = """
+            5 + 5;
+            5 - 5;
+            5 * 5;
+            5 / 5;
+            5 > 5;
+            5 < 5;
+            5 == 5;
+            5 != 5;
+        """;
+        long[] leftValues = {
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5
+        };
+        String[] operators = {
+            "+",
+            "-",
+            "*",
+            "/",
+            ">",
+            "<",
+            "==",
+            "!=",
+        };
+        long[] rightValues = {
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5
+        };
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        checkProgHasExpectedNumStatements(prog, 8);
+        for (int i = 0; i < prog.statements.size(); i++) {
+            var stmt = prog.statements.get(i);
+            assertInstanceOf(ExpressionStatement.class,
+                             stmt);
+
+            ExpressionStatement exprStmt = (ExpressionStatement)stmt;
+            assertInstanceOf(InfixExpression.class, exprStmt);
+
+            InfixExpression expr = (InfixExpression)exprStmt;
+
+            testIntegerLiteral(expr.left, leftValues[i]);
+            assertEquals(expr.operator, operators[i]);
+            testIntegerLiteral(expr.right, rightValues[i]);
+        }
     }
 }
