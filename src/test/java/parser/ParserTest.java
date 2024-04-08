@@ -50,6 +50,14 @@ public class ParserTest {
         }
     }
 
+    void testIntegerLiteral(Expression intLiteral, long value) {
+        assertInstanceOf(IntegerLiteral.class, intLiteral);
+        
+        var integer = (IntegerLiteral)intLiteral;
+        assertEquals(value, integer.value);
+        assertEquals(String.format("%d", value), integer.TokenLiteral());
+    }
+
 //TODO: Refactor test. Write more proper tests w/ better coverage
     @Test
     void testLetStatements() {
@@ -193,14 +201,6 @@ public class ParserTest {
             System.out.println(prefixExpr.right + " " + integerValues[i]);
             testIntegerLiteral(prefixExpr.right, integerValues[i]);
         }
-    }
-
-    void testIntegerLiteral(Expression intLiteral, long value) {
-        assertInstanceOf(IntegerLiteral.class, intLiteral);
-        
-        var integer = (IntegerLiteral)intLiteral;
-        assertEquals(value, integer.value);
-        assertEquals(String.format("%d", value), integer.TokenLiteral());
     }
 
     @Test
