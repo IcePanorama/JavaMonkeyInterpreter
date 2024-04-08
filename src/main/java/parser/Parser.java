@@ -16,14 +16,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 class Parser {
-    Lexer l;
-    Token curToken;
-    Token peekToken;
+    private Lexer l;
+    private Token curToken;
+    private Token peekToken;
     ArrayList<String> errors;
-    HashMap<String, PrefixParseFn> prefixParseFns;
-    HashMap<String, InfixParseFn> infixParseFns;
-
-    private static enum ExpressionType {
+    private HashMap<String, PrefixParseFn> prefixParseFns;
+    private HashMap<String, InfixParseFn> infixParseFns;
+    private enum ExpressionType {
         //_t,
         LOWEST,
         EQUALS,
