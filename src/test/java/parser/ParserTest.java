@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.Identifier;
+import ast.InfixExpression;
 import ast.IntegerLiteral;
 import ast.LetStatement;
 import ast.PrefixExpression;
@@ -257,7 +258,7 @@ public class ParserTest {
             assertInstanceOf(ExpressionStatement.class,
                              stmt);
 
-            ExpressionStatement exprStmt = (ExpressionStatement)stmt;
+            Expression exprStmt = ((ExpressionStatement)stmt).expression;
             assertInstanceOf(InfixExpression.class, exprStmt);
 
             InfixExpression expr = (InfixExpression)exprStmt;
