@@ -3,6 +3,7 @@ package parser;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.Identifier;
+import ast.InfixExpression;
 import ast.IntegerLiteral;
 import ast.LetStatement;
 import ast.PrefixExpression;
@@ -14,6 +15,7 @@ import token.Token;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 class Parser {
     private Lexer l;
@@ -22,6 +24,7 @@ class Parser {
     ArrayList<String> errors;
     private HashMap<String, PrefixParseFn> prefixParseFns;
     private HashMap<String, InfixParseFn> infixParseFns;
+    private HashMap<String, ExpressionType> precedences;
     private enum ExpressionType {
         //_t,
         LOWEST,
@@ -37,11 +40,13 @@ class Parser {
         this.l = l;
         errors = new ArrayList<String>();
 
+        initializePrecedences();
+
         prefixParseFns = new HashMap<>();
-        registerPrefix(Token.IDENT, this::parseIdentifier);
-        registerPrefix(Token.INT, this::parseIntegerLiteral);
-        registerPrefix(Token.BANG, this::parsePrefixExpression);
-        registerPrefix(Token.MINUS, this::parsePrefixExpression);
+        registerPrefixFns();
+
+        infixParseFns = new HashMap<>();
+        registerInfixFns();
 
         nextToken();
         nextToken();
@@ -75,6 +80,28 @@ class Parser {
                                     peekToken.type);
         errors.add(msg);
     } 
+
+    void initializePrecedences() {
+        precedences = new HashMap<>();
+        precedences.put(Token.EQ, ExpressionType.EQUALS);
+        precedences.put(Token.NOTEQ, ExpressionType.EQUALS);
+        precedences.put(Token.LT, ExpressionType.LESSGREATER);
+        precedences.put(Token.GT, ExpressionType.LESSGREATER);
+        precedences.put(Token.PLUS, ExpressionType.SUM);
+        precedences.put(Token.MINUS, ExpressionType.SUM);
+        precedences.put(Token.SLASH, ExpressionType.PRODUCT);
+        precedences.put(Token.ASTERISK, ExpressionType.PRODUCT);
+    }
+
+    ExpressionType peekPrecedence() {
+        ExpressionType p = precedences.get(peekToken.type);
+        return p != null ? p : ExpressionType.LOWEST;
+    }
+
+    ExpressionType curPrecedence() {
+        ExpressionType p = precedences.get(curToken.type);
+        return p != null ? p : ExpressionType.LOWEST;
+    }
 
     /* Actual Parser Stuff */
     Program parseProgram() {
@@ -158,14 +185,26 @@ class Parser {
     }
 
     private Expression parseExpression(ExpressionType precedence) {
-        var prefix = prefixParseFns.get(curToken.type);
-
+        PrefixParseFn prefix = prefixParseFns.get(curToken.type);
         if (prefix == null) {
             noPrefixParseFnError(curToken.type);
             return null;
         }
+        Expression leftExpr = prefix.call();
 
-        return prefix.call();
+        while (!peekTokenIs(new Token(Token.SEMICOLON)) &&
+               precedence.compareTo(peekPrecedence()) < 0) {
+            InfixParseFn infix = infixParseFns.get(peekToken.type);
+            if (infix == null) {
+                return leftExpr;
+            }
+
+            nextToken();
+
+            leftExpr = infix.call(leftExpr);
+        }
+
+        return leftExpr;
     }
 
     private void noPrefixParseFnError(String tokenType) {
@@ -203,6 +242,36 @@ class Parser {
                                                      curToken.literal);
         nextToken();
         expr.right = parseExpression(ExpressionType.PREFIX);
+        return expr;
+    }
+
+    void registerPrefixFns() {
+
+        registerPrefix(Token.IDENT, this::parseIdentifier);
+        registerPrefix(Token.INT, this::parseIntegerLiteral);
+        registerPrefix(Token.BANG, this::parsePrefixExpression);
+        registerPrefix(Token.MINUS, this::parsePrefixExpression);
+    }
+
+    void registerInfixFns() {
+        registerInfix(Token.PLUS, this::parseInfixExpression);
+        registerInfix(Token.MINUS, this::parseInfixExpression);
+        registerInfix(Token.SLASH, this::parseInfixExpression);
+        registerInfix(Token.ASTERISK, this::parseInfixExpression);
+        registerInfix(Token.EQ, this::parseInfixExpression);
+        registerInfix(Token.NOTEQ, this::parseInfixExpression);
+        registerInfix(Token.LT, this::parseInfixExpression);
+        registerInfix(Token.GT, this::parseInfixExpression);
+    }
+
+    Expression parseInfixExpression(Expression left) {
+        InfixExpression expr = new InfixExpression(curToken, curToken.literal,
+                                                   left);
+
+        ExpressionType precedence = curPrecedence();
+        nextToken();
+        expr.right = parseExpression(precedence);
+
         return expr;
     }
 }

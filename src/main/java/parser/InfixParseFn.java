@@ -3,5 +3,5 @@ package parser;
 import ast.Expression;
 
 interface InfixParseFn {
-    Expression call(Expression expression);
+    Expression call(Expression left);
 }

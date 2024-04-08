@@ -8,7 +8,10 @@ public class InfixExpression implements Expression{
     public String operator;
     public Expression right;
 
-    public InfixExpression() {
+    public InfixExpression(Token token, String operator, Expression left) {
+        this.token = token;
+        this.operator = operator;
+        this.left = left;
     }
 
     public void expressionNode() {}
