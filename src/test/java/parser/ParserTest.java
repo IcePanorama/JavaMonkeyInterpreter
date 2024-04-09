@@ -129,7 +129,7 @@ public class ParserTest {
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        assertEquals(input, prog.toString());
+        assertEquals("[" + input + "]", prog.toString());
     }
 
     @Test
@@ -266,6 +266,45 @@ public class ParserTest {
             testIntegerLiteral(expr.left, leftValues[i]);
             assertEquals(expr.operator, operators[i]);
             testIntegerLiteral(expr.right, rightValues[i]);
+        }
+    }
+
+    @Test
+    void exampleTestOperatorPrecedenceParsing() {
+        String[] inputs = {
+            "-a * b",
+            "!-a",
+            "a + b + c",
+            "a + b - c",
+            "a * b * c",
+            "a * b / c",
+            "a + b * c + d / e - f",
+            "3 + 4; -5 * 5",
+            "5 > 4 == 3 < 4",
+            "5 < 4 != 3 > 4",
+            "3 + 4 * 5 == 3 * 1 + 4 * 5"
+        };
+        String[] expectedOutputs = {
+            "[((-a) * b)]",
+            "[(!(-a))]",
+            "[((a + b) + c)]",
+            "[((a + b) - c)]",
+            "[((a * b) * c)]",
+            "[((a * b) / c)]",
+            "[(((a + (b * c)) + (d / e)) - f)]",
+            "[(3 + 4), ((-5) * 5)]",
+            "[((5 > 4) == (3 < 4))]",
+            "[((5 < 4) != (3 > 4))]",
+            "[((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))]"
+        };
+
+        for (int i = 0; i < inputs.length; i++) {
+            var l = new Lexer(inputs[i]);
+            var p = new Parser(l);
+            var prog = p.parseProgram();
+            checkParseErrors(p);
+
+            assertEquals(expectedOutputs[i], prog.toString());
         }
     }
 }
