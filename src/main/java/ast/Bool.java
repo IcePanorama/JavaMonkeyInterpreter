@@ -4,7 +4,7 @@ import token.Token;
 
 public class Bool implements Expression{
     Token token;
-    boolean value;
+    public boolean value;
 
     public Bool () {}
 

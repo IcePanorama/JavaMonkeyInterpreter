@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
+import ast.Bool;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.Identifier;
@@ -17,6 +18,7 @@ import ast.Program;
 import ast.Statement;
 import ast.ReturnStatement;
 import lexer.Lexer;
+import token.Token;
 
 public class ParserTest {
     void testLetStatement(Statement s, String name){
@@ -93,6 +95,15 @@ public class ParserTest {
         testLiteralExpression(opExp.left, left);
         assertEquals(opExp.operator, operator);
         testLiteralExpression(opExp.right, right);
+    }
+
+    void testBoolExpression(Expression expr, String expectedTokenType,
+                            boolean expectedValue) {
+        assertInstanceOf(Bool.class, expr);
+
+        Bool bool = (Bool)expr;
+        assertEquals(expectedTokenType, bool.TokenLiteral());
+        assertEquals(expectedValue, bool.value);
     }
 
 //TODO: Refactor test. Write more proper tests w/ better coverage
@@ -337,5 +348,35 @@ public class ParserTest {
 
             assertEquals(expectedOutputs[i], prog.toString());
         }
+    }
+
+    @Test
+    void boolTrueShouldParseAsTrueExpression() {
+        String input = "true;";
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        Statement stmt = prog.statements.get(0);
+        assertInstanceOf(Expression.class, stmt);
+        Expression expr = (Expression)stmt;
+        testBoolExpression(expr, Token.TRUE, true);
+    }
+
+    @Test
+    void boolFalseShouldParseAsFalseExpression() {
+        String input = "false;";
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        Statement stmt = prog.statements.get(0);
+        assertInstanceOf(Expression.class, stmt);
+        Expression expr = (Expression)stmt;
+        testBoolExpression(expr, Token.FALSE, false);
     }
 }
