@@ -59,6 +59,42 @@ public class ParserTest {
         assertEquals(String.format("%d", value), integer.TokenLiteral());
     }
 
+    void testIdentifier(Expression expr, String value) {
+        assertInstanceOf(Identifier.class, expr);
+        
+        Identifier ident = (Identifier)expr;
+        assertEquals(value, ident.value);
+        assertEquals(value, ident.TokenLiteral());
+    }
+
+    void testLiteralExpression(Expression expr, long expected) {
+        testIntegerLiteral(expr, expected);
+    }
+
+    void testLiteralExpression(Expression expr, String expected) {
+        testIdentifier(expr, expected);
+    }
+
+    void testInfixExpression(Expression expr, long left, String operator,
+                             long right) {
+        assertInstanceOf(InfixExpression.class, expr);
+
+        InfixExpression opExp = (InfixExpression)expr;
+        testLiteralExpression(opExp.left, left);
+        assertEquals(opExp.operator, operator);
+        testLiteralExpression(opExp.right, right);
+    }
+
+    void testInfixExpression(Expression expr, String left, String operator,
+                             String right) {
+        assertInstanceOf(InfixExpression.class, expr);
+
+        InfixExpression opExp = (InfixExpression)expr;
+        testLiteralExpression(opExp.left, left);
+        assertEquals(opExp.operator, operator);
+        testLiteralExpression(opExp.right, right);
+    }
+
 //TODO: Refactor test. Write more proper tests w/ better coverage
     @Test
     void testLetStatements() {
@@ -206,16 +242,16 @@ public class ParserTest {
 
     @Test
     void exampleInfixExpressionTest() {
-        String input = """
-            5 + 5;
-            5 - 5;
-            5 * 5;
-            5 / 5;
-            5 > 5;
-            5 < 5;
-            5 == 5;
-            5 != 5;
-        """;
+        String[] inputs = {
+            "5 + 5;",
+            "5 - 5;",
+            "5 * 5;",
+            "5 / 5;",
+            "5 > 5;",
+            "5 < 5;",
+            "5 == 5;",
+            "5 != 5;"
+        };
         long[] leftValues = {
             5,
             5,
@@ -247,25 +283,20 @@ public class ParserTest {
             5
         };
 
-        var l = new Lexer(input);
-        var p = new Parser(l);
-        var prog = p.parseProgram();
-        checkParseErrors(p);
+        for (int i = 0; i < inputs.length; i++) {
+            String input = inputs[i];
+            var l = new Lexer(input);
+            var p = new Parser(l);
+            var prog = p.parseProgram();
+            checkParseErrors(p);
 
-        checkProgHasExpectedNumStatements(prog, 8);
-        for (int i = 0; i < prog.statements.size(); i++) {
-            var stmt = prog.statements.get(i);
-            assertInstanceOf(ExpressionStatement.class,
-                             stmt);
+            checkProgHasExpectedNumStatements(prog, 1);
 
-            Expression exprStmt = ((ExpressionStatement)stmt).expression;
-            assertInstanceOf(InfixExpression.class, exprStmt);
-
-            InfixExpression expr = (InfixExpression)exprStmt;
-
-            testIntegerLiteral(expr.left, leftValues[i]);
-            assertEquals(expr.operator, operators[i]);
-            testIntegerLiteral(expr.right, rightValues[i]);
+            Statement stmt = prog.statements.get(0);
+            assertInstanceOf(ExpressionStatement.class, stmt);
+            ExpressionStatement exprStmt = (ExpressionStatement)stmt;
+            testInfixExpression(exprStmt.expression, leftValues[i],
+                                operators[i], rightValues[i]);
         }
     }
 

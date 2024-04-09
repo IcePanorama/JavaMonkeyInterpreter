@@ -25,7 +25,6 @@ class Parser {
     private HashMap<String, InfixParseFn> infixParseFns;
     private HashMap<String, ExpressionType> precedences;
     private enum ExpressionType {
-        //_t,
         LOWEST,
         EQUALS,
         LESSGREATER,
