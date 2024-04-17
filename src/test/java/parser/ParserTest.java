@@ -77,6 +77,12 @@ public class ParserTest {
         testIdentifier(expr, expected);
     }
 
+    //FIXME: this one function should take an Expression,
+    //not an ExpressionStatement
+    void testLiteralExpression(ExpressionStatement expr, boolean expected) {
+        testBoolExpression(expr, "" + expected, false);
+    }
+
     void testInfixExpression(Expression expr, long left, String operator,
                              long right) {
         assertInstanceOf(InfixExpression.class, expr);
@@ -325,7 +331,11 @@ public class ParserTest {
             "3 + 4; -5 * 5",
             "5 > 4 == 3 < 4",
             "5 < 4 != 3 > 4",
-            "3 + 4 * 5 == 3 * 1 + 4 * 5"
+            "3 + 4 * 5 == 3 * 1 + 4 * 5",
+            "true",
+            "false",
+            "3 > 5 == false",
+            "3 < 5 == true"
         };
         String[] expectedOutputs = {
             "[((-a) * b)]",
@@ -338,7 +348,11 @@ public class ParserTest {
             "[(3 + 4), ((-5) * 5)]",
             "[((5 > 4) == (3 < 4))]",
             "[((5 < 4) != (3 > 4))]",
-            "[((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))]"
+            "[((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))]",
+            "[true]",
+            "[false]",
+            "[((3 > 5) == false)]",
+            "[((3 < 5) == true)]"
         };
 
         for (int i = 0; i < inputs.length; i++) {
