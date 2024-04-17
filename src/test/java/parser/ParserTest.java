@@ -18,7 +18,6 @@ import ast.Program;
 import ast.Statement;
 import ast.ReturnStatement;
 import lexer.Lexer;
-import token.Token;
 
 public class ParserTest {
     void testLetStatement(Statement s, String name){
@@ -69,6 +68,14 @@ public class ParserTest {
         assertEquals(value, ident.TokenLiteral());
     }
 
+    void testBoolLiteral(Expression expr, boolean value) {
+        assertInstanceOf(Bool.class, expr);
+
+        Bool bool = (Bool)(expr);
+        assertEquals("" + value, bool.TokenLiteral());
+    }
+
+
     void testLiteralExpression(Expression expr, long expected) {
         testIntegerLiteral(expr, expected);
     }
@@ -79,8 +86,8 @@ public class ParserTest {
 
     //FIXME: this one function should take an Expression,
     //not an ExpressionStatement
-    void testLiteralExpression(ExpressionStatement expr, boolean expected) {
-        testBoolExpression(expr, "" + expected, false);
+    void testLiteralExpression(Expression expr, boolean expected) {
+        testBoolLiteral(expr, expected);
     }
 
     void testInfixExpression(Expression expr, long left, String operator,
@@ -103,14 +110,14 @@ public class ParserTest {
         testLiteralExpression(opExp.right, right);
     }
 
-    void testBoolExpression(ExpressionStatement expr, String expectedTokenType,
-                            boolean expectedValue) {
-        assertInstanceOf(Bool.class, (expr.expression));
+    void testInfixExpression(Expression expr, boolean left, String operator,
+                             boolean right) {
+        assertInstanceOf(InfixExpression.class, expr);
 
-        Bool bool = (Bool)(expr.expression);
-        System.out.println(bool.TokenLiteral() + " " + bool.value);
-        assertEquals(expectedTokenType, bool.TokenLiteral());
-        assertEquals(expectedValue, bool.value);
+        InfixExpression opExp = (InfixExpression)expr;
+        testLiteralExpression(opExp.left, left);
+        assertEquals(opExp.operator, operator);
+        testLiteralExpression(opExp.right, right);
     }
 
 //TODO: Refactor test. Write more proper tests w/ better coverage
@@ -288,7 +295,7 @@ public class ParserTest {
             ">",
             "<",
             "==",
-            "!=",
+            "!="
         };
         long[] rightValues = {
             5,
@@ -376,8 +383,10 @@ public class ParserTest {
 
         Statement stmt = prog.statements.get(0);
         assertInstanceOf(ExpressionStatement.class, stmt);
-        ExpressionStatement expr = (ExpressionStatement)stmt;
-        testBoolExpression(expr, "true", true);
+        var literal = ((ExpressionStatement)stmt).expression;
+        assertInstanceOf(Bool.class, literal);
+        boolean value = ((Bool)literal).value;
+        assertEquals(value, true);
     }
 
     @Test
@@ -391,7 +400,49 @@ public class ParserTest {
 
         Statement stmt = prog.statements.get(0);
         assertInstanceOf(ExpressionStatement.class, stmt);
-        ExpressionStatement expr = (ExpressionStatement)stmt;
-        testBoolExpression(expr, "false", false);
+        var literal = ((ExpressionStatement)stmt).expression;
+        assertInstanceOf(Bool.class, literal);
+        boolean value = ((Bool)literal).value;
+        assertEquals(value, false);
+    }
+
+    @Test
+    void exampleInfixBool() {
+        String[] inputs = {
+            "true == true",
+            "true != false",
+            "false == false"
+        };
+        boolean[] leftValues = {
+            true,
+            true,
+            false
+        };
+        String[] operators = {
+            "==",
+            "!=",
+            "=="
+        };
+        boolean[] rightValues = {
+            true,
+            false,
+            false
+        };
+
+        for (int i = 0; i < inputs.length; i++) {
+            String input = inputs[i];
+            var l = new Lexer(input);
+            var p = new Parser(l);
+            var prog = p.parseProgram();
+            checkParseErrors(p);
+
+            checkProgHasExpectedNumStatements(prog, 1);
+
+            Statement stmt = prog.statements.get(0);
+            assertInstanceOf(ExpressionStatement.class, stmt);
+            ExpressionStatement exprStmt = (ExpressionStatement)stmt;
+            testInfixExpression(exprStmt.expression, leftValues[i],
+                                operators[i], rightValues[i]);
+        }
     }
 }
