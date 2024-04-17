@@ -1,5 +1,6 @@
 package parser;
 
+import ast.Bool;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.Identifier;
@@ -68,6 +69,8 @@ class Parser {
         registerPrefix(Token.INT, this::parseIntegerLiteral);
         registerPrefix(Token.BANG, this::parsePrefixExpression);
         registerPrefix(Token.MINUS, this::parsePrefixExpression);
+        registerPrefix(Token.TRUE, this::parseBool);
+        registerPrefix(Token.FALSE, this::parseBool);
     }
 
     void registerPrefix(String tokenType, PrefixParseFn fn) {
@@ -274,5 +277,9 @@ class Parser {
         expr.right = parseExpression(precedence);
 
         return expr;
+    }
+
+    Expression parseBool() {
+        return new Bool(curToken, curTokenIs(new Token(Token.TRUE)));
     }
 }

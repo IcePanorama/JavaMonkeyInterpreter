@@ -97,11 +97,12 @@ public class ParserTest {
         testLiteralExpression(opExp.right, right);
     }
 
-    void testBoolExpression(Expression expr, String expectedTokenType,
+    void testBoolExpression(ExpressionStatement expr, String expectedTokenType,
                             boolean expectedValue) {
-        assertInstanceOf(Bool.class, expr);
+        assertInstanceOf(Bool.class, (expr.expression));
 
-        Bool bool = (Bool)expr;
+        Bool bool = (Bool)(expr.expression);
+        System.out.println(bool.TokenLiteral() + " " + bool.value);
         assertEquals(expectedTokenType, bool.TokenLiteral());
         assertEquals(expectedValue, bool.value);
     }
@@ -360,9 +361,9 @@ public class ParserTest {
         checkProgHasExpectedNumStatements(prog, 1);
 
         Statement stmt = prog.statements.get(0);
-        assertInstanceOf(Expression.class, stmt);
-        Expression expr = (Expression)stmt;
-        testBoolExpression(expr, Token.TRUE, true);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+        ExpressionStatement expr = (ExpressionStatement)stmt;
+        testBoolExpression(expr, "true", true);
     }
 
     @Test
@@ -375,8 +376,8 @@ public class ParserTest {
         checkProgHasExpectedNumStatements(prog, 1);
 
         Statement stmt = prog.statements.get(0);
-        assertInstanceOf(Expression.class, stmt);
-        Expression expr = (Expression)stmt;
-        testBoolExpression(expr, Token.FALSE, false);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+        ExpressionStatement expr = (ExpressionStatement)stmt;
+        testBoolExpression(expr, "false", false);
     }
 }

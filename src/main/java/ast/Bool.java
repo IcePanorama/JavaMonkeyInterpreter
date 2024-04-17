@@ -6,7 +6,10 @@ public class Bool implements Expression{
     Token token;
     public boolean value;
 
-    public Bool () {}
+    public Bool (Token token, boolean value) {
+        this.token = token;
+        this.value = value;
+    }
 
     public void expressionNode() {}
 
