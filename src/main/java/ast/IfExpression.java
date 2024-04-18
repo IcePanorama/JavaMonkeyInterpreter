@@ -4,7 +4,7 @@ import token.Token;
 
 public class IfExpression implements Expression{
     Token token;
-    Expression condition;
+    public Expression condition;
     public BlockStatement consequence;
     public BlockStatement alternative;
 

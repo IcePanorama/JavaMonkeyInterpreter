@@ -3,6 +3,7 @@ package parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
@@ -519,6 +520,42 @@ public class ParserTest {
 
         Expression consequenceExpr = ((ExpressionStatement)consequenceStmt).expression;
         testIdentifier(consequenceExpr, "x");
+        assertNull(ifExpression.alternative);
+    }
+    
+    @Test
+    void exampleIfElseExpressionTest() {
+        String input = "if (x < y) { x } else { y }";
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        Statement stmt = prog.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+
+        Expression expr = ((ExpressionStatement)stmt).expression;
+        assertInstanceOf(IfExpression.class, expr);
+
+        IfExpression ifExpression = (IfExpression)expr;
+        testInfixExpression(ifExpression.condition, "x", "<", "y");
+        assertEquals(1, ifExpression.consequence.statements.size());
+
+        Statement consequenceStmt = ifExpression.consequence.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, consequenceStmt);
+
+        Expression consequenceExpr = ((ExpressionStatement)consequenceStmt).expression;
+        testIdentifier(consequenceExpr, "x");
+
         assertNotNull(ifExpression.alternative);
+        assertEquals(1, ifExpression.alternative.statements.size());
+
+        Statement alternativeStmt = ifExpression.alternative.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, alternativeStmt);
+
+        Expression alternativeExpr = ((ExpressionStatement)alternativeStmt).expression;
+        testIdentifier(alternativeExpr, "y");
     }
 }
