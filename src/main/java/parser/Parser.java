@@ -71,6 +71,7 @@ class Parser {
         registerPrefix(Token.MINUS, this::parsePrefixExpression);
         registerPrefix(Token.TRUE, this::parseBool);
         registerPrefix(Token.FALSE, this::parseBool);
+        registerPrefix(Token.LPAREN, this::parseGroupedExpressions);
     }
 
     void registerPrefix(String tokenType, PrefixParseFn fn) {
@@ -281,5 +282,17 @@ class Parser {
 
     Expression parseBool() {
         return new Bool(curToken, curTokenIs(new Token(Token.TRUE)));
+    }
+
+    Expression parseGroupedExpressions() {
+        nextToken();
+
+        Expression expr = parseExpression(ExpressionType.LOWEST);
+
+        if (!expectPeek(new Token(Token.RPAREN))) {
+            return null;
+        }
+
+        return expr;
     }
 }
