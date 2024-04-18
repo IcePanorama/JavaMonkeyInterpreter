@@ -319,6 +319,16 @@ class Parser {
 
         expr.consequence = parseBlockStatement();
 
+        if (peekTokenIs(new Token(Token.ELSE))) {
+            nextToken();
+
+            if (!expectPeek(new Token(Token.LBRACE))) {
+                return null;
+            }
+
+            expr.alternative = parseBlockStatement();
+        }
+
         return expr;
     }
 
