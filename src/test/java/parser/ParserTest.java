@@ -407,7 +407,7 @@ public class ParserTest {
     }
 
     @Test
-    void exampleInfixBool() {
+    void exampleInfixBoolExpressionTest() {
         String[] inputs = {
             "true == true",
             "true != false",
@@ -443,6 +443,41 @@ public class ParserTest {
             ExpressionStatement exprStmt = (ExpressionStatement)stmt;
             testInfixExpression(exprStmt.expression, leftValues[i],
                                 operators[i], rightValues[i]);
+        }
+    }
+    
+    @Test
+    void examplePrefixBoolExpressionTest() {
+        String[] inputs = {
+            "!true",
+            "!false"
+        };
+        String[] operators = {
+            "!",
+            "!"
+        };
+        boolean[] values = {
+            true,
+            false
+        };
+
+        for (int i = 0; i < inputs.length; i++) {
+            var l = new Lexer(inputs[i]);
+            var p = new Parser(l);
+            var prog = p.parseProgram();
+            checkParseErrors(p);
+
+            checkProgHasExpectedNumStatements(prog, 1);
+
+            var stmt = prog.statements.get(0);
+            assertInstanceOf(ExpressionStatement.class, stmt);
+
+            var expression = ((ExpressionStatement) (stmt)).expression;
+            assertInstanceOf(PrefixExpression.class, expression);
+
+            var prefixExpr = (PrefixExpression)expression;
+            assertEquals(operators[i], prefixExpr.operator);
+            testBoolLiteral(prefixExpr.right, values[i]);
         }
     }
 }
