@@ -1,9 +1,11 @@
 package parser;
 
+import ast.BlockStatement;
 import ast.Bool;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.Identifier;
+import ast.IfExpression;
 import ast.InfixExpression;
 import ast.IntegerLiteral;
 import ast.LetStatement;
@@ -71,7 +73,8 @@ class Parser {
         registerPrefix(Token.MINUS, this::parsePrefixExpression);
         registerPrefix(Token.TRUE, this::parseBool);
         registerPrefix(Token.FALSE, this::parseBool);
-        registerPrefix(Token.LPAREN, this::parseGroupedExpressions);
+        registerPrefix(Token.LPAREN, this::parseGroupedExpression);
+        registerPrefix(Token.IF, this::parseIfExpression);
     }
 
     void registerPrefix(String tokenType, PrefixParseFn fn) {
@@ -284,7 +287,7 @@ class Parser {
         return new Bool(curToken, curTokenIs(new Token(Token.TRUE)));
     }
 
-    Expression parseGroupedExpressions() {
+    Expression parseGroupedExpression() {
         nextToken();
 
         Expression expr = parseExpression(ExpressionType.LOWEST);
@@ -294,5 +297,45 @@ class Parser {
         }
 
         return expr;
+    }
+
+    Expression parseIfExpression() {
+        IfExpression expr = new IfExpression(curToken);
+
+        if (!expectPeek(new Token(Token.LPAREN))) {
+            return null;
+        }
+
+        nextToken();
+        expr.condition = parseExpression(ExpressionType.LOWEST);
+
+        if (!expectPeek(new Token(Token.RPAREN))) {
+            return null;
+        }
+
+        if (!expectPeek(new Token(Token.LBRACE))) {
+            return null;
+        }
+
+        expr.consequence = parseBlockStatement();
+
+        return expr;
+    }
+
+    BlockStatement parseBlockStatement() {
+        BlockStatement block = new BlockStatement(curToken);
+        block.statements = new ArrayList<>();
+
+        nextToken();
+
+        while (!curTokenIs(new Token(Token.RBRACE)) && !curTokenIs(new Token(Token.EOF))) {
+            Statement stmt = parseStatement();
+            if (stmt != null) {
+                block.statements.add(stmt);
+            }
+            nextToken();
+        }
+
+        return block;
     }
 }

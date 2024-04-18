@@ -511,7 +511,7 @@ public class ParserTest {
         assertInstanceOf(IfExpression.class, expr);
 
         IfExpression ifExpression = (IfExpression)expr;
-        testInfixExpression(ifExpression, "x", "<", "y");
+        testInfixExpression(ifExpression.condition, "x", "<", "y");
         assertEquals(1, ifExpression.consequence.statements.size());
 
         Statement consequenceStmt = ifExpression.consequence.statements.get(0);

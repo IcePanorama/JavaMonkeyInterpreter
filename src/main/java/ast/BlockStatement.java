@@ -8,7 +8,9 @@ public class BlockStatement implements Statement{
     Token token;
     public ArrayList<Statement> statements;
 
-    BlockStatement() {}
+    public BlockStatement(Token token) {
+        this.token = token;
+    }
 
     public void statementNode() {}
 

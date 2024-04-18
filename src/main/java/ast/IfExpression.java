@@ -8,7 +8,9 @@ public class IfExpression implements Expression{
     public BlockStatement consequence;
     public BlockStatement alternative;
 
-    public IfExpression() {}
+    public IfExpression(Token token) {
+        this.token = token;
+    }
 
     public void expressionNode() {}
 
