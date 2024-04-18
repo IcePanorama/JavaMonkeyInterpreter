@@ -2,6 +2,7 @@ package parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import ast.Bool;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.Identifier;
+import ast.IfExpression;
 import ast.InfixExpression;
 import ast.IntegerLiteral;
 import ast.LetStatement;
@@ -489,5 +491,34 @@ public class ParserTest {
             assertEquals(operators[i], prefixExpr.operator);
             testBoolLiteral(prefixExpr.right, values[i]);
         }
+    }
+
+    @Test
+    void exampleIfExpressionTest() {
+        String input = "if (x < y) { x }";
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        Statement stmt = prog.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+
+        Expression expr = ((ExpressionStatement)stmt).expression;
+        assertInstanceOf(IfExpression.class, expr);
+
+        IfExpression ifExpression = (IfExpression)expr;
+        testInfixExpression(ifExpression, "x", "<", "y");
+        assertEquals(1, ifExpression.consequence.statements.size());
+
+        Statement consequenceStmt = ifExpression.consequence.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class,
+            consequenceStmt);
+
+        Expression consequenceExpr = ((ExpressionStatement)consequenceStmt).expression;
+        testIdentifier(consequenceExpr, "x");
+        assertNotNull(ifExpression.alternative);
     }
 }

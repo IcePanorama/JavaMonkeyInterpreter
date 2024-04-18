@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 import token.Token;
 
-public class BlockStatment implements Statement{
+public class BlockStatement implements Statement{
     Token token;
-    ArrayList<Statement> statements;
+    public ArrayList<Statement> statements;
 
-    BlockStatment() {}
+    BlockStatement() {}
 
     public void statementNode() {}
 
