@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 import ast.Bool;
+import ast.CallExpression;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.FunctionLiteral;
@@ -672,4 +673,34 @@ public class ParserTest {
             testLiteralExpression(func.parameters.get(i), expectedParams[i]);
         }
     }
+
+    @Test
+    void exampleCallExpressionTest() {
+        String input = "add(1, 2 * 3, 4 + 5);";
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        checkProgHasExpectedNumStatements(prog, 1);
+
+//FIXME: these couple of lines could also probably
+//      just be moved to their own function
+        Statement stmt = prog.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+
+        Expression expr = ((ExpressionStatement)stmt).expression;
+        assertInstanceOf(CallExpression.class, expr);
+
+        CallExpression callExpr = (CallExpression)expr;
+        testIdentifier(callExpr.function, "add");
+        assertEquals(3, callExpr.arguements.size());
+        testLiteralExpression(callExpr.arguements.get(0), 1);
+        testInfixExpression(callExpr.arguements.get(1), 2, "*", 3);
+        testInfixExpression(callExpr.arguements.get(2), 4, "+", 5);
+    }
+
+//TODO: create tests for CallExpression parameters
+//      sim. to the ones made for functions
 }
