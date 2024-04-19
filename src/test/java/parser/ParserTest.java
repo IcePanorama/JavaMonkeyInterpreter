@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import ast.Bool;
 import ast.Expression;
 import ast.ExpressionStatement;
+import ast.FunctionLiteral;
 import ast.Identifier;
 import ast.IfExpression;
 import ast.InfixExpression;
@@ -557,5 +558,36 @@ public class ParserTest {
 
         Expression alternativeExpr = ((ExpressionStatement)alternativeStmt).expression;
         testIdentifier(alternativeExpr, "y");
+    }
+
+    @Test
+    void exampleFunctionLiteralExpressionTest() {
+        String input = "fn(x, y) { x + y; }";
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        Statement stmt = prog.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+
+        Expression expr = ((ExpressionStatement)stmt).expression;
+        assertInstanceOf(FunctionLiteral.class, expr);
+
+        FunctionLiteral func = (FunctionLiteral)expr;
+        assertEquals(2, func.parameters.size());
+
+        testLiteralExpression(func.parameters.get(0), "x");
+        testLiteralExpression(func.parameters.get(1), "y");
+
+        assertEquals(1, func.body.statements.size());
+
+        Statement bodyStmt = func.body.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, bodyStmt);
+
+        Expression bodyExpr = ((ExpressionStatement)bodyStmt).expression;
+        testInfixExpression(bodyExpr, "x", "+", "y");
     }
 }

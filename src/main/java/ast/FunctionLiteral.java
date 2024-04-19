@@ -6,8 +6,8 @@ import token.Token;
 
 public class FunctionLiteral implements Expression{
     Token token;
-    ArrayList<Identifier> parameters;
-    BlockStatement body;
+    public ArrayList<Identifier> parameters;
+    public BlockStatement body;
 
     public FunctionLiteral() {}
 
