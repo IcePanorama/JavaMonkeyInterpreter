@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 import ast.Bool;
@@ -22,6 +23,7 @@ import ast.Program;
 import ast.Statement;
 import ast.ReturnStatement;
 import lexer.Lexer;
+import token.Token;
 
 public class ParserTest {
     void testLetStatement(Statement s, String name){
@@ -56,6 +58,17 @@ public class ParserTest {
         }
     }
 
+//TODO: this function needs a better name
+    FunctionLiteral checkFunctionLiteral(Program p) {
+        Statement stmt = p.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+
+        Expression expr = ((ExpressionStatement)stmt).expression;
+        assertInstanceOf(FunctionLiteral.class, expr);
+
+        return (FunctionLiteral)expr;
+    }
+
     void testIntegerLiteral(Expression intLiteral, long value) {
         assertInstanceOf(IntegerLiteral.class, intLiteral);
         
@@ -79,6 +92,10 @@ public class ParserTest {
         assertEquals("" + value, bool.TokenLiteral());
     }
 
+    void testFunctionLiteral(Identifier expr, Identifier expected) {
+        assertEquals(expected.TokenLiteral(),expr.TokenLiteral());
+        assertEquals(expected.value, expr.value);
+    }
 
     void testLiteralExpression(Expression expr, long expected) {
         testIntegerLiteral(expr, expected);
@@ -88,6 +105,10 @@ public class ParserTest {
         testIdentifier(expr, expected);
     }
 
+    void testLiteralExpression(Identifier expr, Identifier expected) {
+        testFunctionLiteral(expr, expected);
+    }
+    
     //FIXME: this one function should take an Expression,
     //not an ExpressionStatement
     void testLiteralExpression(Expression expr, boolean expected) {
@@ -589,5 +610,66 @@ public class ParserTest {
 
         Expression bodyExpr = ((ExpressionStatement)bodyStmt).expression;
         testInfixExpression(bodyExpr, "x", "+", "y");
+    }
+
+//TODO: this next 3 could probably be refactored even further
+    @Test
+    void functionLiteralWithAnEmptyParameterListShouldHaveNoParameters() {
+        String input = "fn () {};";
+        Identifier[] expectedParameters = new Identifier[0];
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        FunctionLiteral func = checkFunctionLiteral(prog);
+        assertEquals(expectedParameters.length, func.parameters.size());
+
+        for (int i = 0; i < expectedParameters.length; i++) {
+            testLiteralExpression(func.parameters.get(i), expectedParameters[i]);
+        }
+    }
+
+    @Test
+    void functionLiteralWithOneParameterShouldHaveOneParameter() {
+        String input = "fn(x) {};";
+        Identifier[] expectedParameters = {
+            new Identifier(new Token(Token.IDENT, "x"), "x")
+        };
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        FunctionLiteral func = checkFunctionLiteral(prog);
+        assertEquals(expectedParameters.length, func.parameters.size());
+
+        for (int i = 0; i < expectedParameters.length; i++) {
+            testLiteralExpression(func.parameters.get(i), expectedParameters[i]);
+        }
+    }
+
+    @Test
+    void functionLiteralWithMultipleParametersShouldHaveMultipleParameters() {
+        String input = "fn (x, y, z) {};";
+        Identifier[] expectedParams = {
+            new Identifier(new Token(Token.IDENT, "x"), "x"),
+            new Identifier(new Token(Token.IDENT, "y"), "y"),
+            new Identifier(new Token(Token.IDENT, "z"), "z")
+        };
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        FunctionLiteral func = checkFunctionLiteral(prog);
+        assertEquals(expectedParams.length, func.parameters.size());
+
+        for (int i = 0; i < expectedParams.length; i++) {
+            testLiteralExpression(func.parameters.get(i), expectedParams[i]);
+        }
     }
 }

@@ -9,7 +9,9 @@ public class FunctionLiteral implements Expression{
     public ArrayList<Identifier> parameters;
     public BlockStatement body;
 
-    public FunctionLiteral() {}
+    public FunctionLiteral(Token token) {
+        this.token = token;
+    }
 
     public void expressionNode() {}
 

@@ -4,6 +4,7 @@ import ast.BlockStatement;
 import ast.Bool;
 import ast.Expression;
 import ast.ExpressionStatement;
+import ast.FunctionLiteral;
 import ast.Identifier;
 import ast.IfExpression;
 import ast.InfixExpression;
@@ -75,6 +76,7 @@ class Parser {
         registerPrefix(Token.FALSE, this::parseBool);
         registerPrefix(Token.LPAREN, this::parseGroupedExpression);
         registerPrefix(Token.IF, this::parseIfExpression);
+        registerPrefix(Token.FUNCTION, this::parseFunctionLiteral);
     }
 
     void registerPrefix(String tokenType, PrefixParseFn fn) {
@@ -347,5 +349,50 @@ class Parser {
         }
 
         return block;
+    }
+
+    Expression parseFunctionLiteral() {
+        FunctionLiteral lit = new FunctionLiteral(curToken);
+
+        if (!expectPeek(new Token(Token.LPAREN))) {
+            return null;
+        }
+
+        lit.parameters = parseFunctionParameters();
+
+        if (!expectPeek(new Token(Token.LBRACE))) {
+            return null;
+        }
+
+        lit.body = parseBlockStatement();
+
+        return lit;
+    }
+
+    ArrayList<Identifier> parseFunctionParameters() {
+        ArrayList<Identifier> identifiers = new ArrayList<>();
+
+        if (peekTokenIs(new Token(Token.RPAREN))) {
+            nextToken();
+            return identifiers;
+        }
+
+        nextToken();
+
+        Identifier ident = new Identifier(curToken, curToken.literal);
+        identifiers.add(ident);
+
+        while (peekTokenIs(new Token(Token.COMMA))) {
+            nextToken();
+            nextToken();
+            ident = new Identifier(curToken, curToken.literal);
+            identifiers.add(ident);
+        }
+
+        if (!expectPeek(new Token(Token.RPAREN))) {
+            return null;
+        }
+
+        return identifiers;
     }
 }
