@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 import ast.Bool;
@@ -60,7 +59,7 @@ public class ParserTest {
     }
 
 //TODO: this function needs a better name
-    FunctionLiteral checkFunctionLiteral(Program p) {
+    FunctionLiteral programIsFunctionLiteral(Program p) {
         Statement stmt = p.statements.get(0);
         assertInstanceOf(ExpressionStatement.class, stmt);
 
@@ -68,6 +67,16 @@ public class ParserTest {
         assertInstanceOf(FunctionLiteral.class, expr);
 
         return (FunctionLiteral)expr;
+    }
+
+    CallExpression programIsCallExpression(Program p) {
+        Statement stmt = p.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+
+        Expression expr = ((ExpressionStatement)stmt).expression;
+        assertInstanceOf(CallExpression.class, expr);
+
+        return (CallExpression)expr;
     }
 
     void testIntegerLiteral(Expression intLiteral, long value) {
@@ -624,7 +633,7 @@ public class ParserTest {
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        FunctionLiteral func = checkFunctionLiteral(prog);
+        FunctionLiteral func = programIsFunctionLiteral(prog);
         assertEquals(expectedParameters.length, func.parameters.size());
 
         for (int i = 0; i < expectedParameters.length; i++) {
@@ -644,7 +653,7 @@ public class ParserTest {
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        FunctionLiteral func = checkFunctionLiteral(prog);
+        FunctionLiteral func = programIsFunctionLiteral(prog);
         assertEquals(expectedParameters.length, func.parameters.size());
 
         for (int i = 0; i < expectedParameters.length; i++) {
@@ -666,7 +675,7 @@ public class ParserTest {
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        FunctionLiteral func = checkFunctionLiteral(prog);
+        FunctionLiteral func = programIsFunctionLiteral(prog);
         assertEquals(expectedParams.length, func.parameters.size());
 
         for (int i = 0; i < expectedParams.length; i++) {
@@ -685,15 +694,7 @@ public class ParserTest {
 
         checkProgHasExpectedNumStatements(prog, 1);
 
-//FIXME: these couple of lines could also probably
-//      just be moved to their own function
-        Statement stmt = prog.statements.get(0);
-        assertInstanceOf(ExpressionStatement.class, stmt);
-
-        Expression expr = ((ExpressionStatement)stmt).expression;
-        assertInstanceOf(CallExpression.class, expr);
-
-        CallExpression callExpr = (CallExpression)expr;
+        CallExpression callExpr = programIsCallExpression(prog);
         testIdentifier(callExpr.function, "add");
         assertEquals(3, callExpr.arguements.size());
         testLiteralExpression(callExpr.arguements.get(0), 1);
@@ -703,4 +704,71 @@ public class ParserTest {
 
 //TODO: create tests for CallExpression parameters
 //      sim. to the ones made for functions
+    @Test
+    void callExpressionWithNoParametersShouldHaveNoParameters() {
+        String input = "foobar();";
+
+        // Should the next 6 lines be their own func?
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        CallExpression callExpr = programIsCallExpression(prog);
+        assertEquals(0, callExpr.arguements.size());
+    }
+
+    @Test
+    void callExpressionWithOneArguementShouldHaveOneArguement() {
+        String input = "foobar(x);";
+        //this probably shouldn't be a Identifier
+        Identifier expectedArguement = new Identifier(
+            new Token(Token.IDENT, "x"),
+            "x"
+        );
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        CallExpression callExpr = programIsCallExpression(prog);
+        assertEquals(1, callExpr.arguements.size());
+        //idk if this'll work
+        testLiteralExpression(
+            (Identifier)callExpr.arguements.get(0),
+            expectedArguement
+        );
+    }
+
+    @Test
+    void callExpressionWithMultipleArguementsShouldHaveMultipleArguements() {
+        String input = "foobar(x, y, z);";
+        Identifier[] expectedArguements = {
+            new Identifier(new Token(Token.IDENT, "x"), "x"),
+            new Identifier(new Token(Token.IDENT, "y"), "y"),
+            new Identifier(new Token(Token.IDENT, "z"), "z")
+        };
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        CallExpression callExpr = programIsCallExpression(prog);
+        assertEquals(3, callExpr.arguements.size());
+
+        for (int i = 0; i < callExpr.arguements.size(); i++) {
+            testLiteralExpression(
+                    (Identifier) callExpr.arguements.get(i),
+                    expectedArguements[i]
+            );
+        }
+    }
 }
