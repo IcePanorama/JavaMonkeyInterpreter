@@ -382,7 +382,10 @@ public class ParserTest {
             "(5 + 5) * 2",
             "2 / (5 + 5)",
             "-(5 + 5)",
-            "!(true == true)"
+            "!(true == true)",
+            "a + add(b * c) + d",
+            "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+            "add(a + b + c * d / f + g)"
         };
         String[] expectedOutputs = {
             "[((-a) * b)]",
@@ -404,7 +407,10 @@ public class ParserTest {
             "[((5 + 5) * 2)]",
             "[(2 / (5 + 5))]",
             "[(-(5 + 5))]",
-            "[(!(true == true))]"
+            "[(!(true == true))]",
+            "[((a + add((b * c))) + d)]",
+            "[add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))]",
+            "[add((((a + b) + ((c * d) / f)) + g))]"
         };
 
         for (int i = 0; i < inputs.length; i++) {

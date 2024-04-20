@@ -2,6 +2,7 @@ package parser;
 
 import ast.BlockStatement;
 import ast.Bool;
+import ast.CallExpression;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.FunctionLiteral;
@@ -28,6 +29,7 @@ class Parser {
     private HashMap<String, PrefixParseFn> prefixParseFns;
     private HashMap<String, InfixParseFn> infixParseFns;
     private HashMap<String, ExpressionType> precedences;
+    // Not sure that I like this name
     private enum ExpressionType {
         LOWEST,
         EQUALS,
@@ -65,6 +67,7 @@ class Parser {
         precedences.put(Token.MINUS, ExpressionType.SUM);
         precedences.put(Token.SLASH, ExpressionType.PRODUCT);
         precedences.put(Token.ASTERISK, ExpressionType.PRODUCT);
+        precedences.put(Token.LPAREN, ExpressionType.CALL);
     }
 
     void registerPrefixFns() {
@@ -93,6 +96,7 @@ class Parser {
         registerInfix(Token.NOTEQ, this::parseInfixExpression);
         registerInfix(Token.LT, this::parseInfixExpression);
         registerInfix(Token.GT, this::parseInfixExpression);
+        registerInfix(Token.LPAREN, this::parseCallExpression);
     }
 
     void registerInfix(String tokenType, InfixParseFn fn) {
@@ -394,5 +398,35 @@ class Parser {
         }
 
         return identifiers;
+    }
+
+    Expression parseCallExpression(Expression function) {
+        CallExpression expr = new CallExpression(curToken, function);
+        expr.arguements = parseCallArguements();
+        return expr;
+    }
+
+    ArrayList<Expression> parseCallArguements() {
+        ArrayList<Expression> args = new ArrayList<>();
+
+        if (peekTokenIs(new Token(Token.RPAREN))) {
+            nextToken();
+            return args;
+        }
+
+        nextToken();
+        args.add(parseExpression(ExpressionType.LOWEST));
+
+        while (peekTokenIs(new Token(Token.COMMA))) {
+            nextToken();
+            nextToken();
+            args.add(parseExpression(ExpressionType.LOWEST));
+        }
+
+        if (!expectPeek(new Token(Token.RPAREN))) {
+            return null;
+        }
+
+        return args;
     }
 }

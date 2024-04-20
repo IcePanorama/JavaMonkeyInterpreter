@@ -9,7 +9,10 @@ public class CallExpression implements Expression{
     public Expression function;
     public ArrayList<Expression> arguements;
 
-    public CallExpression() {}
+    public CallExpression(Token token, Expression function) {
+        this.token = token;
+        this.function = function;
+    }
 
     public void expressionNode() {}
 
