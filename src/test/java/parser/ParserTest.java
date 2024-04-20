@@ -708,8 +708,6 @@ public class ParserTest {
         testInfixExpression(callExpr.arguements.get(2), 4, "+", 5);
     }
 
-//TODO: create tests for CallExpression parameters
-//      sim. to the ones made for functions
     @Test
     void callExpressionWithNoParametersShouldHaveNoParameters() {
         String input = "foobar();";
