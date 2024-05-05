@@ -233,7 +233,7 @@ public class ParserTest {
         assertEquals(returnStmt.TokenLiteral(), "return");
 
         Expression returnValue = returnStmt.returnValue;
-        testLiteralExpression(returnValue, "5");
+        testLiteralExpression(returnValue, 5);
     }
 
     @Test

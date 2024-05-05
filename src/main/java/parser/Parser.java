@@ -183,9 +183,11 @@ class Parser {
             return null;
         }
 
-        //TODO: We're skipping the expressions
-        //      until we encounter a semicolon
-        while (!curTokenIs(new Token(Token.SEMICOLON))){
+        nextToken();
+
+        stmt.value = parseExpression(ExpressionType.LOWEST);
+        
+        if (peekTokenIs(new Token(Token.SEMICOLON))){
             nextToken();
         }
         
@@ -194,11 +196,12 @@ class Parser {
 
     ReturnStatement parseReturnStatement() {
         ReturnStatement stmt = new ReturnStatement(curToken);
+
         nextToken();
 
-        //TODO: We're skipping the expression until
-        //we ecounter a semicolon;
-        while (!(curTokenIs(new Token(Token.SEMICOLON)))){
+        stmt.returnValue = parseExpression(ExpressionType.LOWEST);
+
+        if (peekTokenIs(new Token(Token.SEMICOLON))){
             nextToken();
         }
 
