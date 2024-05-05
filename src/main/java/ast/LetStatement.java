@@ -5,7 +5,7 @@ import token.Token;
 public class LetStatement implements Statement {
     Token token;
     public Identifier name;
-    Expression value;
+    public Expression value;
 
     public LetStatement(Token token){
         this.token = token;

@@ -155,65 +155,85 @@ public class ParserTest {
         testLiteralExpression(opExp.right, right);
     }
 
-//TODO: Refactor test. Write more proper tests w/ better coverage
     @Test
-    void testLetStatements() {
-        String input = """
-            let x = 5;
-            let y = 10;
-            let foobar = 838383;
-                """;
-        String expectedOutput[] = {
-            "x",
-            "y",
-            "foobar"
-        };
+    void letXEqual5ParsesCorrectlyAsALetStatement() {
+        String input = "let x = 5;";
+        String expectedIdentifier = "x";
+        long expectedOutput = 5;
 
         var l = new Lexer(input);
         var p = new Parser(l);
-        var program = p.parseProgram();
+        var prog = p.parseProgram();
         checkParseErrors(p);
-        if (program == null){
-            fail("parseProgram() returned null.");
-        }
-        if (program.statements.size() != 3){
-            fail(String.format(
-                "program.Statements does not contain 3 statements; got %d.",
-                program.statements.size())
-            );
-        }
 
-        for (int i = 0; i < expectedOutput.length; i++){
-            Statement stmt = program.statements.get(i);
-            testLetStatement(stmt, expectedOutput[i]);
-        }
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        Statement stmt = prog.statements.get(0);
+        testLetStatement(stmt, expectedIdentifier);
+
+        Expression val = ((LetStatement)stmt).value;
+        testLiteralExpression(val, expectedOutput);
     }
 
     @Test
-    void testReturnStatements(){
-        String input = """
-            return 5;
-            return 19;
-            return 993322;
-        """;
+    void letYEqualTrueParsesCorrectlyAsALetStatement() {
+        String input = "let y = true;";
+        String expectedIdentifier = "y";
+        boolean expectedOutput = true;
 
         var l = new Lexer(input);
         var p = new Parser(l);
-        var program = p.parseProgram();
+        var prog = p.parseProgram();
         checkParseErrors(p);
 
-        if (program.statements.size() != 3){
-            fail(String.format(
-                "program.Statements does not contain 3 statements; got %d;",
-                program.statements.size())
-            );
-        }
+        checkProgHasExpectedNumStatements(prog, 1);
 
-        for (var stmt : program.statements){
-            assertInstanceOf(ReturnStatement.class, stmt);
-            ReturnStatement returnStmt = (ReturnStatement)stmt;
-            assertEquals(returnStmt.TokenLiteral(), "return");
-        }
+        Statement stmt = prog.statements.get(0);
+        testLetStatement(stmt, expectedIdentifier);
+
+        Expression val = ((LetStatement)stmt).value;
+        testLiteralExpression(val, expectedOutput);
+    }
+
+    @Test
+    void letFoobarEqualYParsesCorrectlyAsALetStatement() {
+        String input = "let foobar = y;";
+        String expectedIdentifier = "foobar";
+        String expectedOutput = "y";
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        Statement stmt = prog.statements.get(0);
+        testLetStatement(stmt, expectedIdentifier);
+
+        Expression val = ((LetStatement)stmt).value;
+        testLiteralExpression(val, expectedOutput);
+    }
+
+    @Test
+    void return5ParsesCorrectlyAsAReturnStatement() {
+        String input = "return 5;";
+        
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        Statement stmt = prog.statements.get(0);
+        assertInstanceOf(ReturnStatement.class, stmt);
+
+        ReturnStatement returnStmt = (ReturnStatement)stmt;
+        assertEquals(returnStmt.TokenLiteral(), "return");
+
+        Expression returnValue = returnStmt.returnValue;
+        testLiteralExpression(returnValue, "5");
     }
 
     @Test

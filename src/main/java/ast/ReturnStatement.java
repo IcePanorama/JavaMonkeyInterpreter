@@ -4,7 +4,7 @@ import token.Token;
 
 public class ReturnStatement implements Statement{
     Token token;
-    Expression returnValue;
+    public Expression returnValue;
 
     public ReturnStatement (Token token) {
         this.token = token;
