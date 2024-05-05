@@ -21,11 +21,11 @@ import token.Token;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-class Parser {
+public class Parser {
     private Lexer l;
     private Token curToken;
     private Token peekToken;
-    ArrayList<String> errors;
+    public ArrayList<String> errors;
     private HashMap<String, PrefixParseFn> prefixParseFns;
     private HashMap<String, InfixParseFn> infixParseFns;
     private HashMap<String, ExpressionType> precedences;
@@ -40,7 +40,7 @@ class Parser {
         CALL
     };
 
-    Parser(Lexer l) {
+    public Parser(Lexer l) {
         this.l = l;
         errors = new ArrayList<String>();
 
@@ -144,7 +144,7 @@ class Parser {
     }
 
     /* Actual Parser Stuff */
-    Program parseProgram() {
+    public Program parseProgram() {
         Program program = new Program();
         program.statements = new ArrayList<Statement>();
 
