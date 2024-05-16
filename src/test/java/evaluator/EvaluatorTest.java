@@ -25,7 +25,7 @@ class EvaluatorTest {
         assertInstanceOf(MonkeyInt.class, obj);
 
         MonkeyInt intObj = (MonkeyInt)obj;
-        assertEquals(intObj.value, expected);
+        assertEquals(expected, intObj.value);
     }
 
     void testBoolObject(MonkeyObject obj, boolean expected) {
@@ -65,6 +65,94 @@ class EvaluatorTest {
     void minusFiveShouldParseAsIntObjectWithValueOfNeg5() {
         String input = "-5";
         long expected = -5;
+
+        testEvalIntegerExpression(input, expected);
+    }
+
+    @Test
+    void fivePlusFivePlusFivePlusFiveMinusTenShouldEqual10() {
+        String input = "5 + 5 + 5 + 5 - 10";
+        long expected = 10;
+
+        testEvalIntegerExpression(input, expected);
+    }
+
+    @Test
+    void twoTimesTwoTimesTwoTimesTwoTimesTwoShouldEqual32() {
+        String input = "2 * 2 * 2 * 2 * 2";
+        long expected = 32;
+
+        testEvalIntegerExpression(input, expected);
+    }
+
+    @Test
+    void negFiftyPlusOneHundredPlusNegFiftyShouldEqual0() {
+        String input = "-50 + 100 + -50";
+        long expected = 0;
+
+        testEvalIntegerExpression(input, expected);
+    }
+
+    @Test
+    void fiveTimesTwoPlusTenShouldEqual20() {
+        String input = "5 * 2 + 10";
+        long expected = 20;
+
+        testEvalIntegerExpression(input, expected);
+    }
+    
+    @Test
+    void fivePlusTwoTimesTenShouldEqual25() {
+        String input = "5 + 2 * 10";
+        long expected = 25;
+
+        testEvalIntegerExpression(input, expected);
+    }
+
+    @Test
+    void twentyPlusTwoTimesNegTenShouldEqual0() {
+        String input = "20 + 2 * -10";
+        long expected = 0;
+
+        testEvalIntegerExpression(input, expected);
+    }
+
+    @Test
+    void fiftyDividedByTwoTimesTwoPlusTenShouldEqual60() {
+        String input = "50 / 2 * 2 + 10";
+        long expected = 60;
+
+        testEvalIntegerExpression(input, expected);
+    }
+
+    @Test
+    void twoTimesFivePlusTenWithParenthesisShouldEqual30() {
+        String input = "2 * (5 + 10)";
+        long expected = 30;
+
+        testEvalIntegerExpression(input, expected);
+    }
+
+    @Test
+    void threeTimesThreeTimesThreePlusTenShouldEqual37() {
+        String input = "3 * 3 * 3 + 10";
+        long expected = 37;
+
+        testEvalIntegerExpression(input, expected);
+    }
+
+    @Test
+    void threeTimesThreeTimesThreePlusTenWithParenthesisShouldEqual37() {
+        String input = "3 * (3 * 3) + 10";
+        long expected = 37;
+
+        testEvalIntegerExpression(input, expected);
+    }
+
+    @Test
+    void fivePlusTenTimesTwoPlusFifteenDividedByThreeTimesTwoPlusNegTenWithParenthesisShouldEqual50() {
+        String input = "(5 + 10 * 2 + 15 / 3) * 2 + -10";
+        long expected = 50;
 
         testEvalIntegerExpression(input, expected);
     }

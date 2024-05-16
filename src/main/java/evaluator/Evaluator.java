@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import ast.Bool;
 import ast.ExpressionStatement;
+import ast.InfixExpression;
 import ast.IntegerLiteral;
 import ast.Node;
 import ast.PrefixExpression;
@@ -59,14 +60,44 @@ public final class Evaluator {
 
     private static MonkeyObject evalPrefixExpression(String operator,
         MonkeyObject right) {
-            switch (operator) {
-                case "!": 
-                    return evalBangOperatorExpression(right);
-                case "-":
-                    return evalMinusOperatorExpression(right);
-                default:
-                    return NULL;
-            }
+        switch (operator) {
+            case "!": 
+                return evalBangOperatorExpression(right);
+            case "-":
+                return evalMinusOperatorExpression(right);
+            default:
+                return NULL;
+        }
+    }
+
+    private static MonkeyObject evalIntegerInfixExpression(String operator,
+        MonkeyObject left, MonkeyObject right){
+        long leftVal = ((MonkeyInt)left).value;
+        long rightVal = ((MonkeyInt)right).value;
+
+        switch (operator) {
+            case "+":
+                return new MonkeyInt(leftVal + rightVal);
+            case "-":
+                return new MonkeyInt(leftVal - rightVal);
+            case "*":
+                return new MonkeyInt(leftVal * rightVal);
+            case "/":
+                return new MonkeyInt(leftVal / rightVal);
+            default:
+                return NULL;
+        }
+    }
+
+    private static MonkeyObject evalInfixExpression(String operator,
+        MonkeyObject left, MonkeyObject right){
+        if (
+            left.Type() == MonkeyInt.INTEGER_OBJ
+            && right.Type() == MonkeyInt.INTEGER_OBJ
+        ) {
+            return evalIntegerInfixExpression(operator, left, right);
+        }
+        return NULL;
     }
 
     public static MonkeyObject Eval(Node node) {
@@ -74,6 +105,11 @@ public final class Evaluator {
             return evalStatements(((Program)node).statements);
         } else if (node instanceof ExpressionStatement) {
             return Eval(((ExpressionStatement)node).expression);
+        } else if (node instanceof InfixExpression) {
+            MonkeyObject left = Eval(((InfixExpression)node).left);
+            MonkeyObject right = Eval(((InfixExpression)node).right);
+            return evalInfixExpression(((InfixExpression)node).operator, left,
+                right);
         } else if (node instanceof PrefixExpression) {
             MonkeyObject right = Eval(((PrefixExpression)node).right);
             return evalPrefixExpression(((PrefixExpression)node).operator, right);
