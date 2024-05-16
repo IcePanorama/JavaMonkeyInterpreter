@@ -32,7 +32,7 @@ class EvaluatorTest {
         assertInstanceOf(MonkeyBool.class, obj);
 
         MonkeyBool intObj = (MonkeyBool)obj;
-        assertEquals(intObj.value, expected);
+        assertEquals(expected, intObj.value);
     }
 
     void testEvalIntegerExpression(String input, long expected) {
@@ -220,4 +220,141 @@ class EvaluatorTest {
 
         testBangOperator(input, expected);
     }
+
+    @Test
+    void oneLessThanTwoShouldEqualTrue() {
+        String input = "1 < 2";
+        boolean expected = true;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void oneGreaterThanTwoShoulEqualFalse() {
+        String input = "1 > 2";
+        boolean expected = false;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void oneLessThanOneShouldEqualFalse() {
+        String input = "1 < 1";
+        boolean expected = false;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void oneGreaterThanOneShouldEqualFalse() {
+        String input = "1 > 1";
+        boolean expected = false;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void oneEqualsEqualsOneShouldEqualTrue() {
+        String input = "1 == 1";
+        boolean expected = true;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void oneBangEqualsOneShouldEqualFalse() {
+        String input = "1 != 1";
+        boolean expected = false;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void oneEqualsEqualsTwoShouldEqualFalse() {
+        String input = "1 == 2";
+        boolean expected = false;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void oneBangEqualsTwoShouldEqualTrue() {
+        String input = "1 != 2";
+        boolean expected = true;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void trueEqualsEqualsTrueShouldEqualTrue() {
+        String input = "true == true";
+        boolean expected = true;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void falseEqualsEqualsFalseShouldEqualTrue() {
+        String input = "false == false";
+        boolean expected = true;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void trueEqualsEqualsFalseShouldEqualFalse() {
+        String input = "true == false";
+        boolean expected = false;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void trueBangEqualsFalseShouldEqualTrue() {
+        String input = "true != false";
+        boolean expected = true;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void falseBangEqualsTrueShouldEqualTrue() {
+        String input = "false != true";
+        boolean expected = true;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void oneLessThanTwoInParenthesisEqualsEqualsTrueShouldEqualTrue() {
+        String input = "(1 < 2) == true";
+        boolean expected = true;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void oneLessThanTwoInParenthesisEqualsEqualsFalseShouldEqualFalse() {
+        String input = "(1 < 2) == false";
+        boolean expected = false;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void oneGreaterThanTwoInParenthesisEqualsEqualsTrueShouldEqualFalse() {
+        String input = "(1 > 2) == true";
+        boolean expected = false;
+
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void oneGreaterThanTwoInParenthesisEqualsEqualsFalseShouldEqualTrue() {
+        String input = "(1 > 2) == false";
+        boolean expected = true;
+
+        testEvalBoolExpression(input, expected);
+    }
+
 }

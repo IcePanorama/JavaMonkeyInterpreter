@@ -84,6 +84,14 @@ public final class Evaluator {
                 return new MonkeyInt(leftVal * rightVal);
             case "/":
                 return new MonkeyInt(leftVal / rightVal);
+            case "<":
+                return nativeBooleanToBoolObject(leftVal < rightVal);
+            case ">":
+                return nativeBooleanToBoolObject(leftVal > rightVal);
+            case "==":
+                return nativeBooleanToBoolObject(leftVal == rightVal);
+            case "!=":
+                return nativeBooleanToBoolObject(leftVal != rightVal);
             default:
                 return NULL;
         }
@@ -96,6 +104,10 @@ public final class Evaluator {
             && right.Type() == MonkeyInt.INTEGER_OBJ
         ) {
             return evalIntegerInfixExpression(operator, left, right);
+        } else if (operator.equals("==")) {
+            return nativeBooleanToBoolObject(left.equals(right));
+        } else if (operator.equals("!=")) {
+            return nativeBooleanToBoolObject(!left.equals(right));
         }
         return NULL;
     }
@@ -108,11 +120,15 @@ public final class Evaluator {
         } else if (node instanceof InfixExpression) {
             MonkeyObject left = Eval(((InfixExpression)node).left);
             MonkeyObject right = Eval(((InfixExpression)node).right);
-            return evalInfixExpression(((InfixExpression)node).operator, left,
-                right);
+
+            return evalInfixExpression(((InfixExpression)node).operator,
+                                        left,
+                                        right);
         } else if (node instanceof PrefixExpression) {
             MonkeyObject right = Eval(((PrefixExpression)node).right);
-            return evalPrefixExpression(((PrefixExpression)node).operator, right);
+
+            return evalPrefixExpression(((PrefixExpression)node).operator,
+                                        right);
         } else if (node instanceof Bool) {
             return nativeBooleanToBoolObject(((Bool)node).value);
         } else if (node instanceof IntegerLiteral) {
