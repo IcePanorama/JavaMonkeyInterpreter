@@ -105,9 +105,9 @@ public final class Evaluator {
         ) {
             return evalIntegerInfixExpression(operator, left, right);
         } else if (operator.equals("==")) {
-            return nativeBooleanToBoolObject(left.equals(right));
+            return nativeBooleanToBoolObject(left == right);
         } else if (operator.equals("!=")) {
-            return nativeBooleanToBoolObject(!left.equals(right));
+            return nativeBooleanToBoolObject(left != right);
         }
         return NULL;
     }
