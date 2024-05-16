@@ -10,7 +10,7 @@ import ast.Statement;
 import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyObject;
 
-final class Evaluator {
+public final class Evaluator {
     private Evaluator() {}
 
     private static MonkeyObject evalStatements(ArrayList<Statement> statements) {

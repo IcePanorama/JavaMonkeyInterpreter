@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import ast.Program;
+import evaluator.Evaluator;
 import lexer.Lexer;
 import parser.Parser;
 
@@ -47,7 +48,10 @@ public class REPL {
                 printParserErrors(p.errors);
             }
 
-            System.out.printf("%s\n", prog.toString());
+            var evaluated = Evaluator.Eval(prog);
+            if (evaluated != null) {
+                System.out.printf("%s\n", evaluated.Inspect());
+            }
         }
 
         scnr.close();
