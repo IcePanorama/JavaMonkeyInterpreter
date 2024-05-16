@@ -16,7 +16,7 @@ class EvaluatorTest {
         var p = new Parser(l);
         var prog = p.parseProgram();
 
-        return Eval(prog);
+        return Evaluator.Eval(prog);
     }
 
     void testIntegerObject(MonkeyObject obj, long expected) {

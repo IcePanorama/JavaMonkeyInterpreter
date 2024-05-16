@@ -1,6 +1,6 @@
 package ast;
 
-interface Node {
+public interface Node {
     String TokenLiteral();
     String toString();
 }
