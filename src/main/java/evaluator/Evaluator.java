@@ -13,6 +13,9 @@ import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyObject;
 
 public final class Evaluator {
+    private final static MonkeyBool TRUE = new MonkeyBool(true);
+    private final static MonkeyBool FALSE = new MonkeyBool(false);
+
     private Evaluator() {}
 
     private static MonkeyObject evalStatements(ArrayList<Statement> statements) {
@@ -25,13 +28,19 @@ public final class Evaluator {
         return result;
     }
 
+    private static MonkeyBool nativeBooleanToBoolObject(boolean input) {
+        if (input)
+            return TRUE;
+        return FALSE;
+    }
+
     public static MonkeyObject Eval(Node node) {
         if (node instanceof Program) {
             return evalStatements(((Program)node).statements);
         } else if (node instanceof ExpressionStatement) {
             return Eval(((ExpressionStatement)node).expression);
         } else if (node instanceof Bool) {
-            return new MonkeyBool(((Bool)node).value);
+            return nativeBooleanToBoolObject(((Bool)node).value);
         } else if (node instanceof IntegerLiteral) {
             return new MonkeyInt(((IntegerLiteral)(node)).value);
         }
