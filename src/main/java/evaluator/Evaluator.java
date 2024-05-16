@@ -6,6 +6,7 @@ import ast.Bool;
 import ast.ExpressionStatement;
 import ast.IntegerLiteral;
 import ast.Node;
+import ast.PrefixExpression;
 import ast.Program;
 import ast.Statement;
 import monkeyobject.MonkeyBool;
@@ -36,11 +37,46 @@ public final class Evaluator {
         return FALSE;
     }
 
+    private static MonkeyObject evalBangOperatorExpression(MonkeyObject right) {
+        if (right == TRUE) {
+            return FALSE;
+        } else if (right == FALSE) {
+            return TRUE;
+        } else if (right == NULL) {
+                return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    private static MonkeyObject evalMinusOperatorExpression(MonkeyObject right) {
+        if (right.Type() != MonkeyInt.INTEGER_OBJ) {
+            return NULL;
+        }
+        
+        return new MonkeyInt(-((MonkeyInt)right).value);
+    }
+
+    private static MonkeyObject evalPrefixExpression(String operator,
+        MonkeyObject right) {
+            switch (operator) {
+                case "!": 
+                    return evalBangOperatorExpression(right);
+                case "-":
+                    return evalMinusOperatorExpression(right);
+                default:
+                    return NULL;
+            }
+    }
+
     public static MonkeyObject Eval(Node node) {
         if (node instanceof Program) {
             return evalStatements(((Program)node).statements);
         } else if (node instanceof ExpressionStatement) {
             return Eval(((ExpressionStatement)node).expression);
+        } else if (node instanceof PrefixExpression) {
+            MonkeyObject right = Eval(((PrefixExpression)node).right);
+            return evalPrefixExpression(((PrefixExpression)node).operator, right);
         } else if (node instanceof Bool) {
             return nativeBooleanToBoolObject(((Bool)node).value);
         } else if (node instanceof IntegerLiteral) {

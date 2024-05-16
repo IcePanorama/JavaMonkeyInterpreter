@@ -2,7 +2,7 @@ package monkeyobject;
 
 public class MonkeyInt implements MonkeyObject {
     public long value;
-    final static String INTEGER_OBJ = "INTEGER";
+    public final static String INTEGER_OBJ = "INTEGER";
 
     public MonkeyInt(long value) {
         this.value = value;
