@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import org.junit.jupiter.api.Test;
 
 import lexer.Lexer;
+import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyObject;
 import parser.Parser;
@@ -26,9 +27,21 @@ class EvaluatorTest {
         assertEquals(intObj.value, expected);
     }
 
+    void testBoolObject(MonkeyObject obj, boolean expected) {
+        assertInstanceOf(MonkeyBool.class, obj);
+
+        MonkeyBool intObj = (MonkeyBool)obj;
+        assertEquals(intObj.value, expected);
+    }
+
     void testEvalIntegerExpression(String input, long expected) {
         MonkeyObject evaluated = testEval(input);
         testIntegerObject(evaluated, expected);
+    }
+
+    void testEvalBoolExpression(String input, boolean expected) {
+        MonkeyObject evaluated = testEval(input);
+        testBoolObject(evaluated, expected);
     }
 
     @Test
@@ -40,10 +53,18 @@ class EvaluatorTest {
     }
 
     @Test
-    void tenShouldParseAsIntegerObjectWithValueOf10() {
-        String input = "10";
-        long expected = 10;
+    void trueShouldParseAsBoolObjectWithValueOfTrue() {
+        String input = "true";
+        boolean expected = true;
 
-        testEvalIntegerExpression(input, expected);
+        testEvalBoolExpression(input, expected);
+    }
+
+    @Test
+    void falseShouldParseAsBoolObjectWithValueOfFalse() {
+        String input = "false";
+        boolean expected = false;
+
+        testEvalBoolExpression(input, expected);
     }
 }

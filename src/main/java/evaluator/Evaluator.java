@@ -2,11 +2,13 @@ package evaluator;
 
 import java.util.ArrayList;
 
+import ast.Bool;
 import ast.ExpressionStatement;
 import ast.IntegerLiteral;
 import ast.Node;
 import ast.Program;
 import ast.Statement;
+import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyObject;
 
@@ -28,6 +30,8 @@ public final class Evaluator {
             return evalStatements(((Program)node).statements);
         } else if (node instanceof ExpressionStatement) {
             return Eval(((ExpressionStatement)node).expression);
+        } else if (node instanceof Bool) {
+            return new MonkeyBool(((Bool)node).value);
         } else if (node instanceof IntegerLiteral) {
             return new MonkeyInt(((IntegerLiteral)(node)).value);
         }
