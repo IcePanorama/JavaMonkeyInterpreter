@@ -10,11 +10,13 @@ import ast.Program;
 import ast.Statement;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyInt;
+import monkeyobject.MonkeyNull;
 import monkeyobject.MonkeyObject;
 
 public final class Evaluator {
     private final static MonkeyBool TRUE = new MonkeyBool(true);
     private final static MonkeyBool FALSE = new MonkeyBool(false);
+    private final static MonkeyNull NULL = new MonkeyNull();
 
     private Evaluator() {}
 
