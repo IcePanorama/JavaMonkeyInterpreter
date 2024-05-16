@@ -1,6 +1,6 @@
 package monkeyobject;
 
-interface MonkeyObject {
+public interface MonkeyObject {
     String Type();
     String Inspect();
 }

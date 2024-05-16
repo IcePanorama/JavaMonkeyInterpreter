@@ -1,7 +1,7 @@
 package monkeyobject;
 
-class MonkeyInt implements MonkeyObject {
-    long value;
+public class MonkeyInt implements MonkeyObject {
+    public long value;
     final static String INTEGER_OBJ = "INTEGER";
 
     public String Type() { return INTEGER_OBJ; }
