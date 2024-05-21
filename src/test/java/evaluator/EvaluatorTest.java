@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import lexer.Lexer;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyInt;
+import monkeyobject.MonkeyNull;
 import monkeyobject.MonkeyObject;
 import parser.Parser;
 
@@ -43,6 +44,17 @@ class EvaluatorTest {
     void testEvalBoolExpression(String input, boolean expected) {
         MonkeyObject evaluated = testEval(input);
         testBoolObject(evaluated, expected);
+    }
+
+    void testEvalConditionalExpression(String input, long expected) {
+        MonkeyObject evaluated = testEval(input);
+        assertInstanceOf(MonkeyInt.class, evaluated);
+        assertEquals(expected, ((MonkeyInt)evaluated).value);
+    }
+
+    void testEvalConditionalExpressionIsNull(String input) {
+        MonkeyObject evaluated = testEval(input);
+        assertInstanceOf(MonkeyNull.class, evaluated);
     }
 
     // Does this really need to be its own method?
@@ -357,4 +369,57 @@ class EvaluatorTest {
         testEvalBoolExpression(input, expected);
     }
 
+    @Test
+    void ifTrueThenTenShouldEvaluateTo10() {
+        String input = "if (true) { 10 }";
+        long expectedOutput = 10;
+
+        testEvalConditionalExpression(input, expectedOutput);
+    }
+
+    @Test
+    void ifFalseThenTenShouldEvaluateToNull() {
+        String input = "if (false) { 10 }";
+
+        testEvalConditionalExpressionIsNull(input);
+    }
+
+    @Test
+    void ifOneThen10ShouldEvaluateTo10() {
+        String input = "if (1) { 10 }";
+        long expectedOutput = 10;
+
+        testEvalConditionalExpression(input, expectedOutput);
+    }
+
+    @Test
+    void ifOneLessThanTwoThenTenShouldEvaluateTo10() {
+        String input = "if (1 < 2) { 10 }";
+        long expectedOutput = 10;
+
+        testEvalConditionalExpression(input, expectedOutput);
+    }
+
+    @Test
+    void ifOneGreaterThanTwoThenTenShouldEvaluateToNull() {
+        String input = "if (1 > 2) { 10 }";
+
+        testEvalConditionalExpressionIsNull(input);
+    }
+
+    @Test
+    void ifOneGreaterThanTwoThenTenElseTwentyShouldEvaluateTo20() {
+        String input = "if (1 > 2) { 10 } else { 20 }";
+        long expectedOutput = 20;
+
+        testEvalConditionalExpression(input, expectedOutput);
+    }
+
+    @Test
+    void ifOneLessThanTwoThenTenElseTwentyShouldEvaluateTo20() {
+        String input = "if (1 < 2) { 10 } else { 20 }";
+        long expectedOutput = 10;
+
+        testEvalConditionalExpression(input, expectedOutput);
+    }
 }

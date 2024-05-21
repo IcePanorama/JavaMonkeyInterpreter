@@ -2,8 +2,10 @@ package evaluator;
 
 import java.util.ArrayList;
 
+import ast.BlockStatement;
 import ast.Bool;
 import ast.ExpressionStatement;
+import ast.IfExpression;
 import ast.InfixExpression;
 import ast.IntegerLiteral;
 import ast.Node;
@@ -112,11 +114,34 @@ public final class Evaluator {
         return NULL;
     }
 
+    private static boolean isTruthy(MonkeyObject obj) {
+        if (obj == NULL || obj == FALSE) {
+            return false;
+        }
+        return true;
+    }
+
+    private static MonkeyObject evalIfExpression(IfExpression expr) {
+        MonkeyObject condition = Eval(expr.condition);
+
+        if (isTruthy(condition)){
+            return Eval(expr.consequence);
+        } else if (expr.alternative != null) {
+            return Eval(expr.alternative);
+        } else {
+            return NULL;
+        }
+    }
+
     public static MonkeyObject Eval(Node node) {
         if (node instanceof Program) {
             return evalStatements(((Program)node).statements);
         } else if (node instanceof ExpressionStatement) {
             return Eval(((ExpressionStatement)node).expression);
+        } else if (node instanceof BlockStatement) {
+            return evalStatements(((BlockStatement)node).statements);
+        } else if (node instanceof IfExpression) {
+            return evalIfExpression((IfExpression)node);
         } else if (node instanceof InfixExpression) {
             MonkeyObject left = Eval(((InfixExpression)node).left);
             MonkeyObject right = Eval(((InfixExpression)node).right);
