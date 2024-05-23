@@ -146,6 +146,8 @@ public final class Evaluator {
 
     private static MonkeyObject evalIfExpression(IfExpression expr) {
         MonkeyObject condition = Eval(expr.condition);
+        if (isError(condition))
+            return condition;
 
         if (isTruthy(condition)){
             return Eval(expr.consequence);
@@ -178,6 +180,12 @@ public final class Evaluator {
         return new MonkeyError(String.format(format, a));
     }
 
+    private static boolean isError(MonkeyObject obj) {
+        if (obj != null)
+            return obj.Type().equals(MonkeyError.ERROR_OBJ);
+        return false;
+    }
+
     public static MonkeyObject Eval(Node node) {
         if (node instanceof Program) {
             return evalProgram(((Program)node).statements);
@@ -189,18 +197,31 @@ public final class Evaluator {
             return evalIfExpression((IfExpression)node);
         } else if (node instanceof InfixExpression) {
             MonkeyObject left = Eval(((InfixExpression)node).left);
-            MonkeyObject right = Eval(((InfixExpression)node).right);
+            if (isError(left)) {
+                return left;
+            }
 
-            return evalInfixExpression(((InfixExpression)node).operator,
-                                        left,
+            MonkeyObject right = Eval(((InfixExpression)node).right);
+            if (isError(right)) {
+                return right;
+            }
+
+            return evalInfixExpression(((InfixExpression)node).operator, left,
                                         right);
         } else if (node instanceof PrefixExpression) {
             MonkeyObject right = Eval(((PrefixExpression)node).right);
+            if (isError(right)) {
+                return right;
+            }
 
             return evalPrefixExpression(((PrefixExpression)node).operator,
                                         right);
         } else if (node instanceof ReturnStatement) {
             MonkeyObject val = Eval(((ReturnStatement)node).returnValue);
+            if (isError(val)) {
+                return val;
+            }
+
             return new MonkeyReturnValue(val);
         } else if (node instanceof Bool) {
             return nativeBooleanToBoolObject(((Bool)node).value);
