@@ -78,6 +78,10 @@ class EvaluatorTest {
         assertEquals(expected, errObj.message);
     }
 
+    void testEvalLetStatements(String input, long expected) {
+        testIntegerObject(testEval(input), expected);
+    }
+
     /* Tests */
     @Test
     void fiveShouldParseAsIntegerObjectWithValueOf5() {
@@ -530,4 +534,43 @@ class EvaluatorTest {
         testEvalErrorHandling(input, expectedOutput);
     }
 
+    @Test
+    void foobarShouldProduceAnIdentifierNotFoundError() {
+        String input = "foobar";
+        String expectedOutput = "identifier not found: foobar";
+
+        testEvalErrorHandling(input, expectedOutput);
+    }
+
+    @Test
+    void letAEqualFiveSemiAShouldReturn5() {
+        String input = "let a = 5; a;";
+        long expected = 5;
+
+        testEvalLetStatements(input, expected);
+    }
+
+    @Test
+    void letAEqualFiveTimesFiveSemiAShouldReturn25() {
+        String input = "let a = 5 * 5; a;";
+        long expected = 25;
+
+        testEvalLetStatements(input, expected);
+    }
+
+    @Test
+    void letAEqualFiveSemiLetBEqualASemiBShouldReturn5() {
+        String input = "let a = 5; let b = a; b;";
+        long expected = 5;
+
+        testEvalLetStatements(input, expected);
+    }
+
+    @Test
+    void letAEqualFiveSemiLetBEqualASemiLetCEqualAPlusBPlus5SemiCShouldReturn15() {
+        String input = "let a = 5; let b = a; let c = a + b + 5; c;";
+        long expected = 15;
+
+        testEvalLetStatements(input, expected);
+    }
 }
