@@ -86,6 +86,25 @@ class EvaluatorTest {
         testIntegerObject(testEval(input), expected);
     }
 
+    MonkeyObject testEvalFunctions(String input, String[] expectedParams,
+        String expectedBody) {
+        MonkeyObject evaluated = testEval(input);
+
+        assertInstanceOf(MonkeyFunction.class, evaluated);
+        MonkeyFunction fn = (MonkeyFunction)evaluated;
+
+        assertEquals(expectedParams.length, fn.parameters.size());
+        int i;
+        for (i = 0; i < expectedParams.length; i++) {
+//TODO: should be able to natively support comparing identifiers
+            assertEquals(expectedParams[i], fn.parameters.get(i).toString());
+        }
+        assertEquals(i, fn.parameters.size());
+        assertEquals(expectedBody, fn.body.toString());
+
+        return evaluated;
+    }
+
     /* Tests */
     @Test
     void fiveShouldParseAsIntegerObjectWithValueOf5() {
@@ -581,16 +600,60 @@ class EvaluatorTest {
     @Test
     void evaluatorShouldBeAbleToBuildAFunctionObjectCorrectly() {
         String input = "fn(x) { x + 2; }";
-        MonkeyObject evaluated = testEval(input);
+        testEvalFunctions(input, new String[] {"x"}, "(x + 2)");
+    }
 
-        assertInstanceOf(MonkeyFunction.class, evaluated);
-        MonkeyFunction fn = (MonkeyFunction)evaluated;
+    @Test
+    void functionObjectShouldBeAbleToImplicitlyReturnValue() {
+        String input = "let identity = fn(x) { x; }; identity(5);";
+        MonkeyObject eval = testEvalFunctions(input, new String[] {"x"},
+            "(x)");
 
-        assertEquals(1, fn.parameters.size());
-        assertEquals("x", fn.parameters.get(0).toString());
+        testIntegerObject(eval, 5);
+    }
 
-        // Might have to put this in brackets
-        String expectedBody = "(x + 2)";
-        assertEquals(expectedBody, fn.body.toString());
+    @Test
+    void functionObjectShouldBeAbleToExplicitlyReturnValue() {
+        String input = "let identity = fn(x) { return x; }; identity(5);";
+        MonkeyObject eval = testEvalFunctions(input, new String[] {"x"},
+            "(return x)");
+
+        testIntegerObject(eval, 5);
+    }
+
+    @Test
+    void functionWithSingleParameterShouldBeAbleToUsePassedValueInExpression() {
+        String input = "let double = fn(x) { x * 2; }; double(5);";
+        MonkeyObject eval = testEvalFunctions(input, new String[] {"x"},
+            "(return x)");
+
+        testIntegerObject(eval, 10);
+    }
+
+    @Test
+    void functionWithTwoParametersShouldBeAbleToUseBothInExpression() {
+        String input = "let add = fn(x, y) { x + y; }; add(5, 5);";
+        MonkeyObject eval = testEvalFunctions(input, new String[] {"x", "y"},
+            "(x + y)");
+
+        testIntegerObject(eval, 10);
+    }
+
+    @Test
+    void functionObjectsShouldEvaluateArgumentsPriorToPassingThem() {
+        String input = "let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));";
+        MonkeyObject eval = testEvalFunctions(input, new String[] {"x", "y"},
+            "(x + y)");
+
+        testIntegerObject(eval, 20);
+    }
+
+    @Test
+    void functionObjectsShouldSupportAnonymousFunctions() {
+        String input = "fn(x) { x; }(5)";
+        MonkeyObject eval = testEvalFunctions(input, new String[] {"x"},
+            "(x)");
+
+        testIntegerObject(eval, 5);
     }
 }
