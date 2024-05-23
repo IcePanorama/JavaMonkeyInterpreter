@@ -14,6 +14,7 @@ import ast.Program;
 import ast.ReturnStatement;
 import ast.Statement;
 import monkeyobject.MonkeyBool;
+import monkeyobject.MonkeyError;
 import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyNull;
 import monkeyobject.MonkeyObject;
@@ -23,6 +24,14 @@ public final class Evaluator {
     private final static MonkeyBool TRUE = new MonkeyBool(true);
     private final static MonkeyBool FALSE = new MonkeyBool(false);
     private final static MonkeyNull NULL = new MonkeyNull();
+    private final static String UNKNOWN_OPERATOR_PREFIX_ERR_FMT = 
+        "unknown operator: %s%s";
+    private final static String UNKNOWN_OPERATOR_MINUS_ERR_FMT =
+        "unknown operator: -%s";
+    private final static String UNKNOWN_OPERATOR_INFIX_ERR_FMT =
+        "unknown operator: %s %s %s";
+    private final static String TYPE_MISMATCH_ERR_FMT =
+        "type mismatch: %s %s %s";
 
     private Evaluator() {}
 
@@ -34,6 +43,8 @@ public final class Evaluator {
 
             if (result instanceof MonkeyReturnValue) {
                 return ((MonkeyReturnValue)result).value;
+            } else if (result instanceof MonkeyError) {
+                return result;
             }
         }
 
@@ -60,7 +71,7 @@ public final class Evaluator {
 
     private static MonkeyObject evalMinusOperatorExpression(MonkeyObject right) {
         if (right.Type() != MonkeyInt.INTEGER_OBJ) {
-            return NULL;
+            return createNewError(UNKNOWN_OPERATOR_MINUS_ERR_FMT, right.Type());
         }
         
         return new MonkeyInt(-((MonkeyInt)right).value);
@@ -74,7 +85,8 @@ public final class Evaluator {
             case "-":
                 return evalMinusOperatorExpression(right);
             default:
-                return NULL;
+                return createNewError(UNKNOWN_OPERATOR_PREFIX_ERR_FMT, operator,
+                    right.Type());
         }
     }
 
@@ -101,7 +113,8 @@ public final class Evaluator {
             case "!=":
                 return nativeBooleanToBoolObject(leftVal != rightVal);
             default:
-                return NULL;
+                return createNewError(UNKNOWN_OPERATOR_INFIX_ERR_FMT,
+                    left.Type(), operator, right.Type());
         }
     }
 
@@ -116,8 +129,12 @@ public final class Evaluator {
             return nativeBooleanToBoolObject(left == right);
         } else if (operator.equals("!=")) {
             return nativeBooleanToBoolObject(left != right);
+        } else if (left.Type() != right.Type()) {
+            return createNewError(TYPE_MISMATCH_ERR_FMT, left.Type(),
+                operator, right.Type());
         }
-        return NULL;
+        return createNewError(UNKNOWN_OPERATOR_INFIX_ERR_FMT, left.Type(),
+            operator, right.Type());
     }
 
     private static boolean isTruthy(MonkeyObject obj) {
@@ -145,13 +162,20 @@ public final class Evaluator {
         for (var stmt: block.statements) {
             result = Eval(stmt);
 
-            if (result != null &&
-                result.Type() == MonkeyReturnValue.RETURN_VALUE_OBJ) {
-                return result;
+            if (result != null) {
+                String rt = result.Type();
+                if (rt.equals(MonkeyReturnValue.RETURN_VALUE_OBJ) ||
+                    rt.equals(MonkeyError.ERROR_OBJ)) {
+                    return result;
+                }
             }
         }
 
         return result;
+    }
+
+    private static MonkeyError createNewError(String format, Object... a) {
+        return new MonkeyError(String.format(format, a));
     }
 
     public static MonkeyObject Eval(Node node) {

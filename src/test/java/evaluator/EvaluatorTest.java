@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import lexer.Lexer;
 import monkeyobject.MonkeyBool;
+import monkeyobject.MonkeyError;
 import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyNull;
 import monkeyobject.MonkeyObject;
@@ -67,6 +68,14 @@ class EvaluatorTest {
     void testEvalReturnStatements(String input, long expected) {
         MonkeyObject evaluated = testEval(input);
         testIntegerObject(evaluated, expected);
+    }
+
+    void testEvalErrorHandling(String input, String expected) {
+        MonkeyObject evaluated = testEval(input);
+
+        assertInstanceOf(MonkeyError.class, evaluated);
+        MonkeyError errObj = (MonkeyError)evaluated;
+        assertEquals(expected, errObj.message);
     }
 
     /* Tests */
@@ -458,4 +467,67 @@ class EvaluatorTest {
 
         testEvalReturnStatements(input, expectedOutput);
     }
+
+    @Test
+    void fivePlusTrueShouldProduceATypeMismatchError() {
+        String input = "5 + true;";
+        String expectedOutput = "type mismatch: INTEGER + BOOLEAN";
+
+        testEvalErrorHandling(input, expectedOutput);
+    }
+
+    @Test
+    void fivePlusTrueSemicolonFiveShouldProduceATypeMismatchError() {
+        String input = "5 + true; 5;";
+        String expectedOutput = "type mismatch: INTEGER + BOOLEAN";
+
+        testEvalErrorHandling(input, expectedOutput);
+    }
+
+    @Test
+    void minusTrueShouldProduceAnUnknownOperatorError() {
+        String input = "-true";
+        String expectedOutput = "unknown operator: -BOOLEAN";
+
+        testEvalErrorHandling(input, expectedOutput);
+    }
+
+    @Test
+    void truePlusFalseShouldProduceAnUnknownOperatorError() {
+        String input = "true + false";
+        String expectedOutput = "unknown operator: BOOLEAN + BOOLEAN";
+
+        testEvalErrorHandling(input, expectedOutput);
+    }
+
+    @Test
+    void fiveSemiTruePlusFalseSemiFiveShouldProduceAnUnknownOperatorError() {
+        String input = "5; true + false; 5";
+        String expectedOutput = "unknown operator: BOOLEAN + BOOLEAN";
+
+        testEvalErrorHandling(input, expectedOutput);
+    }
+
+    @Test
+    void ifTenGreaterThanOneThenTruePlusFalseShouldProduceAnUnknownOperatorError() {
+        String input = "if (10 > 1) { true + false; }";
+        String expectedOutput = "unknown operator: BOOLEAN + BOOLEAN";
+
+        testEvalErrorHandling(input, expectedOutput);
+    }
+
+    @Test
+    void ifTenGreaterThanOneThenTruePlusFalseNestedWithinIfTenGreaterThanOneThen1ShouldProduceAnUnknownOperatorError() {
+        String input = """
+            if (10 > 1) {
+                if (10 > 1) {
+                    return true + false;
+                }
+                return 1;
+            }""";;
+        String expectedOutput = "unknown operator: BOOLEAN + BOOLEAN";
+
+        testEvalErrorHandling(input, expectedOutput);
+    }
+
 }
