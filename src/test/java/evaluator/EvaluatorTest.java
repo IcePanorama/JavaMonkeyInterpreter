@@ -10,6 +10,7 @@ import lexer.Lexer;
 import monkeyobject.Environment;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyError;
+import monkeyobject.MonkeyFunction;
 import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyNull;
 import monkeyobject.MonkeyObject;
@@ -575,5 +576,21 @@ class EvaluatorTest {
         long expected = 15;
 
         testEvalLetStatements(input, expected);
+    }
+    
+    @Test
+    void evaluatorShouldBeAbleToBuildAFunctionObjectCorrectly() {
+        String input = "fn(x) { x + 2; }";
+        MonkeyObject evaluated = testEval(input);
+
+        assertInstanceOf(MonkeyFunction.class, evaluated);
+        MonkeyFunction fn = (MonkeyFunction)evaluated;
+
+        assertEquals(1, fn.parameters.size());
+        assertEquals("x", fn.parameters.get(0).toString());
+
+        // Might have to put this in brackets
+        String expectedBody = "(x + 2)";
+        assertEquals(expectedBody, fn.body.toString());
     }
 }

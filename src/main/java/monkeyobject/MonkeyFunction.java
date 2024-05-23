@@ -7,8 +7,8 @@ import ast.Identifier;
 
 public class MonkeyFunction implements MonkeyObject{
     public final static String FUNCTION_OBJ = "FUNCTION";
-    ArrayList<Identifier> parameters;
-    BlockStatement body;
+    public ArrayList<Identifier> parameters;
+    public BlockStatement body;
     Environment env;
 
     public String Type() { return FUNCTION_OBJ; }
