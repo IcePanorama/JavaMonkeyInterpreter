@@ -6,6 +6,7 @@ import java.util.Scanner;
 import ast.Program;
 import evaluator.Evaluator;
 import lexer.Lexer;
+import monkeyobject.Environment;
 import parser.Parser;
 
 public class REPL {
@@ -31,8 +32,10 @@ public class REPL {
         }
     }
 
+    // Should this just be main?
     public static void Start(){
         Scanner scnr = new Scanner(System.in);
+        Environment env = new Environment();
 
         while (true) {
             System.out.print(PROMPT);
@@ -48,7 +51,7 @@ public class REPL {
                 printParserErrors(p.errors);
             }
 
-            var evaluated = Evaluator.Eval(prog);
+            var evaluated = Evaluator.Eval(prog, env);
             if (evaluated != null) {
                 System.out.printf("%s\n", evaluated.Inspect());
             }

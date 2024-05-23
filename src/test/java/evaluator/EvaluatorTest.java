@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import org.junit.jupiter.api.Test;
 
+import ast.Program;
 import lexer.Lexer;
+import monkeyobject.Environment;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyError;
 import monkeyobject.MonkeyInt;
@@ -16,11 +18,12 @@ import parser.Parser;
 class EvaluatorTest {
     /* Helper Functions */
     MonkeyObject testEval(String input) {
-        var l = new Lexer(input);
-        var p = new Parser(l);
-        var prog = p.parseProgram();
+        Lexer l = new Lexer(input);
+        Parser p = new Parser(l);
+        Program prog = p.parseProgram();
+        Environment env = new Environment();
 
-        return Evaluator.Eval(prog);
+        return Evaluator.Eval(prog, env);
     }
 
     void testIntegerObject(MonkeyObject obj, long expected) {

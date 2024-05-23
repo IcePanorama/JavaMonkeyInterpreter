@@ -14,6 +14,7 @@ import ast.PrefixExpression;
 import ast.Program;
 import ast.ReturnStatement;
 import ast.Statement;
+import monkeyobject.Environment;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyError;
 import monkeyobject.MonkeyInt;
@@ -36,11 +37,12 @@ public final class Evaluator {
 
     private Evaluator() {}
 
-    private static MonkeyObject evalProgram(ArrayList<Statement> statements) {
+    private static MonkeyObject evalProgram(ArrayList<Statement> statements,
+        Environment env) {
         MonkeyObject result = null;
 
         for (var stmt : statements) {
-            result = Eval(stmt);
+            result = Eval(stmt, env);
 
             if (result instanceof MonkeyReturnValue) {
                 return ((MonkeyReturnValue)result).value;
@@ -70,7 +72,7 @@ public final class Evaluator {
         return FALSE;
     }
 
-    private static MonkeyObject evalMinusOperatorExpression(MonkeyObject right) {
+    private static MonkeyObject evalMinusOperatorExpression(MonkeyObject right){
         if (right.Type() != MonkeyInt.INTEGER_OBJ) {
             return createNewError(UNKNOWN_OPERATOR_MINUS_ERR_FMT, right.Type());
         }
@@ -145,25 +147,27 @@ public final class Evaluator {
         return true;
     }
 
-    private static MonkeyObject evalIfExpression(IfExpression expr) {
-        MonkeyObject condition = Eval(expr.condition);
+    private static MonkeyObject evalIfExpression(IfExpression expr,
+        Environment env) {
+        MonkeyObject condition = Eval(expr.condition, env);
         if (isError(condition))
             return condition;
 
         if (isTruthy(condition)){
-            return Eval(expr.consequence);
+            return Eval(expr.consequence, env);
         } else if (expr.alternative != null) {
-            return Eval(expr.alternative);
+            return Eval(expr.alternative, env);
         } else {
             return NULL;
         }
     }
 
-    private static MonkeyObject evalBlockStatement(BlockStatement block) {
+    private static MonkeyObject evalBlockStatement(BlockStatement block,
+        Environment env) {
         MonkeyObject result = null;
 
         for (var stmt: block.statements) {
-            result = Eval(stmt);
+            result = Eval(stmt, env);
 
             if (result != null) {
                 String rt = result.Type();
@@ -187,22 +191,22 @@ public final class Evaluator {
         return false;
     }
 
-    public static MonkeyObject Eval(Node node) {
+    public static MonkeyObject Eval(Node node, Environment env) {
         if (node instanceof Program) {
-            return evalProgram(((Program)node).statements);
+            return evalProgram(((Program)node).statements, env);
         } else if (node instanceof ExpressionStatement) {
-            return Eval(((ExpressionStatement)node).expression);
+            return Eval(((ExpressionStatement)node).expression, env);
         } else if (node instanceof BlockStatement) {
-            return evalBlockStatement(((BlockStatement)node));
+            return evalBlockStatement(((BlockStatement)node), env);
         } else if (node instanceof IfExpression) {
-            return evalIfExpression((IfExpression)node);
+            return evalIfExpression((IfExpression)node, env);
         } else if (node instanceof InfixExpression) {
-            MonkeyObject left = Eval(((InfixExpression)node).left);
+            MonkeyObject left = Eval(((InfixExpression)node).left, env);
             if (isError(left)) {
                 return left;
             }
 
-            MonkeyObject right = Eval(((InfixExpression)node).right);
+            MonkeyObject right = Eval(((InfixExpression)node).right, env);
             if (isError(right)) {
                 return right;
             }
@@ -210,13 +214,13 @@ public final class Evaluator {
             return evalInfixExpression(((InfixExpression)node).operator, left,
                                         right);
         } else if (node instanceof LetStatement) {
-            MonkeyObject val = Eval(((LetStatement)node).value);
+            MonkeyObject val = Eval(((LetStatement)node).value, env);
             if (isError(val))
                 return val;
 
             //TODO: binding stuff
         } else if (node instanceof PrefixExpression) {
-            MonkeyObject right = Eval(((PrefixExpression)node).right);
+            MonkeyObject right = Eval(((PrefixExpression)node).right, env);
             if (isError(right)) {
                 return right;
             }
@@ -224,7 +228,7 @@ public final class Evaluator {
             return evalPrefixExpression(((PrefixExpression)node).operator,
                                         right);
         } else if (node instanceof ReturnStatement) {
-            MonkeyObject val = Eval(((ReturnStatement)node).returnValue);
+            MonkeyObject val = Eval(((ReturnStatement)node).returnValue, env);
             if (isError(val)) {
                 return val;
             }
