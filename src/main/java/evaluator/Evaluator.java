@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import ast.BlockStatement;
 import ast.Bool;
 import ast.ExpressionStatement;
+import ast.Identifier;
 import ast.IfExpression;
 import ast.InfixExpression;
 import ast.IntegerLiteral;
@@ -34,6 +35,8 @@ public final class Evaluator {
         "unknown operator: %s %s %s";
     private final static String TYPE_MISMATCH_ERR_FMT =
         "type mismatch: %s %s %s";
+    private final static String IDENTIFIER_NOT_FOUND_ERR_FMT =
+        "identifier not found: %s";
 
     private Evaluator() {}
 
@@ -191,6 +194,15 @@ public final class Evaluator {
         return false;
     }
 
+    private static MonkeyObject evalIdentifier(Identifier node, Environment env) {
+        MonkeyObject val = env.Get(node.value);
+        if (val == null)
+            return createNewError(IDENTIFIER_NOT_FOUND_ERR_FMT,
+                node.value.toString());
+
+        return val;
+    }
+
     public static MonkeyObject Eval(Node node, Environment env) {
         if (node instanceof Program) {
             return evalProgram(((Program)node).statements, env);
@@ -198,6 +210,8 @@ public final class Evaluator {
             return Eval(((ExpressionStatement)node).expression, env);
         } else if (node instanceof BlockStatement) {
             return evalBlockStatement(((BlockStatement)node), env);
+        } else if (node instanceof Identifier) {
+            return evalIdentifier((Identifier)node, env);
         } else if (node instanceof IfExpression) {
             return evalIfExpression((IfExpression)node, env);
         } else if (node instanceof InfixExpression) {
@@ -218,7 +232,7 @@ public final class Evaluator {
             if (isError(val))
                 return val;
 
-            //TODO: binding stuff
+            env.Set(((LetStatement)node).name.value, val);
         } else if (node instanceof PrefixExpression) {
             MonkeyObject right = Eval(((PrefixExpression)node).right, env);
             if (isError(right)) {
