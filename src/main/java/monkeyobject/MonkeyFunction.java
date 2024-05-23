@@ -11,6 +11,13 @@ public class MonkeyFunction implements MonkeyObject{
     public BlockStatement body;
     Environment env;
 
+    public MonkeyFunction(ArrayList<Identifier> parameters, BlockStatement body,
+        Environment env) {
+        this.parameters = parameters;
+        this.body = body;
+        this.env = env;
+    }
+
     public String Type() { return FUNCTION_OBJ; }
 
     public String Inspect() {

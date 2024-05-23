@@ -1,10 +1,12 @@
 package evaluator;
 
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 
 import ast.BlockStatement;
 import ast.Bool;
 import ast.ExpressionStatement;
+import ast.FunctionLiteral;
 import ast.Identifier;
 import ast.IfExpression;
 import ast.InfixExpression;
@@ -18,6 +20,7 @@ import ast.Statement;
 import monkeyobject.Environment;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyError;
+import monkeyobject.MonkeyFunction;
 import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyNull;
 import monkeyobject.MonkeyObject;
@@ -255,6 +258,10 @@ public final class Evaluator {
         /* Literals/Others */
         else if (node instanceof Bool) {
             return nativeBooleanToBoolObject(((Bool)node).value);
+        } else if (node instanceof FunctionLiteral) {
+            ArrayList<Identifier> params = ((FunctionLiteral)node).parameters;
+            BlockStatement body = ((FunctionLiteral)node).body;
+            return new MonkeyFunction(params, body, env);
         } else if (node instanceof Identifier) {
             return evalIdentifier((Identifier)node, env);
         } else if (node instanceof IntegerLiteral) {
