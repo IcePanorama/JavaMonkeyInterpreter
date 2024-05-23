@@ -8,6 +8,7 @@ import ast.ExpressionStatement;
 import ast.IfExpression;
 import ast.InfixExpression;
 import ast.IntegerLiteral;
+import ast.LetStatement;
 import ast.Node;
 import ast.PrefixExpression;
 import ast.Program;
@@ -208,6 +209,12 @@ public final class Evaluator {
 
             return evalInfixExpression(((InfixExpression)node).operator, left,
                                         right);
+        } else if (node instanceof LetStatement) {
+            MonkeyObject val = Eval(((LetStatement)node).value);
+            if (isError(val))
+                return val;
+
+            //TODO: binding stuff
         } else if (node instanceof PrefixExpression) {
             MonkeyObject right = Eval(((PrefixExpression)node).right);
             if (isError(right)) {
