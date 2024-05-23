@@ -11,11 +11,13 @@ import ast.IntegerLiteral;
 import ast.Node;
 import ast.PrefixExpression;
 import ast.Program;
+import ast.ReturnStatement;
 import ast.Statement;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyNull;
 import monkeyobject.MonkeyObject;
+import monkeyobject.MonkeyReturnValue;
 
 public final class Evaluator {
     private final static MonkeyBool TRUE = new MonkeyBool(true);
@@ -24,11 +26,15 @@ public final class Evaluator {
 
     private Evaluator() {}
 
-    private static MonkeyObject evalStatements(ArrayList<Statement> statements) {
+    private static MonkeyObject evalProgram(ArrayList<Statement> statements) {
         MonkeyObject result = null;
 
         for (var stmt : statements) {
             result = Eval(stmt);
+
+            if (result instanceof MonkeyReturnValue) {
+                return ((MonkeyReturnValue)result).value;
+            }
         }
 
         return result;
@@ -133,13 +139,28 @@ public final class Evaluator {
         }
     }
 
+    private static MonkeyObject evalBlockStatement(BlockStatement block) {
+        MonkeyObject result = null;
+
+        for (var stmt: block.statements) {
+            result = Eval(stmt);
+
+            if (result != null &&
+                result.Type() == MonkeyReturnValue.RETURN_VALUE_OBJ) {
+                return result;
+            }
+        }
+
+        return result;
+    }
+
     public static MonkeyObject Eval(Node node) {
         if (node instanceof Program) {
-            return evalStatements(((Program)node).statements);
+            return evalProgram(((Program)node).statements);
         } else if (node instanceof ExpressionStatement) {
             return Eval(((ExpressionStatement)node).expression);
         } else if (node instanceof BlockStatement) {
-            return evalStatements(((BlockStatement)node).statements);
+            return evalBlockStatement(((BlockStatement)node));
         } else if (node instanceof IfExpression) {
             return evalIfExpression((IfExpression)node);
         } else if (node instanceof InfixExpression) {
@@ -154,6 +175,9 @@ public final class Evaluator {
 
             return evalPrefixExpression(((PrefixExpression)node).operator,
                                         right);
+        } else if (node instanceof ReturnStatement) {
+            MonkeyObject val = Eval(((ReturnStatement)node).returnValue);
+            return new MonkeyReturnValue(val);
         } else if (node instanceof Bool) {
             return nativeBooleanToBoolObject(((Bool)node).value);
         } else if (node instanceof IntegerLiteral) {

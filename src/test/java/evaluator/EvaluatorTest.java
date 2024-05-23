@@ -64,6 +64,11 @@ class EvaluatorTest {
         testBoolObject(evaluated, expected);
     }
 
+    void testEvalReturnStatements(String input, long expected) {
+        MonkeyObject evaluated = testEval(input);
+        testIntegerObject(evaluated, expected);
+    }
+
     /* Tests */
     @Test
     void fiveShouldParseAsIntegerObjectWithValueOf5() {
@@ -421,5 +426,36 @@ class EvaluatorTest {
         long expectedOutput = 10;
 
         testEvalConditionalExpression(input, expectedOutput);
+    }
+
+    @Test
+    void returnTenShouldReturnTheValue10() {
+        String input = "return 10;";
+        long expectedOutput = 10;
+
+        testEvalReturnStatements(input, expectedOutput);
+    }
+
+    @Test
+    void returnTenFollowedByNineShouldReturnTheValue10() {
+        String input = "return 10; 9;";
+        long expectedOutput = 10;
+
+        testEvalReturnStatements(input, expectedOutput);
+    }
+
+    @Test
+    void IfTenGreaterThanOneReturn10NestedWithinIfTenGreaterThanOneReturn1ShouldReturn10() {
+        String input = """
+            if (10 > 1) {
+                if (10 > 1) {
+                    return 10;
+                }
+
+                return 1;
+            }""";
+        long expectedOutput = 10;
+
+        testEvalReturnStatements(input, expectedOutput);
     }
 }
