@@ -12,6 +12,7 @@ public class MonkeyFunction implements MonkeyObject{
     Environment env;
 
     public String Type() { return FUNCTION_OBJ; }
+
     public String Inspect() {
         String[] params = new String[parameters.size()];
         for (int i = 0; i < parameters.size(); i++) {
