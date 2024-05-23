@@ -2,7 +2,7 @@ package monkeyobject;
 
 public class MonkeyReturnValue implements MonkeyObject{
    public MonkeyObject value; 
-   public static String RETURN_VALUE_OBJ = "RETURN_VALUE";
+   public final static String RETURN_VALUE_OBJ = "RETURN_VALUE";
 
    public MonkeyReturnValue(MonkeyObject value) {
     this.value = value;
