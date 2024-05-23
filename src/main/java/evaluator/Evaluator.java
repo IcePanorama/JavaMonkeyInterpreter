@@ -1,10 +1,11 @@
 package evaluator;
 
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 
 import ast.BlockStatement;
 import ast.Bool;
+import ast.CallExpression;
+import ast.Expression;
 import ast.ExpressionStatement;
 import ast.FunctionLiteral;
 import ast.Identifier;
@@ -30,16 +31,19 @@ public final class Evaluator {
     private final static MonkeyBool TRUE = new MonkeyBool(true);
     private final static MonkeyBool FALSE = new MonkeyBool(false);
     private final static MonkeyNull NULL = new MonkeyNull();
+
+    /* Error Message Format Strings */
+    private final static String IDENTIFIER_NOT_FOUND_ERR_FMT =
+        "identifier not found: %s";
+    private final static String NOT_A_FUNCTION_ERR_FMT = "not a function: %s";
+    private final static String TYPE_MISMATCH_ERR_FMT =
+        "type mismatch: %s %s %s";
     private final static String UNKNOWN_OPERATOR_PREFIX_ERR_FMT = 
         "unknown operator: %s%s";
     private final static String UNKNOWN_OPERATOR_MINUS_ERR_FMT =
         "unknown operator: -%s";
     private final static String UNKNOWN_OPERATOR_INFIX_ERR_FMT =
         "unknown operator: %s %s %s";
-    private final static String TYPE_MISMATCH_ERR_FMT =
-        "type mismatch: %s %s %s";
-    private final static String IDENTIFIER_NOT_FOUND_ERR_FMT =
-        "identifier not found: %s";
 
     private Evaluator() {}
 
@@ -206,6 +210,61 @@ public final class Evaluator {
         return val;
     }
 
+    private static MonkeyObject[] evalExpressions(ArrayList<Expression> exprs,
+        Environment env) {
+        MonkeyObject[] results = new MonkeyObject[exprs.size()];
+
+        for (int i = 0; i < exprs.size(); i++) {
+            var e = exprs.get(i);
+            MonkeyObject evaluated = Eval((Node)e, env);
+            if (isError(evaluated)) {
+                return new MonkeyObject[] {evaluated};
+            }
+            results[i] = evaluated;
+        }
+
+        return results;
+    }
+
+    private static Environment extendFunctionEnv(MonkeyFunction fn,
+        MonkeyObject[] args) {
+        Environment env = new Environment(fn.env);
+
+        for (int i = 0; i < fn.parameters.size(); i++) {
+            env.Set(fn.parameters.get(i).value, args[i]);
+        }
+
+        return env;
+    }
+
+    private static MonkeyObject unwrapReturnValue(MonkeyObject obj) {
+        MonkeyReturnValue returnValue; 
+        try {
+            returnValue = (MonkeyReturnValue)obj;
+        } catch (ClassCastException e) {
+            // Should we print the exception w/ System.err.print() here?
+            return obj; 
+        }
+
+        return returnValue;
+    }
+
+    private static MonkeyObject applyFunction(MonkeyObject fn,
+        MonkeyObject[] args) {
+        MonkeyFunction function;
+        try {
+            function = (MonkeyFunction)fn;
+        } catch (ClassCastException e) {
+            // Should we print the exception w/ System.err.print() here?
+            return new MonkeyError(String.format(NOT_A_FUNCTION_ERR_FMT,
+                fn.Type()));
+        }
+        
+        Environment extendedEnv = extendFunctionEnv(function, args);
+        MonkeyObject evaluated = Eval(function.body, extendedEnv);
+        return unwrapReturnValue(evaluated);
+    }
+
     public static MonkeyObject Eval(Node node, Environment env) {
         /* Program */
         if (node instanceof Program) {
@@ -231,7 +290,19 @@ public final class Evaluator {
             return new MonkeyReturnValue(val);
         }
         /* Expressions */
-        else if (node instanceof IfExpression) {
+        else if (node instanceof CallExpression) {
+            MonkeyObject function = Eval(((CallExpression)node).function, env);
+            if (isError(function)) {
+                return function;
+            }
+            
+            MonkeyObject[] args = evalExpressions(((CallExpression)node).arguments, env);
+            if (args.length == 1 && isError(args[0])) {
+                return args[0];
+            }
+
+            return applyFunction(function, args);
+        } else if (node instanceof IfExpression) {
             return evalIfExpression((IfExpression)node, env);
         } else if (node instanceof InfixExpression) {
             MonkeyObject left = Eval(((InfixExpression)node).left, env);

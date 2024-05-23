@@ -606,54 +606,36 @@ class EvaluatorTest {
     @Test
     void functionObjectShouldBeAbleToImplicitlyReturnValue() {
         String input = "let identity = fn(x) { x; }; identity(5);";
-        MonkeyObject eval = testEvalFunctions(input, new String[] {"x"},
-            "(x)");
-
-        testIntegerObject(eval, 5);
+        testIntegerObject(testEval(input), 5);
     }
 
     @Test
     void functionObjectShouldBeAbleToExplicitlyReturnValue() {
         String input = "let identity = fn(x) { return x; }; identity(5);";
-        MonkeyObject eval = testEvalFunctions(input, new String[] {"x"},
-            "(return x)");
-
-        testIntegerObject(eval, 5);
+        testIntegerObject(testEval(input), 5);
     }
 
     @Test
     void functionWithSingleParameterShouldBeAbleToUsePassedValueInExpression() {
         String input = "let double = fn(x) { x * 2; }; double(5);";
-        MonkeyObject eval = testEvalFunctions(input, new String[] {"x"},
-            "(return x)");
-
-        testIntegerObject(eval, 10);
+        testIntegerObject(testEval(input), 10);
     }
 
     @Test
     void functionWithTwoParametersShouldBeAbleToUseBothInExpression() {
         String input = "let add = fn(x, y) { x + y; }; add(5, 5);";
-        MonkeyObject eval = testEvalFunctions(input, new String[] {"x", "y"},
-            "(x + y)");
-
-        testIntegerObject(eval, 10);
+        testIntegerObject(testEval(input), 10);
     }
 
     @Test
     void functionObjectsShouldEvaluateArgumentsPriorToPassingThem() {
         String input = "let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));";
-        MonkeyObject eval = testEvalFunctions(input, new String[] {"x", "y"},
-            "(x + y)");
-
-        testIntegerObject(eval, 20);
+        testIntegerObject(testEval(input), 20);
     }
 
     @Test
     void functionObjectsShouldSupportAnonymousFunctions() {
         String input = "fn(x) { x; }(5)";
-        MonkeyObject eval = testEvalFunctions(input, new String[] {"x"},
-            "(x)");
-
-        testIntegerObject(eval, 5);
+        testIntegerObject(testEval(input), 5);
     }
 }

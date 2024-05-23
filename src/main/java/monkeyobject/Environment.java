@@ -4,9 +4,21 @@ import java.util.HashMap;
 
 public class Environment {
     HashMap<String, MonkeyObject> store = new HashMap<>();
+    Environment outer;
+
+    public Environment() { }
+    
+    public Environment(Environment outer) {
+        this.outer = outer;
+    }
+
 
     public MonkeyObject Get(String name) {
-//TODO: look into how we're handling non-existant identifiers
+        MonkeyObject obj = store.get(name);
+        if (obj == null && outer != null) {
+            obj = outer.Get(name);
+        }
+
         return store.get(name);
     }
 

@@ -9,7 +9,7 @@ public class MonkeyFunction implements MonkeyObject{
     public final static String FUNCTION_OBJ = "FUNCTION";
     public ArrayList<Identifier> parameters;
     public BlockStatement body;
-    Environment env;
+    public Environment env;
 
     public MonkeyFunction(ArrayList<Identifier> parameters, BlockStatement body,
         Environment env) {

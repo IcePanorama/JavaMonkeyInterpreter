@@ -405,7 +405,7 @@ public class Parser {
 
     Expression parseCallExpression(Expression function) {
         CallExpression expr = new CallExpression(curToken, function);
-        expr.arguements = parseCallArguements();
+        expr.arguments = parseCallArguements();
         return expr;
     }
 

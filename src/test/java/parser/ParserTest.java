@@ -722,10 +722,10 @@ public class ParserTest {
 
         CallExpression callExpr = programIsCallExpression(prog);
         testIdentifier(callExpr.function, "add");
-        assertEquals(3, callExpr.arguements.size());
-        testLiteralExpression(callExpr.arguements.get(0), 1);
-        testInfixExpression(callExpr.arguements.get(1), 2, "*", 3);
-        testInfixExpression(callExpr.arguements.get(2), 4, "+", 5);
+        assertEquals(3, callExpr.arguments.size());
+        testLiteralExpression(callExpr.arguments.get(0), 1);
+        testInfixExpression(callExpr.arguments.get(1), 2, "*", 3);
+        testInfixExpression(callExpr.arguments.get(2), 4, "+", 5);
     }
 
     @Test
@@ -741,7 +741,7 @@ public class ParserTest {
         checkProgHasExpectedNumStatements(prog, 1);
 
         CallExpression callExpr = programIsCallExpression(prog);
-        assertEquals(0, callExpr.arguements.size());
+        assertEquals(0, callExpr.arguments.size());
     }
 
     @Test
@@ -761,10 +761,10 @@ public class ParserTest {
         checkProgHasExpectedNumStatements(prog, 1);
 
         CallExpression callExpr = programIsCallExpression(prog);
-        assertEquals(1, callExpr.arguements.size());
+        assertEquals(1, callExpr.arguments.size());
         //idk if this'll work
         testLiteralExpression(
-            (Identifier)callExpr.arguements.get(0),
+            (Identifier)callExpr.arguments.get(0),
             expectedArguement
         );
     }
@@ -786,11 +786,11 @@ public class ParserTest {
         checkProgHasExpectedNumStatements(prog, 1);
 
         CallExpression callExpr = programIsCallExpression(prog);
-        assertEquals(3, callExpr.arguements.size());
+        assertEquals(3, callExpr.arguments.size());
 
-        for (int i = 0; i < callExpr.arguements.size(); i++) {
+        for (int i = 0; i < callExpr.arguments.size(); i++) {
             testLiteralExpression(
-                    (Identifier) callExpr.arguements.get(i),
+                    (Identifier) callExpr.arguments.get(i),
                     expectedArguements[i]
             );
         }
