@@ -19,7 +19,7 @@ public class Environment {
             obj = outer.Get(name);
         }
 
-        return store.get(name);
+        return obj;
     }
 
     public MonkeyObject Set(String name, MonkeyObject val) {

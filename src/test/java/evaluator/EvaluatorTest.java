@@ -638,4 +638,10 @@ class EvaluatorTest {
         String input = "fn(x) { x; }(5)";
         testIntegerObject(testEval(input), 5);
     }
+
+    @Test
+    void functionObjectsShouldSupportClosures() {
+        String input = "let newAdder = fn(x) {fn(y) { x + y };}; let addTwo = newAdder(2); addTwo(2);";
+        testIntegerObject(testEval(input), 4);
+    }
 }

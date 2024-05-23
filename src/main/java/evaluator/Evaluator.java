@@ -243,6 +243,7 @@ public final class Evaluator {
             returnValue = (MonkeyReturnValue)obj;
         } catch (ClassCastException e) {
             // Should we print the exception w/ System.err.print() here?
+            //System.err.println(e);
             return obj; 
         }
 
@@ -256,6 +257,7 @@ public final class Evaluator {
             function = (MonkeyFunction)fn;
         } catch (ClassCastException e) {
             // Should we print the exception w/ System.err.print() here?
+            System.err.println(e);
             return new MonkeyError(String.format(NOT_A_FUNCTION_ERR_FMT,
                 fn.Type()));
         }
