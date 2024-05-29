@@ -17,157 +17,157 @@ public class LexerTest{
     @Test
     void eofShouldEqualEOF() {
         var l = new Lexer("");
-        assertEquals(Token.EOF, l.nextToken().type);
+        assertEquals(new Token(Token.EOF, null), l.nextToken());
     }
 
     @Test
     void identFiveShouldEqualIDENT() {
         var l = new Lexer("five");
-        assertEquals(Token.IDENT, l.nextToken().type);
+        assertEquals(new Token(Token.IDENT, "five"), l.nextToken());
     }
 
     @Test
     void numFiveShouldEqualINT() {
         var l = new Lexer("5");
-        assertEquals(Token.INT, l.nextToken().type);
+        assertEquals(new Token(Token.INT, "5"), l.nextToken());
     }
 
     @Test
     void assignShouldEqualASSIGN() {
         var l = new Lexer("=");
-        assertEquals(Token.ASSIGN, l.nextToken().type);
+        assertEquals(new Token(Token.ASSIGN, "="), l.nextToken());
     }
 
     @Test
     void plusShouldEqualPLUS() {
         var l = new Lexer("+");
-        assertEquals(Token.PLUS, l.nextToken().type);
+        assertEquals(new Token(Token.PLUS, "+"), l.nextToken());
     }
 
     @Test
     void minusShouldEqualMINUS() {
         var l = new Lexer("-");
-        assertEquals(Token.MINUS, l.nextToken().type);
+        assertEquals(new Token(Token.MINUS, "-"), l.nextToken());
     }
 
     @Test
     void exclamationShouldEqualBang() {
         var l = new Lexer("!");
-        assertEquals(Token.BANG, l.nextToken().type);
+        assertEquals(new Token(Token.BANG, "!"), l.nextToken());
     }
 
     @Test
     void asteriskShouldEqualASTERISK() {
         var l = new Lexer("*");
-        assertEquals(Token.ASTERISK, l.nextToken().type);
+        assertEquals(new Token(Token.ASTERISK, "*"), l.nextToken());
     }
 
     @Test
     void slashShouldEqualSLASH() {
         var l = new Lexer("/");
-        assertEquals(Token.SLASH, l.nextToken().type);
+        assertEquals(new Token(Token.SLASH, "/"), l.nextToken());
     }
 
     @Test
     void commaShouldEqualCOMMA() {
         var l = new Lexer(",");
-        assertEquals(Token.COMMA, l.nextToken().type);
+        assertEquals(new Token(Token.COMMA, ","), l.nextToken());
     }
 
     @Test
     void semicolonShouldEqualSEMICOLON() {
         var l = new Lexer(";");
-        assertEquals(Token.SEMICOLON, l.nextToken().type);
+        assertEquals(new Token(Token.SEMICOLON, ";"), l.nextToken());
     }
 
     @Test
     void lparenShouldEqualLPAREN() {
         var l = new Lexer("(");
-        assertEquals(Token.LPAREN, l.nextToken().type);
+        assertEquals(new Token(Token.LPAREN, "("), l.nextToken());
     }
 
     @Test
     void rparenShouldEqualRPAREN() {
         var l = new Lexer(")");
-        assertEquals(Token.RPAREN, l.nextToken().type);
+        assertEquals(new Token(Token.RPAREN, ")"), l.nextToken());
     }
 
     @Test
     void lbraceShouldEqualLBRACE() {
         var l = new Lexer("{");
-        assertEquals(Token.LBRACE, l.nextToken().type);
+        assertEquals(new Token(Token.LBRACE, "{"), l.nextToken());
     }
 
     @Test
     void rbraceShouldEqualRBRACE() {
         var l = new Lexer("}");
-        assertEquals(Token.RBRACE, l.nextToken().type);
+        assertEquals(new Token(Token.RBRACE, "}"), l.nextToken());
     }
 
     @Test
     void lessThanShouldEqualLT() {
         var l = new Lexer("<");
-        assertEquals(Token.LT, l.nextToken().type);
+        assertEquals(new Token(Token.LT, "<"), l.nextToken());
     }
 
     @Test
     void greaterThanShouldEqualGT() {
         var l = new Lexer(">");
-        assertEquals(Token.GT, l.nextToken().type);
+        assertEquals(new Token(Token.GT, ">"), l.nextToken());
     }
 
     @Test
     void doubleEqualsShouldEqualEQ() {
         var l = new Lexer("==");
-        assertEquals(Token.EQ, l.nextToken().type);
+        assertEquals(new Token(Token.EQ, "=="), l.nextToken());
     }
 
     @Test
     void exclamationEqualsShouldEqualNOTEQ() {
         var l = new Lexer("!=");
-        assertEquals(Token.NOTEQ, l.nextToken().type);
+        assertEquals(new Token(Token.NOTEQ, "!="), l.nextToken());
     }
 
     @Test
     void letShouldEqualLET() {
         var l = new Lexer("let");
-        assertEquals(Token.LET, l.nextToken().type);
+        assertEquals(new Token(Token.LET, "let"), l.nextToken());
     }
 
     @Test
     void fnShouldEqualFUNCTION() {
         var l = new Lexer("fn");
-        assertEquals(Token.FUNCTION, l.nextToken().type);
+        assertEquals(new Token(Token.FUNCTION, "fn"), l.nextToken());
     }
 
     @Test
     void trueShouldEqualTRUE() {
         var l = new Lexer("true");
-        assertEquals(Token.TRUE, l.nextToken().type);
+        assertEquals(new Token(Token.TRUE, "true"), l.nextToken());
     }
 
     @Test
     void falseShouldEqualFALSE() {
         var l = new Lexer("false");
-        assertEquals(Token.FALSE, l.nextToken().type);
+        assertEquals(new Token(Token.FALSE, "false"), l.nextToken());
     }
 
     @Test
     void ifShouldEqualIF() {
         var l = new Lexer("if");
-        assertEquals(Token.IF, l.nextToken().type);
+        assertEquals(new Token(Token.IF, "if"), l.nextToken());
     }
 
     @Test
     void elseShouldEqualELSE() {
         var l = new Lexer("else");
-        assertEquals(Token.ELSE, l.nextToken().type);
+        assertEquals(new Token(Token.ELSE, "else"), l.nextToken());
     }
 
     @Test
     void returnShouldEqualRETURN() {
         var l = new Lexer("return");
-        assertEquals(Token.RETURN, l.nextToken().type);
+        assertEquals(new Token(Token.RETURN, "return"), l.nextToken());
     }
 
     @Test

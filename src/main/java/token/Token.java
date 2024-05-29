@@ -60,6 +60,10 @@ public class Token {
             return false;
         }
 
+        if (literal == null) {
+            return type.equals(((Token)o).type);
+        }
+
         return (type.equals(((Token)(o)).type) && 
                 literal.equals(((Token)(o)).literal));
     }
