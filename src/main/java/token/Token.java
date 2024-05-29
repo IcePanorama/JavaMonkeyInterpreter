@@ -34,6 +34,7 @@ public class Token {
     public final static String IF = "IF";
     public final static String ELSE = "ELSE";
     public final static String RETURN = "RETURN";
+    public final static String STRING = "STRING";
     public final static Map<String, String> keywords = Map.of(
         "fn", FUNCTION, 
         "let", LET,
