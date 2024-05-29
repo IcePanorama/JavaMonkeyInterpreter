@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import token.Token;
 
-//FIXME: all these tests should be rewritten
 public class LexerTest{
     public static void testMultilineInput(String output, String[] expectedOutput) {
         var l = new Lexer(output);

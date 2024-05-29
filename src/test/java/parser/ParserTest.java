@@ -21,10 +21,12 @@ import ast.LetStatement;
 import ast.PrefixExpression;
 import ast.Program;
 import ast.Statement;
+import ast.StringLiteral;
 import ast.ReturnStatement;
 import lexer.Lexer;
 import token.Token;
 
+//TODO: look into refactoring these tests also
 public class ParserTest {
     void testLetStatement(Statement s, String name){
         assertEquals(s.TokenLiteral(), "let");
@@ -794,5 +796,25 @@ public class ParserTest {
                     expectedArguements[i]
             );
         }
+    }
+
+    @Test
+    void helloWorldInQuotesShouldParseAsAStringWithAValueOfHelloWorld() {
+        String input = "\"hello world\"";
+        String expectedOutput = "hello world";
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        Statement stmt = prog.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+
+        Expression epxr = ((ExpressionStatement)stmt).expression;
+        assertInstanceOf(StringLiteral.class, epxr);
+
+        StringLiteral literal = (StringLiteral)epxr;
+        assertEquals(expectedOutput, literal.value);
     }
 }

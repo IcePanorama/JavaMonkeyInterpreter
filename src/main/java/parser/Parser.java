@@ -15,6 +15,7 @@ import ast.PrefixExpression;
 import ast.Program;
 import ast.ReturnStatement;
 import ast.Statement;
+import ast.StringLiteral;
 import lexer.Lexer;
 import token.Token;
 
@@ -80,6 +81,7 @@ public class Parser {
         registerPrefix(Token.LPAREN, this::parseGroupedExpression);
         registerPrefix(Token.IF, this::parseIfExpression);
         registerPrefix(Token.FUNCTION, this::parseFunctionLiteral);
+        registerPrefix(Token.STRING, this::parseStringLiteral);
     }
 
     void registerPrefix(String tokenType, PrefixParseFn fn) {
@@ -217,6 +219,10 @@ public class Parser {
         }
 
         return stmt;
+    }
+
+    private Expression parseStringLiteral() {
+        return new StringLiteral(curToken, curToken.literal);
     }
 
     private Expression parseExpression(ExpressionType precedence) {
