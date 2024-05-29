@@ -302,4 +302,15 @@ public class LexerTest{
         Token tok = l.nextToken();
         assertEquals(expectedOutput, tok);
     }
+
+    @Test
+    void quoteFooSpaceBarQuoteShouldReturnAStringToken() {
+        String input = "\"foo bar\"";
+        Token expectedOutput = new Token(Token.STRING, "foo bar");
+        
+        var l = new Lexer(input);
+        Token tok = l.nextToken();
+        assertEquals(expectedOutput, tok);
+    }
+
 }
