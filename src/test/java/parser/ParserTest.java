@@ -26,7 +26,6 @@ import ast.ReturnStatement;
 import lexer.Lexer;
 import token.Token;
 
-//TODO: look into refactoring these tests also
 public class ParserTest {
     void testLetStatement(Statement s, String name){
         assertEquals(s.TokenLiteral(), "let");
@@ -60,7 +59,35 @@ public class ParserTest {
         }
     }
 
-//TODO: this function needs a better name
+    PrefixExpression testPrefixExpressionHelperFunction(String input) {
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        var stmt = prog.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+
+        var expression = ((ExpressionStatement) (stmt)).expression;
+        assertInstanceOf(PrefixExpression.class, expression);
+
+        return (PrefixExpression)expression;
+    }
+
+    void testPrefixExpressions(String input, String expectedOperator, boolean expectedValue) {
+        var prefixExpr = testPrefixExpressionHelperFunction(input);
+        assertEquals(expectedOperator, prefixExpr.operator);
+        testBoolLiteral(prefixExpr.right, expectedValue);
+    }
+
+    void testPrefixExpressions(String input, String expectedOperator, long expectedValue) {
+        var prefixExpr = testPrefixExpressionHelperFunction(input);
+        assertEquals(expectedOperator, prefixExpr.operator);
+        testIntegerLiteral(prefixExpr.right, expectedValue);
+    }
+
     FunctionLiteral programIsFunctionLiteral(Program p) {
         Statement stmt = p.statements.get(0);
         assertInstanceOf(ExpressionStatement.class, stmt);
@@ -121,40 +148,69 @@ public class ParserTest {
         testFunctionLiteral(expr, expected);
     }
     
-    //FIXME: this one function should take an Expression,
-    //not an ExpressionStatement
     void testLiteralExpression(Expression expr, boolean expected) {
         testBoolLiteral(expr, expected);
     }
 
-    void testInfixExpression(Expression expr, long left, String operator,
-                             long right) {
-        assertInstanceOf(InfixExpression.class, expr);
+    InfixExpression testInfixExpressionHelperFunction(String input) {
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
 
-        InfixExpression opExp = (InfixExpression)expr;
-        testLiteralExpression(opExp.left, left);
-        assertEquals(opExp.operator, operator);
-        testLiteralExpression(opExp.right, right);
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        Statement stmt = prog.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+        
+        Expression expr = ((ExpressionStatement)stmt).expression;
+        assertInstanceOf(InfixExpression.class, expr);
+        
+        return (InfixExpression)expr;
     }
 
-    void testInfixExpression(Expression expr, String left, String operator,
-                             String right) {
-        assertInstanceOf(InfixExpression.class, expr);
+    void testInfixExpression(String input, boolean expectedLeft,
+                             String expectedOperator, boolean expectedRight) {
+        InfixExpression expr = testInfixExpressionHelperFunction(input);
 
-        InfixExpression opExp = (InfixExpression)expr;
-        testLiteralExpression(opExp.left, left);
-        assertEquals(opExp.operator, operator);
-        testLiteralExpression(opExp.right, right);
+        testLiteralExpression(expr.left, expectedLeft);
+        assertEquals(expr.operator, expectedOperator);
+        testLiteralExpression(expr.right, expectedRight);
     }
 
-    void testInfixExpression(Expression expr, boolean left, String operator,
-                             boolean right) {
-        assertInstanceOf(InfixExpression.class, expr);
+    void testInfixExpression(String input, long expectedLeft,
+                             String expectedOperator, long expectedRight) {
+        InfixExpression expr = testInfixExpressionHelperFunction(input);
+        testLiteralExpression(expr.left, expectedLeft);
+        assertEquals(expr.operator, expectedOperator);
+        testLiteralExpression(expr.right, expectedRight);
+    }
 
-        InfixExpression opExp = (InfixExpression)expr;
-        testLiteralExpression(opExp.left, left);
-        assertEquals(opExp.operator, operator);
-        testLiteralExpression(opExp.right, right);
+    void testInfixExpression(Expression inputExpr, String expectedLeft,
+                             String expectedOperator, String expectedRight) {
+        assertInstanceOf(InfixExpression.class, inputExpr);
+        InfixExpression expr = (InfixExpression)inputExpr;
+        testLiteralExpression(expr.left, expectedLeft);
+        assertEquals(expr.operator, expectedOperator);
+        testLiteralExpression(expr.right, expectedRight);
+    }
+
+    void testInfixExpression(Expression inputExpr, long expectedLeft,
+                             String expectedOperator, long expectedRight) {
+        assertInstanceOf(InfixExpression.class, inputExpr);
+        InfixExpression expr = (InfixExpression)inputExpr;
+        testLiteralExpression(expr.left, expectedLeft);
+        assertEquals(expr.operator, expectedOperator);
+        testLiteralExpression(expr.right, expectedRight);
+    }
+
+    void testOperatorPrecedence(String input, String expectedOutput) {
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        assertEquals(expectedOutput, prog.statements.get(0).toString());
     }
 
     @Test
@@ -251,7 +307,7 @@ public class ParserTest {
     }
 
     @Test
-    void exampleIndentifierExpressionTest() {
+    void foobarShouldBeParsedAsAnIdentifier() {
         String input = "foobar;";
 
         var l = new Lexer(input);
@@ -273,7 +329,7 @@ public class ParserTest {
     }
 
     @Test
-    void exampleIntegerLiteralExpressionTest() {
+    void fiveShouldBeParsedAsAnIntegerLiteral() {
         String input = "5;";
 
         var l = new Lexer(input);
@@ -295,154 +351,290 @@ public class ParserTest {
     }
 
     @Test
-    void examplePrefixExpressionTest() {
-        String input = "!5; -15;";
-        String[] operators = { "!", "-" };
-        long[] integerValues = { 5L, 15L };
+    void bangFiveShouldBeParsedCorrectlyAsAPrefixExpression() {
+        String input = "!5;";
+        String expectedOperator = "!";
+        long expectedValue = 5;
+
+        testPrefixExpressions(input, expectedOperator, expectedValue);
+    }
+
+    @Test
+    void minusFifteenShouldBeParsedCorrectlyAsAPrefixExpression() {
+        String input = "-15;";
+        String expectedOperator = "-";
+        long expectedValue = 15;
+
+        testPrefixExpressions(input, expectedOperator, expectedValue);
+    }
+
+    @Test
+    void fivePlusFiveShouldBeParsedCorrectlyAsAnInfixExpression() {
+        String input = "5 + 5;";
+        long expectedLeftValue = 5;
+        String expectedOperator = "+";
+        long expectedRightValue = 5;
+
+        testInfixExpression(input, expectedLeftValue, expectedOperator,
+                            expectedRightValue);
+    }
+
+    @Test
+    void fiveMinusFiveShouldBeParsedCorrectlyAsAnInfixExpression() {
+        String input = "5 - 5;";
+        long expectedLeftValue = 5;
+        String expectedOperator = "-";
+        long expectedRightValue = 5;
+
+        testInfixExpression(input, expectedLeftValue, expectedOperator,
+                            expectedRightValue);
+    }
+
+    @Test
+    void fiveTimesFiveShouldBeParsedCorrectlyAsAnInfixExpression() {
+        String input = "5 * 5;";
+        long expectedLeftValue = 5;
+        String expectedOperator = "*";
+        long expectedRightValue = 5;
+
+        testInfixExpression(input, expectedLeftValue, expectedOperator,
+                            expectedRightValue);
+    }
+
+    @Test
+    void fiveDivFiveShouldBeParsedCorrectlyAsAnInfixExpression() {
+        String input = "5 / 5;";
+        long expectedLeftValue = 5;
+        String expectedOperator = "/";
+        long expectedRightValue = 5;
+
+        testInfixExpression(input, expectedLeftValue, expectedOperator,
+                            expectedRightValue);
+    }
+
+    @Test
+    void fiveGTFiveShouldBeParsedCorrectlyAsAnInfixExpression() {
+        String input = "5 > 5;";
+        long expectedLeftValue = 5;
+        String expectedOperator = ">";
+        long expectedRightValue = 5;
+
+        testInfixExpression(input, expectedLeftValue, expectedOperator,
+                            expectedRightValue);
+    }
+
+    @Test
+    void fiveLTFiveShouldBeParsedCorrectlyAsAnInfixExpression() {
+        String input = "5 < 5;";
+        long expectedLeftValue = 5;
+        String expectedOperator = "<";
+        long expectedRightValue = 5;
+
+        testInfixExpression(input, expectedLeftValue, expectedOperator,
+                            expectedRightValue);
+    }
+
+    @Test
+    void fiveEqualsEqualsFiveShouldBeParsedCorrectlyAsAnInfixExpression() {
+        String input = "5 == 5;";
+        long expectedLeftValue = 5;
+        String expectedOperator = "==";
+        long expectedRightValue = 5;
+
+        testInfixExpression(input, expectedLeftValue, expectedOperator,
+                            expectedRightValue);
+    }
+
+    @Test
+    void fiveBangEqualsFiveShouldBeParsedCorrectlyAsAnInfixExpression() {
+        String input = "5 != 5;";
+        long expectedLeftValue = 5;
+        String expectedOperator = "!=";
+        long expectedRightValue = 5;
+
+        testInfixExpression(input, expectedLeftValue, expectedOperator,
+                            expectedRightValue);
+    }
+
+    @Test
+    void minusAPlusBShouldBeParsedWithCorrectPrecedence() {
+        String input = "-a * b";
+        String expectedOutput = "((-a) * b)";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void bangMinusAShouldBeParsedWithCorrectPrecedence() {
+        String input = "!-a";
+        String expectedOutput = "(!(-a))";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void aPlusBPlusCShouldBeParsedWithCorrectPrecedence() {
+        String input = "a + b + c";
+        String expectedOutput = "((a + b) + c)";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void aPlusBMinusCShouldBeParsedWithCorrectPrecedence() {
+        String input = "a + b - c";
+        String expectedOutput = "((a + b) - c)";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void aTimesBTimesCShouldBeParsedWithCorrectPrecedence() {
+        String input = "a * b * c";
+        String expectedOutput = "((a * b) * c)";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void aTimesBDivCShouldBeParsedWithCorrectPrecedence() {
+        String input = "a * b / c";
+        String expectedOutput = "((a * b) / c)";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void aPlusBTimesCPlusDDivEMinusFShouldBeParsedWithCorrectPrecedence() {
+        String input = "a + b * c + d / e - f";
+        String expectedOutput = "(((a + (b * c)) + (d / e)) - f)";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void parserShouldBeAbleToProperlyDeterminePrecedenceForTwoSeparateStatements() {
+        String input = "3 + 4; -5 * 5";
+        String expectedOutput = "[(3 + 4), ((-5) * 5)]";
 
         var l = new Lexer(input);
         var p = new Parser(l);
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        checkProgHasExpectedNumStatements(prog, 2);
-
-        for (int i = 0; i < prog.statements.size(); i++) {
-            var stmt = prog.statements.get(i);
-            // is it worth moving this one line to a new func?
-            assertInstanceOf(ExpressionStatement.class, stmt);
-
-            var expression = ((ExpressionStatement)(stmt)).expression;
-            assertInstanceOf(PrefixExpression.class, expression);
-
-            var prefixExpr = (PrefixExpression)expression;
-            assertEquals(operators[i], prefixExpr.operator);
-            System.out.println(prefixExpr.right + " " + integerValues[i]);
-            testIntegerLiteral(prefixExpr.right, integerValues[i]);
-        }
+        assertEquals(expectedOutput, prog.statements.toString());
     }
 
     @Test
-    void exampleInfixExpressionTest() {
-        String[] inputs = {
-            "5 + 5;",
-            "5 - 5;",
-            "5 * 5;",
-            "5 / 5;",
-            "5 > 5;",
-            "5 < 5;",
-            "5 == 5;",
-            "5 != 5;"
-        };
-        long[] leftValues = {
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5
-        };
-        String[] operators = {
-            "+",
-            "-",
-            "*",
-            "/",
-            ">",
-            "<",
-            "==",
-            "!="
-        };
-        long[] rightValues = {
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5,
-            5
-        };
+    void fiveGTFourEqualsEqualsThreeLTFourShouldBeParsedWithCorrectPrecedence() {
+        String input = "5 > 4 == 3 < 4";
+        String expectedOutput = "((5 > 4) == (3 < 4))";
 
-        for (int i = 0; i < inputs.length; i++) {
-            String input = inputs[i];
-            var l = new Lexer(input);
-            var p = new Parser(l);
-            var prog = p.parseProgram();
-            checkParseErrors(p);
-
-            checkProgHasExpectedNumStatements(prog, 1);
-
-            Statement stmt = prog.statements.get(0);
-            assertInstanceOf(ExpressionStatement.class, stmt);
-            ExpressionStatement exprStmt = (ExpressionStatement)stmt;
-            testInfixExpression(exprStmt.expression, leftValues[i],
-                                operators[i], rightValues[i]);
-        }
+        testOperatorPrecedence(input, expectedOutput);
     }
 
     @Test
-    void exampleTestOperatorPrecedenceParsing() {
-        String[] inputs = {
-            "-a * b",
-            "!-a",
-            "a + b + c",
-            "a + b - c",
-            "a * b * c",
-            "a * b / c",
-            "a + b * c + d / e - f",
-            "3 + 4; -5 * 5",
-            "5 > 4 == 3 < 4",
-            "5 < 4 != 3 > 4",
-            "3 + 4 * 5 == 3 * 1 + 4 * 5",
-            "true",
-            "false",
-            "3 > 5 == false",
-            "3 < 5 == true",
-            "1 + (2 + 3) + 4",
-            "(5 + 5) * 2",
-            "2 / (5 + 5)",
-            "-(5 + 5)",
-            "!(true == true)",
-            "a + add(b * c) + d",
-            "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
-            "add(a + b + c * d / f + g)"
-        };
-        String[] expectedOutputs = {
-            "[((-a) * b)]",
-            "[(!(-a))]",
-            "[((a + b) + c)]",
-            "[((a + b) - c)]",
-            "[((a * b) * c)]",
-            "[((a * b) / c)]",
-            "[(((a + (b * c)) + (d / e)) - f)]",
-            "[(3 + 4), ((-5) * 5)]",
-            "[((5 > 4) == (3 < 4))]",
-            "[((5 < 4) != (3 > 4))]",
-            "[((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))]",
-            "[true]",
-            "[false]",
-            "[((3 > 5) == false)]",
-            "[((3 < 5) == true)]",
-            "[((1 + (2 + 3)) + 4)]",
-            "[((5 + 5) * 2)]",
-            "[(2 / (5 + 5))]",
-            "[(-(5 + 5))]",
-            "[(!(true == true))]",
-            "[((a + add((b * c))) + d)]",
-            "[add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))]",
-            "[add((((a + b) + ((c * d) / f)) + g))]"
-        };
+    void fiveLTFourBangEqualsThreeGTFourShouldBeParsedWithCorrectPrecedence() {
+        String input = "5 < 4 != 3 > 4";
+        String expectedOutput = "((5 < 4) != (3 > 4))";
 
-        for (int i = 0; i < inputs.length; i++) {
-            var l = new Lexer(inputs[i]);
-            var p = new Parser(l);
-            var prog = p.parseProgram();
-            checkParseErrors(p);
+        testOperatorPrecedence(input, expectedOutput);
+    }
 
-            assertEquals(expectedOutputs[i], prog.toString());
-        }
+    @Test
+    void threePlusFourTimesFiveEqualsEqualsThreeTimesOnePlusFourTimesFiveShouldBeParsedWithCorrectPrecedence() {
+        String input = "3 + 4 * 5 == 3 * 1 + 4 * 5";
+        String expectedOutput = "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void trueShouldBeParsedWithCorrectPrecedence() {
+        String input = "true";
+        String expectedOutput = "true";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void falseShouldBeParsedWithCorrectPrecedence() {
+        String input = "false";
+        String expectedOutput = "false";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void threeGTFiveEqualsEqualsFalseShouldBeParsedWithCorrectPrecedence() {
+        String input = "3 > 5 == false";
+        String expectedOutput = "((3 > 5) == false)";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void threeLTFiveEqualsEqualsTrueShouldBeParsedWithCorrectPrecedence() {
+        String input = "3 < 5 == true";
+        String expectedOutput = "((3 < 5) == true)";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void infixAdditionExpressionWithParenthesisShouldBeParsedWithCorrectPrecedence() {
+        String input = "1 + (2 + 3) + 4";
+        String expectedOutput = "((1 + (2 + 3)) + 4)";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void infixMultiplicationExpressionWithParenthesisShouldBeParsedWithCorrectPrecedence() {
+        String input = "(5 + 5) * 2";
+        String expectedOutput = "((5 + 5) * 2)";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void infixDivisionExpressionWithParenthesisShouldBeParsedWithCorrectPrecedence() {
+        String input = "2 / (5 + 5)";
+        String expectedOutput = "(2 / (5 + 5))";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void prefixNegationExpressionWithParenthesisShouldBeParsedWithCorrectPrecedence() {
+        String input = "-(5 + 5)";
+        String expectedOutput = "(-(5 + 5))";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void prefixBangExpressionWithParenthesisShouldBeParsedWithCorrectPrecedence() {
+        String input = "!(true == true)";
+        String expectedOutput = "(!(true == true))";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void callExpressionsWithinExpressionsShouldBeParsedWithCorrectPrecedence() {
+        String input = "a + add(b * c) + d";
+        String expectedOutput = "((a + add((b * c))) + d)";
+
+        testOperatorPrecedence(input, expectedOutput);
+    }
+
+    @Test
+    void callExpressionArguementsShouldBeParsedWithCorrectPrecedence() {
+        String input = "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))";
+        String expectedOutput = "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))";
+
+        testOperatorPrecedence(input, expectedOutput);
     }
 
     @Test
@@ -480,82 +672,58 @@ public class ParserTest {
     }
 
     @Test
-    void exampleInfixBoolExpressionTest() {
-        String[] inputs = {
-            "true == true",
-            "true != false",
-            "false == false"
-        };
-        boolean[] leftValues = {
-            true,
-            true,
-            false
-        };
-        String[] operators = {
-            "==",
-            "!=",
-            "=="
-        };
-        boolean[] rightValues = {
-            true,
-            false,
-            false
-        };
+    void trueEqualsEqualsTrueShouldBeParsedCorrectlyAsAnInfixExpression() {
+        String input = "true == true";
+        boolean expectedLeft = true;
+        String expectedOperator = "==";
+        boolean expectedRight = true;
 
-        for (int i = 0; i < inputs.length; i++) {
-            String input = inputs[i];
-            var l = new Lexer(input);
-            var p = new Parser(l);
-            var prog = p.parseProgram();
-            checkParseErrors(p);
-
-            checkProgHasExpectedNumStatements(prog, 1);
-
-            Statement stmt = prog.statements.get(0);
-            assertInstanceOf(ExpressionStatement.class, stmt);
-            ExpressionStatement exprStmt = (ExpressionStatement)stmt;
-            testInfixExpression(exprStmt.expression, leftValues[i],
-                                operators[i], rightValues[i]);
-        }
-    }
-    
-    @Test
-    void examplePrefixBoolExpressionTest() {
-        String[] inputs = {
-            "!true",
-            "!false"
-        };
-        String[] operators = {
-            "!",
-            "!"
-        };
-        boolean[] values = {
-            true,
-            false
-        };
-
-        for (int i = 0; i < inputs.length; i++) {
-            var l = new Lexer(inputs[i]);
-            var p = new Parser(l);
-            var prog = p.parseProgram();
-            checkParseErrors(p);
-
-            checkProgHasExpectedNumStatements(prog, 1);
-
-            var stmt = prog.statements.get(0);
-            assertInstanceOf(ExpressionStatement.class, stmt);
-
-            var expression = ((ExpressionStatement) (stmt)).expression;
-            assertInstanceOf(PrefixExpression.class, expression);
-
-            var prefixExpr = (PrefixExpression)expression;
-            assertEquals(operators[i], prefixExpr.operator);
-            testBoolLiteral(prefixExpr.right, values[i]);
-        }
+        testInfixExpression(input, expectedLeft, expectedOperator,
+                            expectedRight);
     }
 
     @Test
-    void exampleIfExpressionTest() {
+    void trueBangEqualsFalseShouldBeParsedCorrectlyAsAnInfixExpression() {
+        String input = "true != false";
+        boolean expectedLeft = true;
+        String expectedOperator = "!=";
+        boolean expectedRight = false;
+
+        testInfixExpression(input, expectedLeft, expectedOperator,
+                            expectedRight);
+    }
+
+    @Test
+    void falseEqualsEqualsFalseShouldBeParsedCorrectlyAsAnInfixExpression() {
+        String input = "false == false";
+        boolean expectedLeft = false;
+        String expectedOperator = "==";
+        boolean expectedRight = false;
+
+        testInfixExpression(input, expectedLeft, expectedOperator,
+                            expectedRight);
+    }
+
+    @Test
+    void bangFalseShouldBeParsedAsAPrefixBoolExpression() {
+        String input = "!false";
+        String expectedOperator = "!";
+        boolean expectedValue = false;
+
+        testPrefixExpressions(input, expectedOperator, expectedValue);
+    }
+
+    @Test
+    void bangTrueShouldBeParsedAsAPrefixBoolExpression() {
+        String input = "!true";
+        String expectedOperator = "!";
+        boolean expectedValue = true;
+
+        testPrefixExpressions(input, expectedOperator, expectedValue);
+    }
+
+    @Test
+    void ifXLessThanYThenXShouldBeParsedCorrectlyAsAnIfStatement() {
         String input = "if (x < y) { x }";
 
         var l = new Lexer(input);
@@ -584,7 +752,7 @@ public class ParserTest {
     }
     
     @Test
-    void exampleIfElseExpressionTest() {
+    void ifXLessThanYThenXElseYShouldBeParsedCorrectlyAsAnIfElseStatement() {
         String input = "if (x < y) { x } else { y }";
 
         var l = new Lexer(input);
@@ -620,7 +788,7 @@ public class ParserTest {
     }
 
     @Test
-    void exampleFunctionLiteralExpressionTest() {
+    void functionLiteralWithTwoArgumentsShouldBeParsedCorrectly() {
         String input = "fn(x, y) { x + y; }";
 
         var l = new Lexer(input);
@@ -650,7 +818,6 @@ public class ParserTest {
         testInfixExpression(bodyExpr, "x", "+", "y");
     }
 
-//TODO: this next 3 could probably be refactored even further
     @Test
     void functionLiteralWithAnEmptyParameterListShouldHaveNoParameters() {
         String input = "fn () {};";
@@ -712,7 +879,7 @@ public class ParserTest {
     }
 
     @Test
-    void exampleCallExpressionTest() {
+    void callingAddFuncWithArgsOneTwoTimesThreeAndFourPlusFiveShouldBeParsedCorrectlyAsACallExpression() {
         String input = "add(1, 2 * 3, 4 + 5);";
 
         var l = new Lexer(input);
@@ -726,15 +893,14 @@ public class ParserTest {
         testIdentifier(callExpr.function, "add");
         assertEquals(3, callExpr.arguments.size());
         testLiteralExpression(callExpr.arguments.get(0), 1);
-        testInfixExpression(callExpr.arguments.get(1), 2, "*", 3);
-        testInfixExpression(callExpr.arguments.get(2), 4, "+", 5);
+        testInfixExpression(callExpr.arguments.get(1), 2L, "*", 3L);
+        testInfixExpression(callExpr.arguments.get(2), 4L, "+", 5L);
     }
 
     @Test
     void callExpressionWithNoParametersShouldHaveNoParameters() {
         String input = "foobar();";
 
-        // Should the next 6 lines be their own func?
         var l = new Lexer(input);
         var p = new Parser(l);
         var prog = p.parseProgram();
@@ -749,7 +915,6 @@ public class ParserTest {
     @Test
     void callExpressionWithOneArguementShouldHaveOneArguement() {
         String input = "foobar(x);";
-        //this probably shouldn't be a Identifier
         Identifier expectedArguement = new Identifier(
             new Token(Token.IDENT, "x"),
             "x"
@@ -764,7 +929,6 @@ public class ParserTest {
 
         CallExpression callExpr = programIsCallExpression(prog);
         assertEquals(1, callExpr.arguments.size());
-        //idk if this'll work
         testLiteralExpression(
             (Identifier)callExpr.arguments.get(0),
             expectedArguement
