@@ -92,6 +92,10 @@ public class Lexer {
             case '>':
                 token = new Token(Token.GT, Character.toString(ch));
                 break;
+            case '\"':
+                token = new Token(Token.STRING);
+                token.literal = readString();
+                break;
             default:
                 if (isLetter(ch)) {
                     String literal = readIdentifier();
@@ -133,5 +137,16 @@ public class Lexer {
         while (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') {
             readChar();
         }
+    }
+
+    String readString() {
+        int pos = position + 1;
+        while (true) {
+            readChar();
+            if (ch == '\"' || ch == 0) {
+                break;
+            }
+        }
+        return input.substring(pos, position);
     }
 }
