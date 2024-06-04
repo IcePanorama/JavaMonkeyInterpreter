@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Function;
 
+import ast.ArrayLiteral;
 import ast.BlockStatement;
 import ast.Bool;
 import ast.CallExpression;
@@ -23,6 +24,7 @@ import ast.Statement;
 import ast.StringLiteral;
 import monkeyobject.BuiltinFunction;
 import monkeyobject.Environment;
+import monkeyobject.MonkeyArray;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyError;
 import monkeyobject.MonkeyFunction;
@@ -252,9 +254,9 @@ public final class Evaluator {
                               node.value.toString());
     }
 
-    private static MonkeyObject[] evalExpressions(Expression[] exprs,//ArrayList<Expression> exprs,
+    private static MonkeyObject[] evalExpressions(Expression[] exprs,
         Environment env) {
-        MonkeyObject[] results = new MonkeyObject[exprs.length];//.size()];
+        MonkeyObject[] results = new MonkeyObject[exprs.length];
 
         for (int i = 0; i < exprs.length; i++) {
             var e = exprs[i];
@@ -368,7 +370,13 @@ public final class Evaluator {
                                         right);
         }
         /* Literals/Others */
-        else if (node instanceof Bool) {
+        else if (node instanceof ArrayLiteral) {
+            MonkeyObject[] elements = evalExpressions(((ArrayLiteral)node).elements, env);
+            if (elements.length == 1 && isError(elements[0])) {
+                return elements[0];
+            }
+            return new MonkeyArray(elements);
+        } else if (node instanceof Bool) {
             return nativeBooleanToBoolObject(((Bool)node).value);
         } else if (node instanceof FunctionLiteral) {
             ArrayList<Identifier> params = ((FunctionLiteral)node).parameters;

@@ -1042,7 +1042,7 @@ public class ParserTest {
         
         testOperatorPrecedence(
             input,
-            "add(((a * ([1,2,3,4][(b * c)])) * d), (a * (b[2])), (b[1]), (2 * ([1,2][1])))"
+            "add(((a * ([1, 2, 3, 4][(b * c)])) * d), (a * (b[2])), (b[1]), (2 * ([1, 2][1])))"
         );
     }
 }

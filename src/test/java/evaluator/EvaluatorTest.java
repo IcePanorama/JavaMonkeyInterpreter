@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import ast.Program;
 import lexer.Lexer;
 import monkeyobject.Environment;
+import monkeyobject.MonkeyArray;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyError;
 import monkeyobject.MonkeyFunction;
@@ -111,6 +112,17 @@ class EvaluatorTest {
         assertEquals(expectedBody, fn.body.toString());
 
         return evaluated;
+    }
+
+    void testEvalArrayLiterals(MonkeyObject obj, long... expected) {
+        assertInstanceOf(MonkeyArray.class, obj);
+        MonkeyArray arr = (MonkeyArray)obj;
+        
+        assertEquals(expected.length, arr.elements.length);
+
+        for (int i = 0; i < expected.length; i++) {
+            testIntegerObject(arr.elements[i], expected[i]);
+        }
     }
 
     /* Tests */
@@ -707,5 +719,12 @@ class EvaluatorTest {
     void builtinLenShouldProduceAWrongNumberOfArgumentsErrorWhenGivenMoreThanOneString() {
         String input = "len(\"one\", \"two\")";
         testEvalErrorHandling(input, "wrong number of arguments: got=2, want=1");
+    }
+
+    @Test
+    void arrayLiteralElementsShouldBeEvaluated() {
+        String input = "[1, 2 * 2, 3 + 3]";
+        MonkeyObject evaluated = testEval(input);
+        testEvalArrayLiterals(evaluated, 1, 4, 6);
     }
 }

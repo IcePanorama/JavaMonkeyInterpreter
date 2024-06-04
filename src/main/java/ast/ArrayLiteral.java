@@ -20,6 +20,6 @@ public class ArrayLiteral implements Expression{
             output[i] = elements[i].toString();
         }
 
-        return "[" + String.join(",", output) + "]";
+        return "[" + String.join(", ", output) + "]";
     }
 }
