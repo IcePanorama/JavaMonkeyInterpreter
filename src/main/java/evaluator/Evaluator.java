@@ -1,6 +1,9 @@
 package evaluator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 import ast.BlockStatement;
 import ast.Bool;
@@ -19,6 +22,7 @@ import ast.Program;
 import ast.ReturnStatement;
 import ast.Statement;
 import ast.StringLiteral;
+import monkeyobject.BuiltinFunction;
 import monkeyobject.Environment;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyError;
@@ -46,6 +50,25 @@ public final class Evaluator {
         "unknown operator: -%s";
     private final static String UNKNOWN_OPERATOR_INFIX_ERR_FMT =
         "unknown operator: %s %s %s";
+    private final static String WRONG_NUM_ARGUMENTS_ERR_FMT =
+        "wrong number of arguments: got=%d, want=%d";
+    private final static String ARGUMENT_TO_FUNC_NOT_SUPPORTED_ERR_FMT =
+        "argument to '%s' not supported, got %s";
+
+    /* Builtin Functions */
+    private static Function<MonkeyObject[], MonkeyObject> BUILTIN_LEN = 
+        (args) -> {
+            if (args.length != 1) {
+                return createNewError(WRONG_NUM_ARGUMENTS_ERR_FMT, args.length, 1);
+            } else if (args[0] instanceof MonkeyString) {
+                return new MonkeyInt((((MonkeyString)args[0]).value).length());
+            }
+            return createNewError(ARGUMENT_TO_FUNC_NOT_SUPPORTED_ERR_FMT, "len", ((MonkeyObject)args[0]).Type());
+        };
+
+    private static HashMap<String,BuiltinFunction> BUILTIN_FUNCTIONS = new HashMap<>() {{
+        put("len", new BuiltinFunction(BUILTIN_LEN));
+    }};
 
     private Evaluator() {}
 
@@ -219,11 +242,15 @@ public final class Evaluator {
 
     private static MonkeyObject evalIdentifier(Identifier node, Environment env) {
         MonkeyObject val = env.Get(node.value);
-        if (val == null)
-            return createNewError(IDENTIFIER_NOT_FOUND_ERR_FMT,
-                node.value.toString());
+        if (val != null)
+            return val;
+        
+        BuiltinFunction builtin = BUILTIN_FUNCTIONS.get(node.value);
+        if (builtin != null)
+            return builtin;
 
-        return val;
+        return createNewError(IDENTIFIER_NOT_FOUND_ERR_FMT,
+                              node.value.toString());
     }
 
     private static MonkeyObject[] evalExpressions(ArrayList<Expression> exprs,
@@ -268,19 +295,16 @@ public final class Evaluator {
 
     private static MonkeyObject applyFunction(MonkeyObject fn,
         MonkeyObject[] args) {
-        MonkeyFunction function;
-        try {
-            function = (MonkeyFunction)fn;
-        } catch (ClassCastException e) {
-            // Should we print the exception w/ System.err.print() here?
-            System.err.println(e);
-            return new MonkeyError(String.format(NOT_A_FUNCTION_ERR_FMT,
-                fn.Type()));
+        if (fn instanceof MonkeyFunction) {
+            MonkeyFunction function = (MonkeyFunction)fn;
+            Environment extendedEnv = extendFunctionEnv(function, args);
+            MonkeyObject evaluated = Eval(function.body, extendedEnv);
+            return unwrapReturnValue(evaluated);
+        } else if (fn instanceof BuiltinFunction) {
+            return (MonkeyObject)((BuiltinFunction)fn).function.apply(args);
         }
-        
-        Environment extendedEnv = extendFunctionEnv(function, args);
-        MonkeyObject evaluated = Eval(function.body, extendedEnv);
-        return unwrapReturnValue(evaluated);
+
+        return createNewError(NOT_A_FUNCTION_ERR_FMT, fn.Type());
     }
 
     public static MonkeyObject Eval(Node node, Environment env) {

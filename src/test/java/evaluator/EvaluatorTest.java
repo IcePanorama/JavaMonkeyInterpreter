@@ -682,4 +682,30 @@ class EvaluatorTest {
         String input = "\"Hello\" != \"World\"";
         testEvalBoolExpression(input, true);
     }
+
+    @Test
+    void builtinLenShouldReturnZeroWhenGivenAnEmptyString() {
+        String input = "len(\"\")";
+        MonkeyObject evaluated = testEval(input);
+        testIntegerObject(evaluated, 0);
+    }
+
+    @Test
+    void builtinLenShouldCalculateTheCorrectLengthOfAGivenString() {
+        String input = "len(\"four\")";
+        MonkeyObject evaluated = testEval(input);
+        testIntegerObject(evaluated, 4);
+    }
+
+    @Test
+    void builtinLenShouldProduceAnArgumentNotSupportedErrorWhenGivenAnInt() {
+        String input = "len(1)";
+        testEvalErrorHandling(input, "argument to \'len\' not supported, got INTEGER");
+    }
+
+    @Test
+    void builtinLenShouldProduceAWrongNumberOfArgumentsErrorWhenGivenMoreThanOneString() {
+        String input = "len(\"one\", \"two\")";
+        testEvalErrorHandling(input, "wrong number of arguments: got=2, want=1");
+    }
 }
