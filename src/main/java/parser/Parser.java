@@ -1,5 +1,6 @@
 package parser;
 
+import ast.ArrayLiteral;
 import ast.BlockStatement;
 import ast.Bool;
 import ast.CallExpression;
@@ -82,6 +83,7 @@ public class Parser {
         registerPrefix(Token.IF, this::parseIfExpression);
         registerPrefix(Token.FUNCTION, this::parseFunctionLiteral);
         registerPrefix(Token.STRING, this::parseStringLiteral);
+        registerPrefix(Token.LBRACKET, this::parseArrayLiteral);
     }
 
     void registerPrefix(String tokenType, PrefixParseFn fn) {
@@ -411,31 +413,37 @@ public class Parser {
 
     Expression parseCallExpression(Expression function) {
         CallExpression expr = new CallExpression(curToken, function);
-        expr.arguments = parseCallArguements();
+        expr.arguments = parseExpressionList(new Token(Token.RPAREN, ")"));
         return expr;
     }
 
-    ArrayList<Expression> parseCallArguements() {
-        ArrayList<Expression> args = new ArrayList<>();
+    Expression parseArrayLiteral() {
+        ArrayLiteral arr = new ArrayLiteral(curToken);
+        arr.elements = parseExpressionList(new Token(Token.RBRACKET, "]"));
+        return arr;
+    }
 
-        if (peekTokenIs(new Token(Token.RPAREN))) {
+    Expression[] parseExpressionList(Token end) {
+        ArrayList<Expression> list = new ArrayList<>();
+
+        if (peekTokenIs(end)) {
             nextToken();
-            return args;
+            return new Expression[] {};
         }
 
         nextToken();
-        args.add(parseExpression(ExpressionType.LOWEST));
+        list.add(parseExpression(ExpressionType.LOWEST));
 
-        while (peekTokenIs(new Token(Token.COMMA))) {
+        while (peekTokenIs(new Token(Token.COMMA, ","))) {
             nextToken();
             nextToken();
-            args.add(parseExpression(ExpressionType.LOWEST));
+            list.add(parseExpression(ExpressionType.LOWEST));
         }
 
-        if (!expectPeek(new Token(Token.RPAREN))) {
-            return null;
+        if (!expectPeek(end)) {
+            return new Expression[] {};
         }
 
-        return args;
+        return list.toArray(new Expression[0]);
     }
 }

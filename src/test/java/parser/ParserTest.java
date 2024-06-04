@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
+import ast.ArrayLiteral;
 import ast.Bool;
 import ast.CallExpression;
 import ast.Expression;
@@ -891,10 +892,10 @@ public class ParserTest {
 
         CallExpression callExpr = programIsCallExpression(prog);
         testIdentifier(callExpr.function, "add");
-        assertEquals(3, callExpr.arguments.size());
-        testLiteralExpression(callExpr.arguments.get(0), 1);
-        testInfixExpression(callExpr.arguments.get(1), 2L, "*", 3L);
-        testInfixExpression(callExpr.arguments.get(2), 4L, "+", 5L);
+        assertEquals(3, callExpr.arguments.length);
+        testLiteralExpression(callExpr.arguments[0], 1);
+        testInfixExpression(callExpr.arguments[1], 2L, "*", 3L);
+        testInfixExpression(callExpr.arguments[2], 4L, "+", 5L);
     }
 
     @Test
@@ -909,7 +910,7 @@ public class ParserTest {
         checkProgHasExpectedNumStatements(prog, 1);
 
         CallExpression callExpr = programIsCallExpression(prog);
-        assertEquals(0, callExpr.arguments.size());
+        assertEquals(0, callExpr.arguments.length);
     }
 
     @Test
@@ -928,9 +929,9 @@ public class ParserTest {
         checkProgHasExpectedNumStatements(prog, 1);
 
         CallExpression callExpr = programIsCallExpression(prog);
-        assertEquals(1, callExpr.arguments.size());
+        assertEquals(1, callExpr.arguments.length);
         testLiteralExpression(
-            (Identifier)callExpr.arguments.get(0),
+            (Identifier)callExpr.arguments[0],
             expectedArguement
         );
     }
@@ -952,11 +953,11 @@ public class ParserTest {
         checkProgHasExpectedNumStatements(prog, 1);
 
         CallExpression callExpr = programIsCallExpression(prog);
-        assertEquals(3, callExpr.arguments.size());
+        assertEquals(3, callExpr.arguments.length);
 
-        for (int i = 0; i < callExpr.arguments.size(); i++) {
+        for (int i = 0; i < callExpr.arguments.length; i++) {
             testLiteralExpression(
-                    (Identifier) callExpr.arguments.get(i),
+                    (Identifier) callExpr.arguments[i],
                     expectedArguements[i]
             );
         }
@@ -980,5 +981,28 @@ public class ParserTest {
 
         StringLiteral literal = (StringLiteral)epxr;
         assertEquals(expectedOutput, literal.value);
+    }
+
+//FIXME: needs a better name, can't think of one atm.
+    @Test
+    void parsingArrayLiteralsTest() {
+        String input = "[1, 2 * 2, 3 + 3]";
+
+        var l = new Lexer(input);
+        var p = new Parser(l);
+        var prog = p.parseProgram();
+        checkParseErrors(p);
+
+        Statement stmt = prog.statements.get(0);
+        assertInstanceOf(ExpressionStatement.class, stmt);
+
+        Expression expr = ((ExpressionStatement)stmt).expression;
+        assertInstanceOf(ArrayLiteral.class, expr);
+        ArrayLiteral arr = ((ArrayLiteral)expr);
+        assertEquals(3, arr.elements.length);
+        
+        testIntegerLiteral(arr.elements[0], 1);
+        testInfixExpression(arr.elements[1], 2, "*", 2);
+        testInfixExpression(arr.elements[2], 3, "+", 3);
     }
 }

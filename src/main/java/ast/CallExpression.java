@@ -7,7 +7,7 @@ import token.Token;
 public class CallExpression implements Expression{
     Token token;
     public Expression function;
-    public ArrayList<Expression> arguments;
+    public Expression[] arguments;
 
     public CallExpression(Token token, Expression function) {
         this.token = token;
@@ -23,15 +23,11 @@ public class CallExpression implements Expression{
     public String toString() {
         String output = function.toString();
 
-        String[] args = new String[arguments.size()];
-        for (int i = 0; i < arguments.size(); i++) {
-            args[i] = arguments.get(i).toString();
+        String[] args = new String[arguments.length];
+        for (int i = 0; i < arguments.length; i++) {
+            args[i] = arguments[i].toString();
         }
 
-        output += "(";
-        output += String.join(", ", args);
-        output += ")";
-
-        return output;
+        return output + "(" + String.join(", ", args) + ")";
     }
 }

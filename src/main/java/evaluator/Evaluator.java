@@ -252,12 +252,12 @@ public final class Evaluator {
                               node.value.toString());
     }
 
-    private static MonkeyObject[] evalExpressions(ArrayList<Expression> exprs,
+    private static MonkeyObject[] evalExpressions(Expression[] exprs,//ArrayList<Expression> exprs,
         Environment env) {
-        MonkeyObject[] results = new MonkeyObject[exprs.size()];
+        MonkeyObject[] results = new MonkeyObject[exprs.length];//.size()];
 
-        for (int i = 0; i < exprs.size(); i++) {
-            var e = exprs.get(i);
+        for (int i = 0; i < exprs.length; i++) {
+            var e = exprs[i];
             MonkeyObject evaluated = Eval((Node)e, env);
             if (isError(evaluated)) {
                 return new MonkeyObject[] {evaluated};
