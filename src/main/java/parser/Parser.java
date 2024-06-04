@@ -9,6 +9,7 @@ import ast.ExpressionStatement;
 import ast.FunctionLiteral;
 import ast.Identifier;
 import ast.IfExpression;
+import ast.IndexExpression;
 import ast.InfixExpression;
 import ast.IntegerLiteral;
 import ast.LetStatement;
@@ -39,7 +40,8 @@ public class Parser {
         SUM,
         PRODUCT,
         PREFIX,
-        CALL
+        CALL,
+        INDEX
     };
 
     public Parser(Lexer l) {
@@ -60,7 +62,11 @@ public class Parser {
 
     /* Parser Setup Functions */
     void initializePrecedences() {
+        /*
+         * In order from highest to lowest precedence.
+         */
         precedences = new HashMap<>();
+        precedences.put(Token.LBRACKET, ExpressionType.INDEX);
         precedences.put(Token.EQ, ExpressionType.EQUALS);
         precedences.put(Token.NOTEQ, ExpressionType.EQUALS);
         precedences.put(Token.LT, ExpressionType.LESSGREATER);
@@ -101,6 +107,7 @@ public class Parser {
         registerInfix(Token.LT, this::parseInfixExpression);
         registerInfix(Token.GT, this::parseInfixExpression);
         registerInfix(Token.LPAREN, this::parseCallExpression);
+        registerInfix(Token.LBRACKET, this::parseIndexExpression);
     }
 
     void registerInfix(String tokenType, InfixParseFn fn) {
@@ -445,5 +452,18 @@ public class Parser {
         }
 
         return list.toArray(new Expression[0]);
+    }
+
+    private Expression parseIndexExpression(Expression left) {
+        IndexExpression expr = new IndexExpression(curToken, left);
+
+        nextToken();
+        expr.index = parseExpression(ExpressionType.LOWEST);
+
+        if (!expectPeek(new Token(Token.RBRACKET))) {
+            return null;
+        }
+
+        return expr;
     }
 }

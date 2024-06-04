@@ -16,6 +16,7 @@ import ast.ExpressionStatement;
 import ast.FunctionLiteral;
 import ast.Identifier;
 import ast.IfExpression;
+import ast.IndexExpression;
 import ast.InfixExpression;
 import ast.IntegerLiteral;
 import ast.LetStatement;
@@ -27,6 +28,7 @@ import ast.ReturnStatement;
 import lexer.Lexer;
 import token.Token;
 
+//TODO: refactor me!
 public class ParserTest {
     void testLetStatement(Statement s, String name){
         assertEquals(s.TokenLiteral(), "let");
@@ -203,6 +205,15 @@ public class ParserTest {
         testLiteralExpression(expr.left, expectedLeft);
         assertEquals(expr.operator, expectedOperator);
         testLiteralExpression(expr.right, expectedRight);
+    }
+
+    Program parserTestHelperFunction(String input) {
+        Lexer l = new Lexer(input);
+        Parser p = new Parser(l);
+        Program prog = p.parseProgram();
+        checkParseErrors(p);
+
+        return prog;
     }
 
     void testOperatorPrecedence(String input, String expectedOutput) {
@@ -983,9 +994,8 @@ public class ParserTest {
         assertEquals(expectedOutput, literal.value);
     }
 
-//FIXME: needs a better name, can't think of one atm.
     @Test
-    void parsingArrayLiteralsTest() {
+    void arrayLiteralsShouldBeParsedCorrectly() {
         String input = "[1, 2 * 2, 3 + 3]";
 
         var l = new Lexer(input);
@@ -1004,5 +1014,35 @@ public class ParserTest {
         testIntegerLiteral(arr.elements[0], 1);
         testInfixExpression(arr.elements[1], 2, "*", 2);
         testInfixExpression(arr.elements[2], 3, "+", 3);
+    }
+
+    @Test
+    void infixIndexExpressionsShouldBeParsedCorrectly() {
+        String input = "myArray[1 + 1]";
+
+        Program prog = parserTestHelperFunction(input);
+        checkProgHasExpectedNumStatements(prog, 1);
+
+        assertInstanceOf(ExpressionStatement.class,
+                         prog.statements.get(0));
+        ExpressionStatement stmt = ((ExpressionStatement)prog.statements.get(0));
+
+        assertInstanceOf(IndexExpression.class, stmt.expression);
+        IndexExpression expr = ((IndexExpression)(stmt.expression));
+
+        testIdentifier(expr.left, "myArray");
+        testInfixExpression(expr.index, 1, "+",
+                            1);
+    }
+
+    @Test
+    void infixIndexOperateShouldHaveTheHighestPrecedence() {
+        String input =
+            "add(a * [1, 2, 3, 4][b * c] * d, a * b[2], b[1], 2 * [1, 2][1])";
+        
+        testOperatorPrecedence(
+            input,
+            "add(((a * ([1,2,3,4][(b * c)])) * d), (a * (b[2])), (b[1]), (2 * ([1,2][1])))"
+        );
     }
 }
