@@ -574,6 +574,12 @@ class EvaluatorTest {
     }
 
     @Test
+    void helloInQuotesMinusWorldInQuotesShouldProduceAnUnknownOperatorError() {
+        String input = "\"Hello\" - \"World\"";
+        testEvalErrorHandling(input, "unknown operator: STRING - STRING");
+    }
+
+    @Test
     void letAEqualFiveSemiAShouldReturn5() {
         String input = "let a = 5; a;";
         long expected = 5;
@@ -657,5 +663,11 @@ class EvaluatorTest {
     void helloWorldInQuotesShouldCreateAStringObjWithAValueOfHelloWorld() {
         String input = "\"Hello World\"";
         testStringObject(testEval(input), "Hello World");
+    }
+
+    @Test
+    void stringObjectsShouldSupportConcatenation() {
+        String input = "\"Hello\" + \" \" + \"World!\"";
+        testStringObject(testEval(input), "Hello World!");
     }
 }

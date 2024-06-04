@@ -133,6 +133,15 @@ public final class Evaluator {
         }
     }
 
+    private static MonkeyObject evalStringInfixExpression(String operator, MonkeyObject left, MonkeyObject right) {
+        if (!operator.equals("+")) {
+            return createNewError(UNKNOWN_OPERATOR_INFIX_ERR_FMT, left.Type(), operator, right.Type());
+        }
+        String leftVal = ((MonkeyString)left).value;
+        String rightVal = ((MonkeyString)right).value;
+        return new MonkeyString(leftVal + rightVal);
+    }
+
     private static MonkeyObject evalInfixExpression(String operator,
         MonkeyObject left, MonkeyObject right){
         if (
@@ -147,6 +156,11 @@ public final class Evaluator {
         } else if (left.Type() != right.Type()) {
             return createNewError(TYPE_MISMATCH_ERR_FMT, left.Type(),
                 operator, right.Type());
+        } else if (
+            left.Type() == MonkeyString.STRING_OBJ
+            && right.Type() == MonkeyString.STRING_OBJ
+        ) {
+            return evalStringInfixExpression(operator, left, right);
         }
         return createNewError(UNKNOWN_OPERATOR_INFIX_ERR_FMT, left.Type(),
             operator, right.Type());
