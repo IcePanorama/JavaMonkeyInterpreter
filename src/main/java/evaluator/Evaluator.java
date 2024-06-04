@@ -150,9 +150,9 @@ public final class Evaluator {
         ) {
             return evalIntegerInfixExpression(operator, left, right);
         } else if (operator.equals("==")) {
-            return nativeBooleanToBoolObject(left == right);
+            return nativeBooleanToBoolObject(left.equals(right));
         } else if (operator.equals("!=")) {
-            return nativeBooleanToBoolObject(left != right);
+            return nativeBooleanToBoolObject(!left.equals(right));
         } else if (left.Type() != right.Type()) {
             return createNewError(TYPE_MISMATCH_ERR_FMT, left.Type(),
                 operator, right.Type());

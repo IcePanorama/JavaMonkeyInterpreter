@@ -670,4 +670,16 @@ class EvaluatorTest {
         String input = "\"Hello\" + \" \" + \"World!\"";
         testStringObject(testEval(input), "Hello World!");
     }
+
+    @Test
+    void stringObjectsShouldSupportEqualsOperator() {
+        String input = "\"Hello\" == \"Hello\";";
+        testEvalBoolExpression(input, true);
+    }
+
+    @Test
+    void stringObjectsShouldSupportNotEqualsOperator() {
+        String input = "\"Hello\" != \"World\"";
+        testEvalBoolExpression(input, true);
+    }
 }
