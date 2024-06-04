@@ -14,6 +14,7 @@ import monkeyobject.MonkeyFunction;
 import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyNull;
 import monkeyobject.MonkeyObject;
+import monkeyobject.MonkeyString;
 import parser.Parser;
 
 class EvaluatorTest {
@@ -84,6 +85,13 @@ class EvaluatorTest {
 
     void testEvalLetStatements(String input, long expected) {
         testIntegerObject(testEval(input), expected);
+    }
+
+    void testStringObject(MonkeyObject obj, String expected) {
+        assertInstanceOf(MonkeyString.class, obj);
+
+        MonkeyString str = (MonkeyString)obj;
+        assertEquals(expected, str.value);
     }
 
     MonkeyObject testEvalFunctions(String input, String[] expectedParams,
@@ -643,5 +651,11 @@ class EvaluatorTest {
     void functionObjectsShouldSupportClosures() {
         String input = "let newAdder = fn(x) {fn(y) { x + y };}; let addTwo = newAdder(2); addTwo(2);";
         testIntegerObject(testEval(input), 4);
+    }
+
+    @Test
+    void helloWorldInQuotesShouldCreateAStringObjWithAValueOfHelloWorld() {
+        String input = "\"Hello World\"";
+        testStringObject(testEval(input), "Hello World");
     }
 }

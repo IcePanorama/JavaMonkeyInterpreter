@@ -18,6 +18,7 @@ import ast.PrefixExpression;
 import ast.Program;
 import ast.ReturnStatement;
 import ast.Statement;
+import ast.StringLiteral;
 import monkeyobject.Environment;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyError;
@@ -26,6 +27,7 @@ import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyNull;
 import monkeyobject.MonkeyObject;
 import monkeyobject.MonkeyReturnValue;
+import monkeyobject.MonkeyString;
 
 public final class Evaluator {
     private final static MonkeyBool TRUE = new MonkeyBool(true);
@@ -339,6 +341,8 @@ public final class Evaluator {
             return evalIdentifier((Identifier)node, env);
         } else if (node instanceof IntegerLiteral) {
             return new MonkeyInt(((IntegerLiteral)(node)).value);
+        } else if (node instanceof StringLiteral) {
+            return new MonkeyString(((StringLiteral)node).value);
         }
 
         return null;
