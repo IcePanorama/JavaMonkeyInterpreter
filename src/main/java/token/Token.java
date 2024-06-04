@@ -23,6 +23,8 @@ public class Token {
     public final static String RPAREN = ")";
     public final static String LBRACE = "{";
     public final static String RBRACE = "}";
+    public final static String LBRACKET = "[";
+    public final static String RBRACKET = "]";
     public final static String LT = "<";
     public final static String GT = ">";
     public final static String EQ = "==";

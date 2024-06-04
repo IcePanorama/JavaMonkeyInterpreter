@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import token.Token;
 
+//TODO:refactor this whole file sometime
 public class LexerTest{
     public static void testMultilineInput(String output, String[] expectedOutput) {
         var l = new Lexer(output);
@@ -170,6 +171,18 @@ public class LexerTest{
     }
 
     @Test
+    void lbracketShouldEqualLBRACKET() {
+        var l = new Lexer("[");
+        assertEquals(new Token(Token.LBRACKET, "["), l.nextToken());
+    }
+
+    @Test
+    void rbracketShouldEqualRBRACKET() {
+        var l = new Lexer("]");
+        assertEquals(new Token(Token.RBRACKET, "]"), l.nextToken());
+    }
+
+    @Test
     void addTwoNumbersLexerTestShouldReadSuccessfully() {
         String input = """
         let five = 5;
@@ -312,4 +325,22 @@ public class LexerTest{
         assertEquals(expectedOutput, tok);
     }
 
+    @Test
+    void exampleArrayShouldBeReadCorrectly() {
+        String input = "[1, 2];";
+        Token expectedOutput[] = {
+            new Token(Token.LBRACKET, "["),
+            new Token(Token.INT, "1"),
+            new Token(Token.COMMA, ","),
+            new Token(Token.INT, "2"),
+            new Token(Token.RBRACKET, "]"),
+            new Token(Token.SEMICOLON, ";"),
+            new Token(Token.EOF)
+        };
+
+        Lexer l = new Lexer(input);
+        for (Token tok : expectedOutput) {
+            assertEquals(tok, l.nextToken());
+        }
+    }
 }

@@ -86,6 +86,12 @@ public class Lexer {
             case '}':
                 token = new Token(Token.RBRACE, Character.toString(ch));
                 break;
+            case '[':
+                token = new Token(Token.LBRACKET, Character.toString(ch));
+                break;
+            case ']':
+                token = new Token(Token.RBRACKET, Character.toString(ch));
+                break;
             case '<':
                 token = new Token(Token.LT, Character.toString(ch));
                 break;
