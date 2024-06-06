@@ -59,6 +59,7 @@ class EvaluatorTest {
         assertEquals(expected, ((MonkeyInt)evaluated).value);
     }
 
+//FIXME: rename to something better
     void testEvalConditionalExpressionIsNull(String input) {
         MonkeyObject evaluated = testEval(input);
         assertInstanceOf(MonkeyNull.class, evaluated);
@@ -123,6 +124,15 @@ class EvaluatorTest {
         for (int i = 0; i < expected.length; i++) {
             testIntegerObject(arr.elements[i], expected[i]);
         }
+    }
+
+    void testEvalArrayIndexOperators(MonkeyObject obj, long expected) {
+        assertInstanceOf(MonkeyInt.class, obj);
+        testIntegerObject((MonkeyInt)obj, expected);
+    }
+
+    void testEvalArrayIndexOperators(MonkeyObject obj) {
+        assertInstanceOf(MonkeyNull.class, obj);
     }
 
     /* Tests */
@@ -727,4 +737,76 @@ class EvaluatorTest {
         MonkeyObject evaluated = testEval(input);
         testEvalArrayLiterals(evaluated, 1, 4, 6);
     }
+
+    @Test
+    void indexOperatorWithAValueOfZeroShouldReturnTheFirstItemFromAList() {
+        String input = "[1, 2, 3][0];";
+        long expectedOutput = 1;
+
+        testEvalArrayIndexOperators(testEval(input), expectedOutput);
+    }
+
+    @Test
+    void indexOperatorWithAValueOfOneShouldReturnTheSecondItemFromAList() {
+        String input = "[1, 2, 3][1];";
+        long expectedOutput = 2;
+
+        testEvalArrayIndexOperators(testEval(input), expectedOutput);
+    }
+
+    @Test
+    void indexOperatorWithAValueOfTwoShouldReturnTheThirdItemFromAList() {
+        String input = "[1, 2, 3][2];";
+        long expectedOutput = 3;
+
+        testEvalArrayIndexOperators(testEval(input), expectedOutput);
+    }
+
+    @Test
+    void indexOperatorShouldSupportVariablesAsValues() {
+        String input = "let i = 0; [1][i];";
+        long expectedOutput = 0;
+
+        testEvalArrayIndexOperators(testEval(input), expectedOutput);
+    }
+
+    @Test
+    void indexOperatorShouldSupportExpressionsAsValues() {
+        String input = "[1, 2, 3][1 + 1];";
+        long expectedOutput = 0;
+
+        testEvalArrayIndexOperators(testEval(input), expectedOutput);
+    }
+
+    @Test
+    void indexOperatorShouldSupportAccessingElementsOfPreviouslyDeclaredArray() {
+        String input = "let myArray = [1, 2, 3]; myArray[2];";
+        long expectedOutput = 0;
+
+        testEvalArrayIndexOperators(testEval(input), expectedOutput);
+    }
+
+    // better name?
+    @Test
+    void precedenceOfArrayIndexOperatorsShouldWorkAsExpected() {
+        String input = "let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];";
+        long expectedOutput = 6;
+
+        testEvalArrayIndexOperators(testEval(input), expectedOutput);
+    }
+
+    @Test
+    void indexOperatorOutOfRangeShouldReturnNull() {
+        String input = "[1, 2, 3][3]";
+
+        testEvalArrayIndexOperators(testEval(input));
+    }
+
+    @Test
+    void indexOperatorNegativeValueShouldReturnNull() {
+        String input = "[1, 2, 3][-1]";
+
+        testEvalArrayIndexOperators(testEval(input));
+    }
+
 }
