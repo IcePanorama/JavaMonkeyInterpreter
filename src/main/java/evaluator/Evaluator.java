@@ -13,6 +13,7 @@ import ast.ExpressionStatement;
 import ast.FunctionLiteral;
 import ast.Identifier;
 import ast.IfExpression;
+import ast.IndexExpression;
 import ast.InfixExpression;
 import ast.IntegerLiteral;
 import ast.LetStatement;
@@ -55,6 +56,8 @@ public final class Evaluator {
         "wrong number of arguments: got=%d, want=%d";
     private final static String ARGUMENT_TO_FUNC_NOT_SUPPORTED_ERR_FMT =
         "argument to '%s' not supported, got %s";
+    private final static String INDEX_OPERATOR_NOT_SUPPORTED_ERR_FMT =
+        "index operator not supported: %s";
 
     /* Builtin Functions */
     private static Function<MonkeyObject[], MonkeyObject> BUILTIN_LEN = 
@@ -307,6 +310,26 @@ public final class Evaluator {
 
         return createNewError(NOT_A_FUNCTION_ERR_FMT, fn.Type());
     }
+    
+    private static MonkeyObject evalArrayIndexExpression(MonkeyObject left,
+                                                        MonkeyObject index) {
+        MonkeyArray arrObj = (MonkeyArray)left;
+        long idx = ((MonkeyInt)index).value;
+        long max = arrObj.elements.length - 1;
+
+        if (idx < 0 || idx > max) {
+            return NULL;
+        }
+        return arrObj.elements[(int) idx];
+    }
+    
+    private static MonkeyObject evalIndexExpression(MonkeyObject left,
+                                                    MonkeyObject index) {
+        if (left.Type() == MonkeyArray.ARRAY_OBJ && index.Type() == MonkeyInt.INTEGER_OBJ) {
+            return evalArrayIndexExpression(left, index);
+        }
+        return createNewError(INDEX_OPERATOR_NOT_SUPPORTED_ERR_FMT, left.Type());
+    }
 
     public static MonkeyObject Eval(Node node, Environment env) {
         /* Program */
@@ -360,6 +383,18 @@ public final class Evaluator {
 
             return evalInfixExpression(((InfixExpression)node).operator, left,
                                         right);
+        } else if (node instanceof IndexExpression) {
+            MonkeyObject left = Eval(((IndexExpression)node).left, env);
+            if (isError(left)) {
+                return left;
+            }
+
+            MonkeyObject index = Eval(((IndexExpression)node).index, env);
+            if (isError(index)) {
+                return index;
+            }
+
+            return evalIndexExpression(left, index);
         } else if (node instanceof PrefixExpression) {
             MonkeyObject right = Eval(((PrefixExpression)node).right, env);
             if (isError(right)) {

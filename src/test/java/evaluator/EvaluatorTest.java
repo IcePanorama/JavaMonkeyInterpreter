@@ -765,7 +765,7 @@ class EvaluatorTest {
     @Test
     void indexOperatorShouldSupportVariablesAsValues() {
         String input = "let i = 0; [1][i];";
-        long expectedOutput = 0;
+        long expectedOutput = 1;
 
         testEvalArrayIndexOperators(testEval(input), expectedOutput);
     }
@@ -773,7 +773,7 @@ class EvaluatorTest {
     @Test
     void indexOperatorShouldSupportExpressionsAsValues() {
         String input = "[1, 2, 3][1 + 1];";
-        long expectedOutput = 0;
+        long expectedOutput = 3;
 
         testEvalArrayIndexOperators(testEval(input), expectedOutput);
     }
@@ -781,7 +781,7 @@ class EvaluatorTest {
     @Test
     void indexOperatorShouldSupportAccessingElementsOfPreviouslyDeclaredArray() {
         String input = "let myArray = [1, 2, 3]; myArray[2];";
-        long expectedOutput = 0;
+        long expectedOutput = 3;
 
         testEvalArrayIndexOperators(testEval(input), expectedOutput);
     }
