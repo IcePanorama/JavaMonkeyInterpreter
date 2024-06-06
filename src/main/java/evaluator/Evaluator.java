@@ -64,14 +64,86 @@ public final class Evaluator {
         (args) -> {
             if (args.length != 1) {
                 return createNewError(WRONG_NUM_ARGUMENTS_ERR_FMT, args.length, 1);
+            } else if (args[0] instanceof MonkeyArray) {
+                return new MonkeyInt(((MonkeyArray)args[0]).elements.length);
             } else if (args[0] instanceof MonkeyString) {
                 return new MonkeyInt((((MonkeyString)args[0]).value).length());
             }
-            return createNewError(ARGUMENT_TO_FUNC_NOT_SUPPORTED_ERR_FMT, "len", ((MonkeyObject)args[0]).Type());
+            return createNewError(ARGUMENT_TO_FUNC_NOT_SUPPORTED_ERR_FMT,
+                                "len", ((MonkeyObject)args[0]).Type());
         };
+    private static Function<MonkeyObject[], MonkeyObject> BUILTIN_FIRST = 
+        (args) -> {
+            if (args.length != 1) {
+                return createNewError(WRONG_NUM_ARGUMENTS_ERR_FMT, args.length, 1);
+            } else if (args[0].Type() != MonkeyArray.ARRAY_OBJ) {
+                return createNewError(ARGUMENT_TO_FUNC_NOT_SUPPORTED_ERR_FMT,
+                                    "first", args[0].Type());
+            }
+            MonkeyArray arr = ((MonkeyArray)args[0]);
+            if (arr.elements.length > 0) {
+                return arr.elements[0];
+            }
+            return NULL;
+        };
+    private static Function<MonkeyObject[], MonkeyObject> BUILTIN_LAST = 
+        (args) -> {
+            if (args.length != 1) {
+                return createNewError(WRONG_NUM_ARGUMENTS_ERR_FMT, args.length, 1);
+            } else if (args[0].Type() != MonkeyArray.ARRAY_OBJ) {
+                return createNewError(ARGUMENT_TO_FUNC_NOT_SUPPORTED_ERR_FMT,
+                                    "last", args[0].Type());
+            }
+            MonkeyArray arr = ((MonkeyArray)args[0]);
+            if (arr.elements.length > 0) {
+                return arr.elements[arr.elements.length - 1];
+            }
+            return NULL;
+        };
+    private static Function<MonkeyObject[], MonkeyObject> BUILTIN_REST = 
+        (args) -> {
+            if (args.length != 1) {
+                return createNewError(WRONG_NUM_ARGUMENTS_ERR_FMT, args.length, 1);
+            } else if (args[0].Type() != MonkeyArray.ARRAY_OBJ) {
+                return createNewError(ARGUMENT_TO_FUNC_NOT_SUPPORTED_ERR_FMT,
+                                    "rest", args[0].Type());
+            }
+            MonkeyArray arr = ((MonkeyArray)args[0]);
+            int len = arr.elements.length;
 
+            if (arr.elements.length > 0) {
+                MonkeyObject[] newElements = new MonkeyObject[len - 1];
+                for (int i = 0; i < newElements.length; i++) {
+                    newElements[i] = arr.elements[i + 1];
+                }
+                return new MonkeyArray(newElements);
+            }
+            return NULL;
+        };
+    private static Function<MonkeyObject[], MonkeyObject> BUILTIN_PUSH = 
+        (args) -> {
+            if (args.length != 2) {
+                return createNewError(WRONG_NUM_ARGUMENTS_ERR_FMT, args.length, 2);
+            } else if (args[0].Type() != MonkeyArray.ARRAY_OBJ) {
+                return createNewError(ARGUMENT_TO_FUNC_NOT_SUPPORTED_ERR_FMT,
+                                    "push", args[0].Type());
+            }
+            MonkeyArray arr = ((MonkeyArray)args[0]);
+            int len = arr.elements.length;
+
+            MonkeyObject[] newElements = new MonkeyObject[len + 1];
+            for (int i = 0; i < arr.elements.length; i++) {
+                newElements[i] = arr.elements[i];
+            }
+            newElements[len] = args[1];
+            return new MonkeyArray(newElements);
+        };
     private static HashMap<String,BuiltinFunction> BUILTIN_FUNCTIONS = new HashMap<>() {{
         put("len", new BuiltinFunction(BUILTIN_LEN));
+        put("first", new BuiltinFunction(BUILTIN_FIRST));
+        put("last", new BuiltinFunction(BUILTIN_LAST));
+        put("rest", new BuiltinFunction(BUILTIN_REST));
+        put("push", new BuiltinFunction(BUILTIN_PUSH));
     }};
 
     private Evaluator() {}

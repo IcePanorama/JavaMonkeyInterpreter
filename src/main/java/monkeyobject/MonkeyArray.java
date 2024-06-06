@@ -18,4 +18,27 @@ public class MonkeyArray implements MonkeyObject{
 
         return "[" + String.join(", ", strEl) + "]";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof MonkeyArray)) {
+            return false;
+        } 
+        MonkeyArray arr = (MonkeyArray)o;
+
+        if (elements.length != arr.elements.length) {
+            return false;
+        }
+
+        for (int i = 0; i < elements.length; i++) {
+            if (!elements[i].equals(arr.elements[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

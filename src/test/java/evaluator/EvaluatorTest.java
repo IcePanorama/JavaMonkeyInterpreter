@@ -131,8 +131,17 @@ class EvaluatorTest {
         testIntegerObject((MonkeyInt)obj, expected);
     }
 
-    void testEvalArrayIndexOperators(MonkeyObject obj) {
+    void testEvalNullObject(MonkeyObject obj) {
         assertInstanceOf(MonkeyNull.class, obj);
+    }
+
+    void testEvalArrayIndexOperators(MonkeyObject obj) {
+        testEvalNullObject(obj);
+    }
+    
+    void testEvalArrayObject(MonkeyObject obj, MonkeyArray expected) {
+        assertInstanceOf(MonkeyArray.class, obj);
+        assertEquals(expected, (MonkeyArray)obj);
     }
 
     /* Tests */
@@ -729,6 +738,151 @@ class EvaluatorTest {
     void builtinLenShouldProduceAWrongNumberOfArgumentsErrorWhenGivenMoreThanOneString() {
         String input = "len(\"one\", \"two\")";
         testEvalErrorHandling(input, "wrong number of arguments: got=2, want=1");
+    }
+
+    @Test
+    void builtinLenShouldCalculateTheCorrectLengthOfAGivenArray() {
+        String input = "len([1, 2, 3, 4])";
+        MonkeyObject evaluated = testEval(input);
+        testIntegerObject(evaluated, 4);
+    }
+    
+    @Test
+    void builtinLenShouldProduceAWrongNumberOfArgumentsErrorWhenGivenMoreThanOneArray() {
+        String input = "len([1, 2], [3, 4])";
+        testEvalErrorHandling(input, "wrong number of arguments: got=2, want=1");
+    }
+
+    @Test
+    void builtinFirstShouldReturnNullWhenGivenAnEmptyArray() {
+        String input = "first([]);";
+        testEvalNullObject(testEval(input));
+    }
+
+    @Test
+    void builtinFirstShouldReturnTheFirstElementOfAGivenArray() {
+        String input = "first([1, 2, 3, 4])";
+        testIntegerObject(testEval(input), 1);
+    }
+
+    @Test
+    void builtinFirstShouldProduceAnArgumentNotSupportedErrorWhenGivenAnInt() {
+        String input = "first(1)";
+        testEvalErrorHandling(input, "argument to \'first\' not supported, got INTEGER");
+    }
+
+    @Test
+    void builtinFirstShouldProduceAWrongNumberOfArgumentsErrorWhenGivenMoreThanOneArray() {
+        String input = "first([1, 2], [3, 4])";
+        testEvalErrorHandling(input, "wrong number of arguments: got=2, want=1");
+    }
+
+    @Test
+    void builtinLastShouldReturnNullWhenGivenAnEmptyArray() {
+        String input = "last([]);";
+        testEvalNullObject(testEval(input));
+    }
+
+    @Test
+    void builtinLastShouldReturnTheLastElementOfAGivenArray() {
+        String input = "last([1, 2, 3, 4])";
+        testIntegerObject(testEval(input), 4);
+    }
+
+    @Test
+    void builtinLastShouldProduceAnArgumentNotSupportedErrorWhenGivenAnInt() {
+        String input = "last(1)";
+        testEvalErrorHandling(input, "argument to \'last\' not supported, got INTEGER");
+    }
+
+    @Test
+    void builtinLastShouldProduceAWrongNumberOfArgumentsErrorWhenGivenMoreThanOneArray() {
+        String input = "last([1, 2], [3, 4])";
+        testEvalErrorHandling(input, "wrong number of arguments: got=2, want=1");
+    }
+
+    @Test
+    void builtinRestShouldReturnNullWhenGivenAnEmptyArray() {
+        String input = "rest([]);";
+        testEvalNullObject(testEval(input));
+    }
+
+    @Test
+    void builtinRestShouldReturnAnEmptyArrayWhenGivenAnArrayWithOneElement() {
+        String input = "rest([1]);";
+        testEvalArrayObject(
+            testEval(input), 
+            new MonkeyArray(new MonkeyObject[] {})
+        );
+    }
+
+    @Test
+    void builtinRestShouldReturnAllButTheFirstElementOfAGivenArray() {
+        String input = "rest([1, 2, 3, 4])";
+        testEvalArrayObject(
+            testEval(input),
+            new MonkeyArray(
+                new MonkeyObject[] {
+                    new MonkeyInt(2),
+                    new MonkeyInt(3),
+                    new MonkeyInt(4)
+                }
+            )
+        );
+    }
+
+    @Test
+    void builtinRestShouldProduceAnArgumentNotSupportedErrorWhenGivenAnInt() {
+        String input = "rest(1)";
+        testEvalErrorHandling(input, "argument to \'rest\' not supported, got INTEGER");
+    }
+
+    @Test
+    void builtinRestShouldProduceAWrongNumberOfArgumentsErrorWhenGivenMoreThanOneArray() {
+        String input = "rest([1, 2], [3, 4])";
+        testEvalErrorHandling(input, "wrong number of arguments: got=2, want=1");
+    }
+
+    @Test
+    void builtinPushShouldReturnAnArrayWithOneElementWhenGivenAnEmptyArray() {
+        String input = "push([], 1)";
+        testEvalArrayObject(
+            testEval(input),
+            new MonkeyArray(new MonkeyObject[] { new MonkeyInt(1)})
+        );
+    }
+
+    @Test
+    void builtinPushShouldAppendANewValueToAGivenArray() {
+        String input = "push([1, 2], 3)";
+        testEvalArrayObject(
+            testEval(input),
+            new MonkeyArray(
+                new MonkeyObject[] {
+                    new MonkeyInt(1),
+                    new MonkeyInt(2),
+                    new MonkeyInt(3)
+                }
+            )
+        );
+    }
+
+    @Test
+    void builtinPushShouldProduceAnArgumentNotSupportedErrorWhenGivenAnInt() {
+        String input = "push(1, 2)";
+        testEvalErrorHandling(input, "argument to \'push\' not supported, got INTEGER");
+    }
+
+    @Test
+    void builtinPushShouldProduceAWrongNumberOfArgumentsErrorWhenGivenLessThanTwoArguments() {
+        String input = "push([]);";
+        testEvalErrorHandling(input, "wrong number of arguments: got=1, want=2");
+    }
+
+    @Test
+    void builtinPushShouldProduceAWrongNumberOfArgumentsErrorWhenGivenMoreThanTwoArguments() {
+        String input = "push([], 1, 2);";
+        testEvalErrorHandling(input, "wrong number of arguments: got=3, want=2");
     }
 
     @Test

@@ -13,4 +13,15 @@ public class MonkeyInt implements MonkeyObject {
     public String Inspect() { 
         return Long.toString(value);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (!(o instanceof MonkeyInt)) {
+            return false;
+        }
+
+        return this.value == ((MonkeyInt)o).value;
+    }
 }

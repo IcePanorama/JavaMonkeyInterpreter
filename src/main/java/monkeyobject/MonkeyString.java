@@ -13,9 +13,12 @@ public class MonkeyString implements MonkeyObject{
     public String Inspect() { return value; }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof MonkeyString))
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        } else if (!(o instanceof MonkeyString)) {
             return false;
-        return value.equals(((MonkeyString)obj).value);
+        }
+        return value.equals(((MonkeyString)o).value);
     }
 }
