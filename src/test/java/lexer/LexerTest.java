@@ -75,6 +75,12 @@ public class LexerTest{
     }
 
     @Test
+    void colonShouldEqualCOLON() {
+        var l = new Lexer(":");
+        assertEquals(new Token(Token.COLON, ":"), l.nextToken());
+    }
+
+    @Test
     void semicolonShouldEqualSEMICOLON() {
         var l = new Lexer(";");
         assertEquals(new Token(Token.SEMICOLON, ";"), l.nextToken());
@@ -335,6 +341,24 @@ public class LexerTest{
             new Token(Token.INT, "2"),
             new Token(Token.RBRACKET, "]"),
             new Token(Token.SEMICOLON, ";"),
+            new Token(Token.EOF)
+        };
+
+        Lexer l = new Lexer(input);
+        for (Token tok : expectedOutput) {
+            assertEquals(tok, l.nextToken());
+        }
+    }
+
+    @Test
+    void examleHashLiteralShouldBeReadCorrectly() {
+        String input = "{\"foo\": \"bar\"}";
+        Token expectedOutput[] = {
+            new Token(Token.LBRACE, "{"),
+            new Token(Token.STRING, "foo"),
+            new Token(Token.COLON, ":"),
+            new Token(Token.STRING, "bar"),
+            new Token(Token.RBRACE, "}"),
             new Token(Token.EOF)
         };
 

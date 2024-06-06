@@ -18,6 +18,7 @@ public class Token {
     public final static String ASTERISK = "*";
     public final static String SLASH = "/";
     public final static String COMMA = ",";
+    public final static String COLON = ":";
     public final static String SEMICOLON = ";";
     public final static String LPAREN = "(";
     public final static String RPAREN = ")";

@@ -71,6 +71,9 @@ public class Lexer {
             case ',':
                 token = new Token(Token.COMMA, Character.toString(ch));
                 break;
+            case ':':
+                token = new Token(Token.COLON, Character.toString(ch));
+                break;
             case ';':
                 token = new Token(Token.SEMICOLON, Character.toString(ch));
                 break;
