@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.HashMap;
+
 import org.junit.jupiter.api.Test;
 
 import ast.ArrayLiteral;
@@ -14,6 +16,7 @@ import ast.CallExpression;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.FunctionLiteral;
+import ast.HashLiteral;
 import ast.Identifier;
 import ast.IfExpression;
 import ast.IndexExpression;
@@ -1045,4 +1048,136 @@ public class ParserTest {
             "add(((a * ([1, 2, 3, 4][(b * c)])) * d), (a * (b[2])), (b[1]), (2 * ([1, 2][1])))"
         );
     }
+
+    @Test
+    void hashLiteralsWithStringKeysShouldBeParsedCorrectly() {
+        String input = "{ \"one\": 1, \"two\": 2, \"three\": 3}";
+        HashMap<String, Long> expectedOutput = new HashMap<>();
+        expectedOutput.put("one", 1l);
+        expectedOutput.put("two", 2l);
+        expectedOutput.put("three", 3l);
+
+        Program p = parserTestHelperFunction(input);
+        assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
+
+        ExpressionStatement stmt = (ExpressionStatement)(p.statements.get(0));
+        assertInstanceOf(HashLiteral.class, stmt.expression);
+
+        HashLiteral hash = (HashLiteral)(stmt.expression);
+        assertEquals(hash.pairs.size(), 3);
+
+        for (var key : hash.pairs.keySet()) {
+            assertInstanceOf(StringLiteral.class, key);
+            assert(expectedOutput.containsKey(key.toString()));
+            assertInstanceOf(IntegerLiteral.class, hash.pairs.get(key));
+            testIntegerLiteral(
+                hash.pairs.get(key),
+                expectedOutput.get(key.toString())
+            );
+        }
+    }
+
+    @Test
+    void hashLiteralsWithIntegerKeysShouldBeParsedCorrectly() {
+        String input = "{ 1: \"one\", 2: \"two\", 3: \"three\" }";
+        HashMap<Long, String> expectedOutput = new HashMap<>();
+        expectedOutput.put(1l, "one");
+        expectedOutput.put(2l, "two");
+        expectedOutput.put(3l, "three");
+
+        Program p = parserTestHelperFunction(input);
+        assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
+
+        ExpressionStatement stmt = (ExpressionStatement)(p.statements.get(0));
+        assertInstanceOf(HashLiteral.class, stmt.expression);
+
+        HashLiteral hash = (HashLiteral)(stmt.expression);
+        assertEquals(hash.pairs.size(), 3);
+
+        for (var key : hash.pairs.keySet()) {
+            assertInstanceOf(IntegerLiteral.class, key);
+            assert(expectedOutput.containsKey(((IntegerLiteral)key).value));
+
+            Expression value = hash.pairs.get(key);
+            assertInstanceOf(StringLiteral.class, value);
+            StringLiteral str = ((StringLiteral)value);
+            assertEquals(expectedOutput.get(((IntegerLiteral)key).value), str.value);
+        }
+    }
+
+    @Test
+    void hashLiteralsWithBoolKeysShouldBeParsedCorrectly() {
+        String input = "{ true: \"one\", false: \"two\" }";
+        HashMap<Boolean, String> expectedOutput = new HashMap<>();
+        expectedOutput.put(true, "one");
+        expectedOutput.put(false, "two");
+
+        Program p = parserTestHelperFunction(input);
+        assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
+
+        ExpressionStatement stmt = (ExpressionStatement)(p.statements.get(0));
+        assertInstanceOf(HashLiteral.class, stmt.expression);
+
+        HashLiteral hash = (HashLiteral)(stmt.expression);
+        assertEquals(hash.pairs.size(), 2);
+
+        for (var key : hash.pairs.keySet()) {
+            assertInstanceOf(Bool.class, key);
+            assert(expectedOutput.containsKey(((Bool)key).value));
+
+            Expression value = hash.pairs.get(key);
+            assertInstanceOf(StringLiteral.class, value);
+            StringLiteral str = ((StringLiteral)value);
+            assertEquals(expectedOutput.get(((Bool)key).value), str.value);
+        }
+    }
+
+    @Test
+    void anEmptyHashLiteralShouldBeParsedCorrectly() {
+        String input = "{}";
+
+        Program p = parserTestHelperFunction(input);
+        assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
+
+        ExpressionStatement stmt = (ExpressionStatement)(p.statements.get(0));
+        assertInstanceOf(HashLiteral.class, stmt);
+        assertEquals(0, ((HashLiteral)(stmt.expression)).pairs.size());
+    }
+
+    @Test
+    void hashLiteralsCanBeBuiltWithAnyExpression() {
+        String input = "{ \"one\": 0 + 1, \"two\": 10 - 8, \"three\": 15 / 5 }";
+        String[] expectedKeys = { "one", "two", "three" };
+        long[] expectedRights = { 0, 10, 15 };
+        String[] expectedOperators = { "+", "-", "/" };
+        long[] expectedLefts = { 1, 8, 5 };
+
+        Program p = parserTestHelperFunction(input);
+        assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
+
+        ExpressionStatement stmt = (ExpressionStatement)(p.statements.get(0));
+        assertInstanceOf(HashLiteral.class, stmt.expression);
+
+        HashLiteral hash = (HashLiteral)(stmt.expression);
+        assertEquals(hash.pairs.size(), 3);
+
+        int i = 0;
+        for (Expression key : hash.pairs.keySet()) {
+            assertInstanceOf(StringLiteral.class, key);
+            assertEquals(expectedKeys[i], ((StringLiteral)key).value);
+
+            Expression value = hash.pairs.get(key);
+            assertInstanceOf(InfixExpression.class, value);
+
+            InfixExpression expr = (InfixExpression)value;
+            assertInstanceOf(IntegerLiteral.class, expr.left);
+            assertEquals(expectedLefts[i], ((IntegerLiteral)(expr.left)).value);
+
+            assertEquals(expectedOperators[i], expr.operator);
+
+            assertInstanceOf(IntegerLiteral.class, expr.right);
+            assertEquals(expectedRights[i], ((IntegerLiteral)(expr.right)).value);
+        }
+    }
+
 }
