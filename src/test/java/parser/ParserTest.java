@@ -1164,8 +1164,10 @@ public class ParserTest {
 
         for (Expression key : hash.pairs.keySet()) {
             assertInstanceOf(StringLiteral.class, key);
-            // Order is not guaranteed in HashMaps
-            // See: https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html 
+            /*
+                Order is not guaranteed in HashMaps
+                See: https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html 
+             */
             assert(Arrays.asList(expectedKeys).contains(((StringLiteral)key).value));
             // might be a better way of doing this
             int i = Arrays.asList(expectedKeys).indexOf(((StringLiteral)key).value);

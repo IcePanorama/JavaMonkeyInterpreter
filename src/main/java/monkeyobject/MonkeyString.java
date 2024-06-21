@@ -21,4 +21,8 @@ public class MonkeyString implements MonkeyObject{
         }
         return value.equals(((MonkeyString)o).value);
     }
+
+    public HashKey getHashKey() {
+        return new HashKey(Type(), value.hashCode());
+    }
 }

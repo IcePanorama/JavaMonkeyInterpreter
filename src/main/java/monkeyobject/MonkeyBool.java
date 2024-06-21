@@ -11,4 +11,8 @@ public class MonkeyBool implements MonkeyObject {
     public String Type() { return BOOLEAN_OBJ; }
 
     public String Inspect() { return Boolean.toString(value); }
+
+    public HashKey getHashKey() {
+        return new HashKey(Type(), value ? 1l : 0l);
+    }
 }

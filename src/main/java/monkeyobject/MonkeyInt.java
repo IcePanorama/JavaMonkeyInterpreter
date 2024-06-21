@@ -24,4 +24,8 @@ public class MonkeyInt implements MonkeyObject {
 
         return this.value == ((MonkeyInt)o).value;
     }
+
+    public HashKey getHashKey() {
+        return new HashKey(Type(), value);
+    }
 }
