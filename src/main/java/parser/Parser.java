@@ -7,6 +7,7 @@ import ast.CallExpression;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.FunctionLiteral;
+import ast.HashLiteral;
 import ast.Identifier;
 import ast.IfExpression;
 import ast.IndexExpression;
@@ -90,6 +91,7 @@ public class Parser {
         registerPrefix(Token.FUNCTION, this::parseFunctionLiteral);
         registerPrefix(Token.STRING, this::parseStringLiteral);
         registerPrefix(Token.LBRACKET, this::parseArrayLiteral);
+        registerPrefix(Token.LBRACE, this::parseHashLiteral);
     }
 
     void registerPrefix(String tokenType, PrefixParseFn fn) {
@@ -265,6 +267,7 @@ public class Parser {
     }
 
     /* Expression Parsers */
+//FIXME: these should all be private
     private Expression parseIdentifier() {
         return new Identifier(curToken, curToken.literal);
     }
@@ -465,5 +468,34 @@ public class Parser {
         }
 
         return expr;
+    }
+
+    private Expression parseHashLiteral() {
+        HashLiteral hash = new HashLiteral(curToken);
+        hash.pairs = new HashMap<>();
+
+        while (!peekTokenIs(new Token(Token.RBRACE))) {
+            nextToken();
+            Expression key = parseExpression(ExpressionType.LOWEST);
+
+            if (!expectPeek(new Token(Token.COLON))) {
+                return null;
+            }
+
+            nextToken();
+            Expression value = parseExpression(ExpressionType.LOWEST);
+            hash.pairs.put(key, value);
+
+            if (!peekTokenIs(new Token(Token.RBRACE))
+                && !expectPeek(new Token(Token.COMMA))) {
+                return null;
+            }
+        }
+
+        if (!expectPeek(new Token(Token.RBRACE))) {
+            return null;
+        }
+
+        return hash;
     }
 }

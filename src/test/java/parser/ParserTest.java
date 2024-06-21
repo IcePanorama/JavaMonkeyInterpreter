@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
@@ -25,9 +26,9 @@ import ast.IntegerLiteral;
 import ast.LetStatement;
 import ast.PrefixExpression;
 import ast.Program;
+import ast.ReturnStatement;
 import ast.Statement;
 import ast.StringLiteral;
-import ast.ReturnStatement;
 import lexer.Lexer;
 import token.Token;
 
@@ -1140,7 +1141,7 @@ public class ParserTest {
         assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
 
         ExpressionStatement stmt = (ExpressionStatement)(p.statements.get(0));
-        assertInstanceOf(HashLiteral.class, stmt);
+        assertInstanceOf(HashLiteral.class, ((ExpressionStatement)stmt).expression);
         assertEquals(0, ((HashLiteral)(stmt.expression)).pairs.size());
     }
 
@@ -1148,9 +1149,9 @@ public class ParserTest {
     void hashLiteralsCanBeBuiltWithAnyExpression() {
         String input = "{ \"one\": 0 + 1, \"two\": 10 - 8, \"three\": 15 / 5 }";
         String[] expectedKeys = { "one", "two", "three" };
-        long[] expectedRights = { 0, 10, 15 };
+        long[] expectedLefts = { 0, 10, 15 };
         String[] expectedOperators = { "+", "-", "/" };
-        long[] expectedLefts = { 1, 8, 5 };
+        long[] expectedRights = { 1, 8, 5 };
 
         Program p = parserTestHelperFunction(input);
         assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
@@ -1161,10 +1162,13 @@ public class ParserTest {
         HashLiteral hash = (HashLiteral)(stmt.expression);
         assertEquals(hash.pairs.size(), 3);
 
-        int i = 0;
         for (Expression key : hash.pairs.keySet()) {
             assertInstanceOf(StringLiteral.class, key);
-            assertEquals(expectedKeys[i], ((StringLiteral)key).value);
+            // Order is not guaranteed in HashMaps
+            // See: https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html 
+            assert(Arrays.asList(expectedKeys).contains(((StringLiteral)key).value));
+            // might be a better way of doing this
+            int i = Arrays.asList(expectedKeys).indexOf(((StringLiteral)key).value);
 
             Expression value = hash.pairs.get(key);
             assertInstanceOf(InfixExpression.class, value);

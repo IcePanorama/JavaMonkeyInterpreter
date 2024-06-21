@@ -8,6 +8,10 @@ public class HashLiteral implements Expression{
     Token token;
     public HashMap<Expression, Expression> pairs;
 
+    public HashLiteral(Token token) {
+        this.token = token;
+    }
+
     public void expressionNode() {}
 
     public String TokenLiteral() { return token.literal; }
