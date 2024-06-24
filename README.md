@@ -21,6 +21,7 @@ You can then run the interpreter using the following commands:
 
 ```bash
 cd JavaMonkeyInterpreter/
+mvn package
 java -cp target/classes com.monkeyinterpreter.Main
 ```
 
