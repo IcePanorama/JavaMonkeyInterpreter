@@ -11,6 +11,7 @@ import ast.CallExpression;
 import ast.Expression;
 import ast.ExpressionStatement;
 import ast.FunctionLiteral;
+import ast.HashLiteral;
 import ast.Identifier;
 import ast.IfExpression;
 import ast.IndexExpression;
@@ -25,10 +26,14 @@ import ast.Statement;
 import ast.StringLiteral;
 import monkeyobject.BuiltinFunction;
 import monkeyobject.Environment;
+import monkeyobject.HashKey;
+import monkeyobject.HashPair;
+import monkeyobject.Hashable;
 import monkeyobject.MonkeyArray;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyError;
 import monkeyobject.MonkeyFunction;
+import monkeyobject.MonkeyHash;
 import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyNull;
 import monkeyobject.MonkeyObject;
@@ -58,6 +63,7 @@ public final class Evaluator {
         "argument to '%s' not supported, got %s";
     private final static String INDEX_OPERATOR_NOT_SUPPORTED_ERR_FMT =
         "index operator not supported: %s";
+    private final static String UNUSABLE_AS_HASH_OBJ_ERR_FMT = "unusable as hash key: %s";
 
     /* Builtin Functions */
     private static Function<MonkeyObject[], MonkeyObject> BUILTIN_LEN = 
@@ -403,6 +409,32 @@ public final class Evaluator {
         return createNewError(INDEX_OPERATOR_NOT_SUPPORTED_ERR_FMT, left.Type());
     }
 
+    private static MonkeyObject evalHashLiteral(HashLiteral node, Environment env) {
+        HashMap<HashKey, HashPair> pairs = new HashMap<>();
+
+        for (var keyNode: node.pairs.keySet().toArray()) {
+            MonkeyObject key = Eval((Expression)keyNode, env);
+            if (isError(key)) {
+                return key;
+            }
+
+            if (!(key instanceof Hashable)) {
+                return createNewError(UNUSABLE_AS_HASH_OBJ_ERR_FMT, key.Type());
+            }
+            Hashable hashKey = (Hashable)key;
+
+            MonkeyObject value = Eval(node.pairs.get(keyNode), env);
+            if (isError(value)) {
+                return value;
+            }
+
+            HashKey hashed = hashKey.getHashKey();
+            pairs.put(hashed, new HashPair(key, value));
+        }
+
+        return new MonkeyHash(pairs);
+    }
+
     public static MonkeyObject Eval(Node node, Environment env) {
         /* Program */
         if (node instanceof Program) {
@@ -493,6 +525,8 @@ public final class Evaluator {
             return evalIdentifier((Identifier)node, env);
         } else if (node instanceof IntegerLiteral) {
             return new MonkeyInt(((IntegerLiteral)(node)).value);
+        } else if (node instanceof HashLiteral) {
+            return evalHashLiteral((HashLiteral)node, env);
         } else if (node instanceof StringLiteral) {
             return new MonkeyString(((StringLiteral)node).value);
         }

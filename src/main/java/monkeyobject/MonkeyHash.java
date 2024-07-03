@@ -6,6 +6,10 @@ public class MonkeyHash implements MonkeyObject {
     public static String HASH_OBJ = "HASH";
     public HashMap<HashKey, HashPair> pairs;
 
+    public MonkeyHash (HashMap<HashKey, HashPair> pairs) {
+        this.pairs = pairs;
+    }
+
     public String Type() { return HASH_OBJ; }
 
     public String Inspect() {
