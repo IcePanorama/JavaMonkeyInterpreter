@@ -36,6 +36,12 @@ java -cp target/classes com.monkeyinterpreter.Main
 
 To quit the interpreter, type `.quit`.
 
+## To do
++ Refactor entire codebase.
++ Create better documentation for codebase.
++ Implement float datatype.
++ Implement quality-of-life improvements for REPL.
+
 ## Acknowledgements
 
 This project was developed using the book, ["Writing An Interpreter In Go" by Thorsten Ball](https://interpreterbook.com/). As the name implies, Ball's original project was written entirely in Go and I converted everything to Java.
