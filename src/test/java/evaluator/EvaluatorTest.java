@@ -61,14 +61,11 @@ class EvaluatorTest {
         assertEquals(expected, ((MonkeyInt)evaluated).value);
     }
 
-//FIXME: rename to something better
-    void testEvalConditionalExpressionIsNull(String input) {
+    void testEvalNullConditionalExpression(String input) {
         MonkeyObject evaluated = testEval(input);
         assertInstanceOf(MonkeyNull.class, evaluated);
     }
 
-    // Does this really need to be its own method?
-    // testEvalBoolExpression is exactly the same
     void testBangOperator(String input, boolean expected) {
         MonkeyObject evaluated = testEval(input);
         testBoolObject(evaluated, expected);
@@ -499,7 +496,7 @@ class EvaluatorTest {
     void ifFalseThenTenShouldEvaluateToNull() {
         String input = "if (false) { 10 }";
 
-        testEvalConditionalExpressionIsNull(input);
+        testEvalNullConditionalExpression(input);
     }
 
     @Test
@@ -522,7 +519,7 @@ class EvaluatorTest {
     void ifOneGreaterThanTwoThenTenShouldEvaluateToNull() {
         String input = "if (1 > 2) { 10 }";
 
-        testEvalConditionalExpressionIsNull(input);
+        testEvalNullConditionalExpression(input);
     }
 
     @Test
@@ -1097,7 +1094,6 @@ class EvaluatorTest {
     void hashesShouldProduceAnErrorWhenIndexedWithAFunction() {
         String input = "{\"name\": \"Monkey\"}[fn(x) {x}];";
 
-        MonkeyObject evaluated = testEval(input);
         testEvalErrorHandling(input, "unusable as hash key: FUNCTION");
     }
 }
