@@ -8,10 +8,12 @@ import org.junit.jupiter.api.Test;
 import ast.Program;
 import lexer.Lexer;
 import monkeyobject.Environment;
+import monkeyobject.HashKey;
 import monkeyobject.MonkeyArray;
 import monkeyobject.MonkeyBool;
 import monkeyobject.MonkeyError;
 import monkeyobject.MonkeyFunction;
+import monkeyobject.MonkeyHash;
 import monkeyobject.MonkeyInt;
 import monkeyobject.MonkeyNull;
 import monkeyobject.MonkeyObject;
@@ -142,6 +144,42 @@ class EvaluatorTest {
     void testEvalArrayObject(MonkeyObject obj, MonkeyArray expected) {
         assertInstanceOf(MonkeyArray.class, obj);
         assertEquals(expected, (MonkeyArray)obj);
+    }
+
+    void testEvalHashObjects(MonkeyObject obj, String expectedKey,
+                             long expectedValue) {
+        assertInstanceOf(MonkeyHash.class, obj);
+
+        MonkeyHash result = (MonkeyHash)obj;
+        assertEquals(1, result.pairs.size());
+
+        HashKey key = (HashKey)(result.pairs.keySet().toArray()[0]);
+        assertEquals(new MonkeyString(expectedKey), key);
+        testIntegerObject(result.pairs.get(key).value, expectedValue);
+    }
+
+    void testEvalHashObjects(MonkeyObject obj, long expectedKey,
+                             long expectedValue) {
+        assertInstanceOf(MonkeyHash.class, obj);
+
+        MonkeyHash result = (MonkeyHash)obj;
+        assertEquals(1, result.pairs.size());
+
+        HashKey key = (HashKey)(result.pairs.keySet().toArray()[0]);
+        assertEquals(new MonkeyInt(expectedKey), key);
+        testIntegerObject(result.pairs.get(key).value, expectedValue);
+    }
+
+    void testEvalHashObjects(MonkeyObject obj, boolean expectedKey,
+                             long expectedValue) {
+        assertInstanceOf(MonkeyHash.class, obj);
+
+        MonkeyHash result = (MonkeyHash)obj;
+        assertEquals(1, result.pairs.size());
+
+        HashKey key = (HashKey)(result.pairs.keySet().toArray()[0]);
+        assertEquals(new MonkeyBool(expectedKey), key);
+        testIntegerObject(result.pairs.get(key).value, expectedValue);
     }
 
     /* Tests */
@@ -963,4 +1001,39 @@ class EvaluatorTest {
         testEvalArrayIndexOperators(testEval(input));
     }
 
+    @Test
+    void hashesCanBeConstructedWithAStringKey() {
+        String input = "\"one\": 10 - 9";
+        testEvalHashObjects(testEval(input), "one", 1);
+    }
+
+    @Test
+    void hashesCanBeConstructedWithVariableKeys() {
+        String input = "let two = \"two\"; two : 1 + 1";
+        testEvalHashObjects(testEval(input), "two", 2);
+    }
+
+    @Test
+    void hashesCanBeConstructedWithConcatenatedStringKeys() {
+        String input = "\"thr\" + \"ee\": 6 / 2";
+        testEvalHashObjects(testEval(input), "three", 3);
+    }
+
+    @Test
+    void hashesCanBeConstructedWithIntegerKeys() {
+        String input = "4 : 4";
+        testEvalHashObjects(testEval(input), 4, 4);
+    }
+
+    @Test
+    void hashesCanBeConstructedWithTrueBoolKeys() {
+        String input = "true : 5";
+        testEvalHashObjects(testEval(input), true, 5);
+    }
+
+    @Test
+    void hashesCanBeConstructedWithFalseBoolKeys() {
+        String input = "false : 6";
+        testEvalHashObjects(testEval(input), false, 6);
+    }
 }
