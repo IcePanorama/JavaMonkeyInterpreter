@@ -144,12 +144,20 @@ public final class Evaluator {
             newElements[len] = args[1];
             return new MonkeyArray(newElements);
         };
+    private static Function<MonkeyObject[], MonkeyObject> BUILTIN_PUTS = 
+        (args) -> {
+            for (var arg: args) {
+                System.out.println(arg.Inspect());
+            }
+            return NULL;
+        };
     private static HashMap<String,BuiltinFunction> BUILTIN_FUNCTIONS = new HashMap<>() {{
         put("len", new BuiltinFunction(BUILTIN_LEN));
         put("first", new BuiltinFunction(BUILTIN_FIRST));
         put("last", new BuiltinFunction(BUILTIN_LAST));
         put("rest", new BuiltinFunction(BUILTIN_REST));
         put("push", new BuiltinFunction(BUILTIN_PUSH));
+        put("puts", new BuiltinFunction(BUILTIN_PUTS));
     }};
 
     private Evaluator() {}
