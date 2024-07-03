@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import ast.Program;
 import lexer.Lexer;
@@ -1035,5 +1036,69 @@ class EvaluatorTest {
     void hashesCanBeConstructedWithFalseBoolKeys() {
         String input = "{false : 6}";
         testEvalHashObjects(testEval(input), false, 6);
+    }
+
+    @Test
+    void hashesCanBeIndexedWithStrings() {
+        String input = "{\"foo\": 5}[\"foo\"]";
+
+        MonkeyObject evaluated = testEval(input);
+        testIntegerObject(evaluated, 5l);
+    }
+
+    @Test
+    void hashesShouldReturnNullWhenIndexedWithUnknownKey() {
+        String input = "{\"foo\": 5}[\"bar\"]";
+
+        MonkeyObject evaluated = testEval(input);
+        testEvalNullObject(evaluated);
+    }
+
+    @Test
+    void hashesCanBeIndexedWithVariables() {
+        String input = "let key = \"foo\"; {\"foo\": 5}[key]";
+
+        MonkeyObject evaluated = testEval(input);
+        testIntegerObject(evaluated, 5l);
+    }
+
+    @Test
+    void indexingAnEmptyHashShouldReturnNull() {
+        String input = "{}[\"foo\"]";
+
+        MonkeyObject evaluated = testEval(input);
+        testEvalNullObject(evaluated);
+    }
+
+    @Test
+    void hashesCanBeIndexedWithInts() {
+        String input = "{5: 5}[5]";
+
+        MonkeyObject evaluated = testEval(input);
+        testIntegerObject(evaluated, 5l);
+    }
+
+    @Test
+    void hashesCanBeIndexedWithTrueBools() {
+        String input = "{true: 5}[true]";
+
+        MonkeyObject evaluated = testEval(input);
+        testIntegerObject(evaluated, 5l);
+    }
+
+    @Test
+    void hashesCanBeIndexedWithFalseBools() {
+        String input = "{false: 5}[false]";
+
+        MonkeyObject evaluated = testEval(input);
+        testIntegerObject(evaluated, 5l);
+    }
+
+    @Test
+    void hashesShouldProduceAnErrorWhenIndexedWithAFunction() {
+        String input = "{\"name\": \"Monkey\"}[fn(x) {x}];";
+
+        MonkeyObject evaluated = testEval(input);
+        testEvalErrorHandling(input, "unusable as hash key: FUNCTION");
     }
 }
