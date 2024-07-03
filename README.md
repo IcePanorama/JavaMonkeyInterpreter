@@ -2,7 +2,7 @@
 
 A tree-walking interpreter for [the Monkey programming language](https://monkeylang.org/), written in Java.
 
-As of July 3rd, 2024, the interpreter is fully functional, supporting "mathematical expressions, variable bindings, functions and the application of those functions, conditionals, return statements, and advanced concepts like higher-order functions and closures" (Ball 197) as well as 5 datatypes: integers, booleans, strings, arrays, and hashes.
+As of July 3rd, 2024, the interpreter is fully functional, supporting "mathematical expressions, variable bindings, functions and the application of those functions, conditionals, [both explicit and implicit] return statements, and advanced concepts like higher-order functions and closures" (Ball 197) as well as 5 data types: integers, booleans, strings, arrays, and hashes.
 
 ## Features
 + Read-Eval-Print-Loop (REPL) environment for typing in code
