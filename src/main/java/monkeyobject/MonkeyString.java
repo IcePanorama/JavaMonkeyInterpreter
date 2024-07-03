@@ -1,6 +1,6 @@
 package monkeyobject;
 
-public class MonkeyString implements MonkeyObject{
+public class MonkeyString implements MonkeyObject, Hashable{
     public static final String STRING_OBJ = "STRING";
     public String value;
 

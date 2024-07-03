@@ -1,6 +1,6 @@
 package monkeyobject;
 
-public class MonkeyInt implements MonkeyObject {
+public class MonkeyInt implements MonkeyObject, Hashable {
     public long value;
     public final static String INTEGER_OBJ = "INTEGER";
 

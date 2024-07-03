@@ -1,6 +1,6 @@
 package monkeyobject;
 
-public class MonkeyBool implements MonkeyObject {
+public class MonkeyBool implements MonkeyObject, Hashable {
     public boolean value;
     final static String BOOLEAN_OBJ = "BOOLEAN";
 
