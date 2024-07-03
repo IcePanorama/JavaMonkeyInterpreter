@@ -21,7 +21,7 @@ public class MonkeyHash implements MonkeyObject {
             i++;
         }
         String output = "{";
-        output += String.join(",", pairStrs);
+        output += String.join(", ", pairStrs);
         return output + "}";
     }
 }
