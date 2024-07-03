@@ -400,11 +400,33 @@ public final class Evaluator {
         }
         return arrObj.elements[(int) idx];
     }
+
+    private static MonkeyObject evalHashIndexExpression(MonkeyObject hash,
+                                                        MonkeyObject index) {
+        MonkeyHash hashObject = (MonkeyHash)hash;
+
+        if (!(index instanceof Hashable)) {
+            return createNewError(UNUSABLE_AS_HASH_OBJ_ERR_FMT, index.Type());
+        }
+        Hashable key = (Hashable)index;
+
+        System.out.println(hashObject.pairs);
+        System.out.println(key);
+
+        HashPair pair = hashObject.pairs.get(key.getHashKey());
+        if (pair == null) {
+            return NULL;
+        }
+
+        return pair.value;
+    }
     
     private static MonkeyObject evalIndexExpression(MonkeyObject left,
                                                     MonkeyObject index) {
         if (left.Type() == MonkeyArray.ARRAY_OBJ && index.Type() == MonkeyInt.INTEGER_OBJ) {
             return evalArrayIndexExpression(left, index);
+        } else if (left.Type() == MonkeyHash.HASH_OBJ) {
+            return evalHashIndexExpression(left, index);
         }
         return createNewError(INDEX_OPERATOR_NOT_SUPPORTED_ERR_FMT, left.Type());
     }

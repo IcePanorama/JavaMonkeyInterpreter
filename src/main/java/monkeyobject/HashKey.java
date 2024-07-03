@@ -26,4 +26,9 @@ public class HashKey {
         return type == ((HashKey)o).type 
             && value == ((HashKey)o).value;
     }
+
+    @Override
+    public int hashCode() {
+        return (int)value;
+    }
 }
