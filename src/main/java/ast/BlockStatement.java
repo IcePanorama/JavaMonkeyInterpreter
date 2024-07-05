@@ -1,12 +1,9 @@
 package ast;
 
-//import java.util.ArrayList;
-
 import token.Token;
 
 public class BlockStatement implements Statement{
     Token token;
-    //public ArrayList<Statement> statements;
     public Statement[] statements;
 
     public BlockStatement(Token token) {
