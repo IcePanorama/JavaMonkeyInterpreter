@@ -1,12 +1,13 @@
 package ast;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 
 import token.Token;
 
 public class BlockStatement implements Statement{
     Token token;
-    public ArrayList<Statement> statements;
+    //public ArrayList<Statement> statements;
+    public Statement[] statements;
 
     public BlockStatement(Token token) {
         this.token = token;
@@ -14,14 +15,15 @@ public class BlockStatement implements Statement{
 
     public void statementNode() {}
 
-    public String TokenLiteral() {
+    public String getTokenLiteral() {
         return token.literal;
     }
 
+    @Override
     public String toString() {
         String output = new String();
 
-        for (var stmt : statements) {
+        for (Statement stmt : statements) {
             output += stmt.toString();
         }
 

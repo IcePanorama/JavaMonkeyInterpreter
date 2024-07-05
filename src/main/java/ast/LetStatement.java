@@ -15,12 +15,12 @@ public class LetStatement implements Statement {
         return;
     }
 
-    public String TokenLiteral(){
+    public String getTokenLiteral(){
         return token.literal;
     }
 
     public String toString() {
-        String output = TokenLiteral() + " " + name.toString() + " = ";
+        String output = getTokenLiteral() + " " + name.toString() + " = ";
         if (value != null)
         {
             output += value.toString();

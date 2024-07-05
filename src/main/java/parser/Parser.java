@@ -33,7 +33,7 @@ public class Parser {
     private HashMap<String, PrefixParseFn> prefixParseFns;
     private HashMap<String, InfixParseFn> infixParseFns;
     private HashMap<String, ExpressionType> precedences;
-    // Not sure that I like this name
+
     private enum ExpressionType {
         LOWEST,
         EQUALS,
@@ -61,118 +61,24 @@ public class Parser {
         nextToken();
     }
 
-    /* Parser Setup Functions */
-    void initializePrecedences() {
-        /*
-         * In order from highest to lowest precedence.
-         */
-        precedences = new HashMap<>();
-        precedences.put(Token.LBRACKET, ExpressionType.INDEX);
-        precedences.put(Token.EQ, ExpressionType.EQUALS);
-        precedences.put(Token.NOTEQ, ExpressionType.EQUALS);
-        precedences.put(Token.LT, ExpressionType.LESSGREATER);
-        precedences.put(Token.GT, ExpressionType.LESSGREATER);
-        precedences.put(Token.PLUS, ExpressionType.SUM);
-        precedences.put(Token.MINUS, ExpressionType.SUM);
-        precedences.put(Token.SLASH, ExpressionType.PRODUCT);
-        precedences.put(Token.ASTERISK, ExpressionType.PRODUCT);
-        precedences.put(Token.LPAREN, ExpressionType.CALL);
-    }
-
-    void registerPrefixFns() {
-        registerPrefix(Token.IDENT, this::parseIdentifier);
-        registerPrefix(Token.INT, this::parseIntegerLiteral);
-        registerPrefix(Token.BANG, this::parsePrefixExpression);
-        registerPrefix(Token.MINUS, this::parsePrefixExpression);
-        registerPrefix(Token.TRUE, this::parseBool);
-        registerPrefix(Token.FALSE, this::parseBool);
-        registerPrefix(Token.LPAREN, this::parseGroupedExpression);
-        registerPrefix(Token.IF, this::parseIfExpression);
-        registerPrefix(Token.FUNCTION, this::parseFunctionLiteral);
-        registerPrefix(Token.STRING, this::parseStringLiteral);
-        registerPrefix(Token.LBRACKET, this::parseArrayLiteral);
-        registerPrefix(Token.LBRACE, this::parseHashLiteral);
-    }
-
-    void registerPrefix(String tokenType, PrefixParseFn fn) {
-        //Should this function be deleted?
-        this.prefixParseFns.put(tokenType, fn);
-    }
-
-    void registerInfixFns() {
-        registerInfix(Token.PLUS, this::parseInfixExpression);
-        registerInfix(Token.MINUS, this::parseInfixExpression);
-        registerInfix(Token.SLASH, this::parseInfixExpression);
-        registerInfix(Token.ASTERISK, this::parseInfixExpression);
-        registerInfix(Token.EQ, this::parseInfixExpression);
-        registerInfix(Token.NOTEQ, this::parseInfixExpression);
-        registerInfix(Token.LT, this::parseInfixExpression);
-        registerInfix(Token.GT, this::parseInfixExpression);
-        registerInfix(Token.LPAREN, this::parseCallExpression);
-        registerInfix(Token.LBRACKET, this::parseIndexExpression);
-    }
-
-    void registerInfix(String tokenType, InfixParseFn fn) {
-        // Should this function be deleted?
-        this.infixParseFns.put(tokenType, fn);
-    }
-
-    /* Helper Functions */
-    void nextToken() {
-        curToken = peekToken;
-        peekToken = l.nextToken();
-    }
-    
-    boolean curTokenIs(Token t){
-        return curToken.type == t.type;
-    }
-
-    boolean peekTokenIs(Token t){
-        return peekToken.type == t.type;
-    }
-
-    boolean expectPeek(Token t){
-        if (peekTokenIs(t)){
-            nextToken();
-            return true;
-        }
-        peekError(t);
-        return false;
-    }
-
-    void peekError(Token t){
-        String msg = String.format("Expected next token to be %s, got %s.", t, 
-                                    peekToken.type);
-        errors.add(msg);
-    } 
-
-    ExpressionType peekPrecedence() {
-        ExpressionType p = precedences.get(peekToken.type);
-        return p != null ? p : ExpressionType.LOWEST;
-    }
-
-    ExpressionType curPrecedence() {
-        ExpressionType p = precedences.get(curToken.type);
-        return p != null ? p : ExpressionType.LOWEST;
-    }
-
-    /* Actual Parser Stuff */
     public Program parseProgram() {
         Program program = new Program();
-        program.statements = new ArrayList<Statement>();
+        ArrayList<Statement> statements = new ArrayList<>();
 
         while (!curTokenIs(new Token(Token.EOF))){
             Statement stmt = parseStatement();
             if (stmt != null){
-                program.statements.add(stmt);
+                statements.add(stmt);
             }
             nextToken();
         }
 
+        program.statements = statements.toArray(new Statement[0]);
+
         return program;
     }
 
-    Statement parseStatement(){
+    private Statement parseStatement(){
         switch (curToken.type) {
             case Token.LET:
                 return parseLetStatement();
@@ -183,7 +89,7 @@ public class Parser {
         }
     }
 
-    LetStatement parseLetStatement(){
+    private LetStatement parseLetStatement(){
         LetStatement stmt = new LetStatement(curToken);
 
         if (!expectPeek(new Token(Token.IDENT))){
@@ -207,7 +113,7 @@ public class Parser {
         return stmt;
     }
 
-    ReturnStatement parseReturnStatement() {
+    private ReturnStatement parseReturnStatement() {
         ReturnStatement stmt = new ReturnStatement(curToken);
 
         nextToken();
@@ -221,7 +127,7 @@ public class Parser {
         return stmt;
     }
 
-    ExpressionStatement parseExpressionStatement() {
+    private ExpressionStatement parseExpressionStatement() {
         ExpressionStatement stmt = new ExpressionStatement(curToken);
         stmt.expression = parseExpression(ExpressionType.LOWEST);
 
@@ -266,8 +172,6 @@ public class Parser {
                 );
     }
 
-    /* Expression Parsers */
-//FIXME: these should all be private
     private Expression parseIdentifier() {
         return new Identifier(curToken, curToken.literal);
     }
@@ -291,7 +195,7 @@ public class Parser {
         return lit;
     }
 
-    Expression parsePrefixExpression() {
+    private Expression parsePrefixExpression() {
         PrefixExpression expr = new PrefixExpression(curToken, 
                                                      curToken.literal);
         nextToken();
@@ -299,7 +203,7 @@ public class Parser {
         return expr;
     }
 
-    Expression parseInfixExpression(Expression left) {
+    private Expression parseInfixExpression(Expression left) {
         InfixExpression expr = new InfixExpression(curToken, curToken.literal,
                                                    left);
 
@@ -310,11 +214,11 @@ public class Parser {
         return expr;
     }
 
-    Expression parseBool() {
+    private Expression parseBool() {
         return new Bool(curToken, curTokenIs(new Token(Token.TRUE)));
     }
 
-    Expression parseGroupedExpression() {
+    private Expression parseGroupedExpression() {
         nextToken();
 
         Expression expr = parseExpression(ExpressionType.LOWEST);
@@ -326,7 +230,7 @@ public class Parser {
         return expr;
     }
 
-    Expression parseIfExpression() {
+    private Expression parseIfExpression() {
         IfExpression expr = new IfExpression(curToken);
 
         if (!expectPeek(new Token(Token.LPAREN))) {
@@ -359,24 +263,26 @@ public class Parser {
         return expr;
     }
 
-    BlockStatement parseBlockStatement() {
+    private BlockStatement parseBlockStatement() {
         BlockStatement block = new BlockStatement(curToken);
-        block.statements = new ArrayList<>();
+        ArrayList<Statement> statements = new ArrayList<>();
 
         nextToken();
 
         while (!curTokenIs(new Token(Token.RBRACE)) && !curTokenIs(new Token(Token.EOF))) {
             Statement stmt = parseStatement();
             if (stmt != null) {
-                block.statements.add(stmt);
+                statements.add(stmt);
             }
             nextToken();
         }
 
+        block.statements = statements.toArray(new Statement[0]);
+
         return block;
     }
 
-    Expression parseFunctionLiteral() {
+    private Expression parseFunctionLiteral() {
         FunctionLiteral lit = new FunctionLiteral(curToken);
 
         if (!expectPeek(new Token(Token.LPAREN))) {
@@ -394,7 +300,7 @@ public class Parser {
         return lit;
     }
 
-    ArrayList<Identifier> parseFunctionParameters() {
+    private ArrayList<Identifier> parseFunctionParameters() {
         ArrayList<Identifier> identifiers = new ArrayList<>();
 
         if (peekTokenIs(new Token(Token.RPAREN))) {
@@ -421,19 +327,19 @@ public class Parser {
         return identifiers;
     }
 
-    Expression parseCallExpression(Expression function) {
+    private Expression parseCallExpression(Expression function) {
         CallExpression expr = new CallExpression(curToken, function);
         expr.arguments = parseExpressionList(new Token(Token.RPAREN, ")"));
         return expr;
     }
 
-    Expression parseArrayLiteral() {
+    private Expression parseArrayLiteral() {
         ArrayLiteral arr = new ArrayLiteral(curToken);
         arr.elements = parseExpressionList(new Token(Token.RBRACKET, "]"));
         return arr;
     }
 
-    Expression[] parseExpressionList(Token end) {
+    private Expression[] parseExpressionList(Token end) {
         ArrayList<Expression> list = new ArrayList<>();
 
         if (peekTokenIs(end)) {
@@ -497,5 +403,98 @@ public class Parser {
         }
 
         return hash;
+    }
+
+    /* Parser Setup Functions */
+    private void initializePrecedences() {
+        /*
+         * In order from highest to lowest precedence.
+         */
+        precedences = new HashMap<>();
+        precedences.put(Token.LBRACKET, ExpressionType.INDEX);
+        precedences.put(Token.EQ, ExpressionType.EQUALS);
+        precedences.put(Token.NOTEQ, ExpressionType.EQUALS);
+        precedences.put(Token.LT, ExpressionType.LESSGREATER);
+        precedences.put(Token.GT, ExpressionType.LESSGREATER);
+        precedences.put(Token.PLUS, ExpressionType.SUM);
+        precedences.put(Token.MINUS, ExpressionType.SUM);
+        precedences.put(Token.SLASH, ExpressionType.PRODUCT);
+        precedences.put(Token.ASTERISK, ExpressionType.PRODUCT);
+        precedences.put(Token.LPAREN, ExpressionType.CALL);
+    }
+
+    private void registerPrefixFns() {
+        registerPrefix(Token.IDENT, this::parseIdentifier);
+        registerPrefix(Token.INT, this::parseIntegerLiteral);
+        registerPrefix(Token.BANG, this::parsePrefixExpression);
+        registerPrefix(Token.MINUS, this::parsePrefixExpression);
+        registerPrefix(Token.TRUE, this::parseBool);
+        registerPrefix(Token.FALSE, this::parseBool);
+        registerPrefix(Token.LPAREN, this::parseGroupedExpression);
+        registerPrefix(Token.IF, this::parseIfExpression);
+        registerPrefix(Token.FUNCTION, this::parseFunctionLiteral);
+        registerPrefix(Token.STRING, this::parseStringLiteral);
+        registerPrefix(Token.LBRACKET, this::parseArrayLiteral);
+        registerPrefix(Token.LBRACE, this::parseHashLiteral);
+    }
+
+    private void registerPrefix(String tokenType, PrefixParseFn fn) {
+        this.prefixParseFns.put(tokenType, fn);
+    }
+
+    private void registerInfixFns() {
+        registerInfix(Token.PLUS, this::parseInfixExpression);
+        registerInfix(Token.MINUS, this::parseInfixExpression);
+        registerInfix(Token.SLASH, this::parseInfixExpression);
+        registerInfix(Token.ASTERISK, this::parseInfixExpression);
+        registerInfix(Token.EQ, this::parseInfixExpression);
+        registerInfix(Token.NOTEQ, this::parseInfixExpression);
+        registerInfix(Token.LT, this::parseInfixExpression);
+        registerInfix(Token.GT, this::parseInfixExpression);
+        registerInfix(Token.LPAREN, this::parseCallExpression);
+        registerInfix(Token.LBRACKET, this::parseIndexExpression);
+    }
+
+    private void registerInfix(String tokenType, InfixParseFn fn) {
+        this.infixParseFns.put(tokenType, fn);
+    }
+
+    /* Helper Functions */
+    private void nextToken() {
+        curToken = peekToken;
+        peekToken = l.nextToken();
+    }
+    
+    private boolean curTokenIs(Token t){
+        return curToken.type == t.type;
+    }
+
+    private boolean peekTokenIs(Token t){
+        return peekToken.type == t.type;
+    }
+
+    private boolean expectPeek(Token t){
+        if (peekTokenIs(t)){
+            nextToken();
+            return true;
+        }
+        peekError(t);
+        return false;
+    }
+
+    private void peekError(Token t){
+        String msg = String.format("Expected next token to be %s, got %s.", t, 
+                                    peekToken.type);
+        errors.add(msg);
+    } 
+
+    private ExpressionType peekPrecedence() {
+        ExpressionType p = precedences.get(peekToken.type);
+        return p != null ? p : ExpressionType.LOWEST;
+    }
+
+    private ExpressionType curPrecedence() {
+        ExpressionType p = precedences.get(curToken.type);
+        return p != null ? p : ExpressionType.LOWEST;
     }
 }

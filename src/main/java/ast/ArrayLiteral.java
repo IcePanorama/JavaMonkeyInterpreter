@@ -3,7 +3,7 @@ package ast;
 import token.Token;
 
 public class ArrayLiteral implements Expression{
-    public Token token;
+    Token token;
     public Expression[] elements;
 
     public ArrayLiteral(Token token) {
@@ -12,7 +12,7 @@ public class ArrayLiteral implements Expression{
 
     public void expressionNode() {}
 
-    public String TokenLiteral() { return token.literal; }
+    public String getTokenLiteral() { return token.literal; }
 
     public String toString() {
         String[] output = new String[elements.length];

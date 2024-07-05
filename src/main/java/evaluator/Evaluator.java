@@ -162,12 +162,12 @@ public final class Evaluator {
 
     private Evaluator() {}
 
-    private static MonkeyObject evalProgram(ArrayList<Statement> statements,
+    private static MonkeyObject evalProgram(Statement[] statements,
         Environment env) {
         MonkeyObject result = null;
 
-        for (var stmt : statements) {
-            result = Eval(stmt, env);
+        for (Statement stmt : statements) {
+            result = eval(stmt, env);
 
             if (result instanceof MonkeyReturnValue) {
                 return ((MonkeyReturnValue)result).value;
@@ -288,14 +288,14 @@ public final class Evaluator {
 
     private static MonkeyObject evalIfExpression(IfExpression expr,
         Environment env) {
-        MonkeyObject condition = Eval(expr.condition, env);
+        MonkeyObject condition = eval(expr.condition, env);
         if (isError(condition))
             return condition;
 
         if (isTruthy(condition)){
-            return Eval(expr.consequence, env);
+            return eval(expr.consequence, env);
         } else if (expr.alternative != null) {
-            return Eval(expr.alternative, env);
+            return eval(expr.alternative, env);
         } else {
             return NULL;
         }
@@ -305,8 +305,8 @@ public final class Evaluator {
         Environment env) {
         MonkeyObject result = null;
 
-        for (var stmt: block.statements) {
-            result = Eval(stmt, env);
+        for (Statement stmt: block.statements) {
+            result = eval(stmt, env);
 
             if (result != null) {
                 String rt = result.Type();
@@ -349,7 +349,7 @@ public final class Evaluator {
 
         for (int i = 0; i < exprs.length; i++) {
             var e = exprs[i];
-            MonkeyObject evaluated = Eval((Node)e, env);
+            MonkeyObject evaluated = eval((Node)e, env);
             if (isError(evaluated)) {
                 return new MonkeyObject[] {evaluated};
             }
@@ -388,7 +388,7 @@ public final class Evaluator {
         if (fn instanceof MonkeyFunction) {
             MonkeyFunction function = (MonkeyFunction)fn;
             Environment extendedEnv = extendFunctionEnv(function, args);
-            MonkeyObject evaluated = Eval(function.body, extendedEnv);
+            MonkeyObject evaluated = eval(function.body, extendedEnv);
             return unwrapReturnValue(evaluated);
         } else if (fn instanceof BuiltinFunction) {
             return (MonkeyObject)((BuiltinFunction)fn).function.apply(args);
@@ -418,9 +418,6 @@ public final class Evaluator {
         }
         Hashable key = (Hashable)index;
 
-        System.out.println(hashObject.pairs);
-        System.out.println(key);
-
         HashPair pair = hashObject.pairs.get(key.getHashKey());
         if (pair == null) {
             return NULL;
@@ -443,7 +440,7 @@ public final class Evaluator {
         HashMap<HashKey, HashPair> pairs = new HashMap<>();
 
         for (var keyNode: node.pairs.keySet().toArray()) {
-            MonkeyObject key = Eval((Expression)keyNode, env);
+            MonkeyObject key = eval((Expression)keyNode, env);
             if (isError(key)) {
                 return key;
             }
@@ -453,7 +450,7 @@ public final class Evaluator {
             }
             Hashable hashKey = (Hashable)key;
 
-            MonkeyObject value = Eval(node.pairs.get(keyNode), env);
+            MonkeyObject value = eval(node.pairs.get(keyNode), env);
             if (isError(value)) {
                 return value;
             }
@@ -465,7 +462,7 @@ public final class Evaluator {
         return new MonkeyHash(pairs);
     }
 
-    public static MonkeyObject Eval(Node node, Environment env) {
+    public static MonkeyObject eval(Node node, Environment env) {
         /* Program */
         if (node instanceof Program) {
             return evalProgram(((Program)node).statements, env);
@@ -474,15 +471,15 @@ public final class Evaluator {
         else if (node instanceof BlockStatement) {
             return evalBlockStatement(((BlockStatement)node), env);
         } else if (node instanceof ExpressionStatement) {
-            return Eval(((ExpressionStatement)node).expression, env);
+            return eval(((ExpressionStatement)node).expression, env);
         } else if (node instanceof LetStatement) {
-            MonkeyObject val = Eval(((LetStatement)node).value, env);
+            MonkeyObject val = eval(((LetStatement)node).value, env);
             if (isError(val))
                 return val;
 
             env.Set(((LetStatement)node).name.value, val);
         } else if (node instanceof ReturnStatement) {
-            MonkeyObject val = Eval(((ReturnStatement)node).returnValue, env);
+            MonkeyObject val = eval(((ReturnStatement)node).returnValue, env);
             if (isError(val)) {
                 return val;
             }
@@ -491,7 +488,7 @@ public final class Evaluator {
         }
         /* Expressions */
         else if (node instanceof CallExpression) {
-            MonkeyObject function = Eval(((CallExpression)node).function, env);
+            MonkeyObject function = eval(((CallExpression)node).function, env);
             if (isError(function)) {
                 return function;
             }
@@ -505,12 +502,12 @@ public final class Evaluator {
         } else if (node instanceof IfExpression) {
             return evalIfExpression((IfExpression)node, env);
         } else if (node instanceof InfixExpression) {
-            MonkeyObject left = Eval(((InfixExpression)node).left, env);
+            MonkeyObject left = eval(((InfixExpression)node).left, env);
             if (isError(left)) {
                 return left;
             }
 
-            MonkeyObject right = Eval(((InfixExpression)node).right, env);
+            MonkeyObject right = eval(((InfixExpression)node).right, env);
             if (isError(right)) {
                 return right;
             }
@@ -518,19 +515,19 @@ public final class Evaluator {
             return evalInfixExpression(((InfixExpression)node).operator, left,
                                         right);
         } else if (node instanceof IndexExpression) {
-            MonkeyObject left = Eval(((IndexExpression)node).left, env);
+            MonkeyObject left = eval(((IndexExpression)node).left, env);
             if (isError(left)) {
                 return left;
             }
 
-            MonkeyObject index = Eval(((IndexExpression)node).index, env);
+            MonkeyObject index = eval(((IndexExpression)node).index, env);
             if (isError(index)) {
                 return index;
             }
 
             return evalIndexExpression(left, index);
         } else if (node instanceof PrefixExpression) {
-            MonkeyObject right = Eval(((PrefixExpression)node).right, env);
+            MonkeyObject right = eval(((PrefixExpression)node).right, env);
             if (isError(right)) {
                 return right;
             }

@@ -15,12 +15,12 @@ public class FunctionLiteral implements Expression{
 
     public void expressionNode() {}
 
-    public String TokenLiteral() {
+    public String getTokenLiteral() {
         return token.literal;
     }
 
     public String toString() {
-        String output = TokenLiteral();
+        String output = getTokenLiteral();
 
         String[] params = new String[parameters.size()];
         for (int i = 0; i < parameters.size(); i++) {

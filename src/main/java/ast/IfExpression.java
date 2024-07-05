@@ -14,7 +14,7 @@ public class IfExpression implements Expression{
 
     public void expressionNode() {}
 
-    public String TokenLiteral() {
+    public String getTokenLiteral() {
         return token.literal;
     }
 

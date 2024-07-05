@@ -35,13 +35,13 @@ import token.Token;
 //TODO: refactor me!
 public class ParserTest {
     void testLetStatement(Statement s, String name){
-        assertEquals(s.TokenLiteral(), "let");
+        assertEquals(s.getTokenLiteral(), "let");
 
         assertInstanceOf(LetStatement.class, s);
 
         LetStatement letStmt = (LetStatement)s;
         assertEquals(letStmt.name.value, name);
-        assertEquals(letStmt.name.TokenLiteral(), name);
+        assertEquals(letStmt.name.getTokenLiteral(), name);
     }
 
     void checkParseErrors(Parser p){
@@ -58,10 +58,10 @@ public class ParserTest {
     }
 
     void checkProgHasExpectedNumStatements(Program p, int expectedNoStmts) {
-        if (p.statements.size() != expectedNoStmts) {
+        if (p.statements.length != expectedNoStmts) {
             fail(String.format(
                     "Program doesn't have enough statements. Got %d.", 
-                    p.statements.size()
+                    p.statements.length
                 ));
         }
     }
@@ -74,7 +74,7 @@ public class ParserTest {
 
         checkProgHasExpectedNumStatements(prog, 1);
 
-        var stmt = prog.statements.get(0);
+        var stmt = prog.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
 
         var expression = ((ExpressionStatement) (stmt)).expression;
@@ -96,7 +96,7 @@ public class ParserTest {
     }
 
     FunctionLiteral programIsFunctionLiteral(Program p) {
-        Statement stmt = p.statements.get(0);
+        Statement stmt = p.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
 
         Expression expr = ((ExpressionStatement)stmt).expression;
@@ -106,7 +106,7 @@ public class ParserTest {
     }
 
     CallExpression programIsCallExpression(Program p) {
-        Statement stmt = p.statements.get(0);
+        Statement stmt = p.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
 
         Expression expr = ((ExpressionStatement)stmt).expression;
@@ -120,7 +120,7 @@ public class ParserTest {
         
         var integer = (IntegerLiteral)intLiteral;
         assertEquals(value, integer.value);
-        assertEquals(String.format("%d", value), integer.TokenLiteral());
+        assertEquals(String.format("%d", value), integer.getTokenLiteral());
     }
 
     void testIdentifier(Expression expr, String value) {
@@ -128,18 +128,18 @@ public class ParserTest {
         
         Identifier ident = (Identifier)expr;
         assertEquals(value, ident.value);
-        assertEquals(value, ident.TokenLiteral());
+        assertEquals(value, ident.getTokenLiteral());
     }
 
     void testBoolLiteral(Expression expr, boolean value) {
         assertInstanceOf(Bool.class, expr);
 
         Bool bool = (Bool)(expr);
-        assertEquals("" + value, bool.TokenLiteral());
+        assertEquals("" + value, bool.getTokenLiteral());
     }
 
     void testFunctionLiteral(Identifier expr, Identifier expected) {
-        assertEquals(expected.TokenLiteral(),expr.TokenLiteral());
+        assertEquals(expected.getTokenLiteral(),expr.getTokenLiteral());
         assertEquals(expected.value, expr.value);
     }
 
@@ -167,7 +167,7 @@ public class ParserTest {
 
         checkProgHasExpectedNumStatements(prog, 1);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
         
         Expression expr = ((ExpressionStatement)stmt).expression;
@@ -226,7 +226,7 @@ public class ParserTest {
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        assertEquals(expectedOutput, prog.statements.get(0).toString());
+        assertEquals(expectedOutput, prog.statements[0].toString());
     }
 
     @Test
@@ -242,7 +242,7 @@ public class ParserTest {
 
         checkProgHasExpectedNumStatements(prog, 1);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         testLetStatement(stmt, expectedIdentifier);
 
         Expression val = ((LetStatement)stmt).value;
@@ -262,7 +262,7 @@ public class ParserTest {
 
         checkProgHasExpectedNumStatements(prog, 1);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         testLetStatement(stmt, expectedIdentifier);
 
         Expression val = ((LetStatement)stmt).value;
@@ -282,7 +282,7 @@ public class ParserTest {
 
         checkProgHasExpectedNumStatements(prog, 1);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         testLetStatement(stmt, expectedIdentifier);
 
         Expression val = ((LetStatement)stmt).value;
@@ -300,11 +300,11 @@ public class ParserTest {
 
         checkProgHasExpectedNumStatements(prog, 1);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         assertInstanceOf(ReturnStatement.class, stmt);
 
         ReturnStatement returnStmt = (ReturnStatement)stmt;
-        assertEquals(returnStmt.TokenLiteral(), "return");
+        assertEquals(returnStmt.getTokenLiteral(), "return");
 
         Expression returnValue = returnStmt.returnValue;
         testLiteralExpression(returnValue, 5);
@@ -333,7 +333,7 @@ public class ParserTest {
 
         checkProgHasExpectedNumStatements(prog, 1);
 
-        var stmt = prog.statements.get(0);
+        var stmt = prog.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
 
         var ident = ((ExpressionStatement)(stmt)).expression;
@@ -341,7 +341,7 @@ public class ParserTest {
 
         var val = (Identifier)(ident);
         assertEquals("foobar", val.toString());
-        assertEquals("foobar", val.TokenLiteral());
+        assertEquals("foobar", val.getTokenLiteral());
     }
 
     @Test
@@ -355,7 +355,7 @@ public class ParserTest {
 
         checkProgHasExpectedNumStatements(prog, 1);
         
-        var stmt = prog.statements.get(0);
+        var stmt = prog.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
 
         var literal = ((ExpressionStatement)(stmt)).expression;
@@ -363,7 +363,7 @@ public class ParserTest {
 
         var value = ((IntegerLiteral)(literal)).value;
         assertEquals(5, value);
-        assertEquals("5", ((IntegerLiteral)(literal)).TokenLiteral());
+        assertEquals("5", ((IntegerLiteral)(literal)).getTokenLiteral());
     }
 
     @Test
@@ -528,6 +528,7 @@ public class ParserTest {
         testOperatorPrecedence(input, expectedOutput);
     }
 
+    /* Why is my toString method not being called???? */
     @Test
     void parserShouldBeAbleToProperlyDeterminePrecedenceForTwoSeparateStatements() {
         String input = "3 + 4; -5 * 5";
@@ -538,7 +539,10 @@ public class ParserTest {
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        assertEquals(expectedOutput, prog.statements.toString());
+        assertInstanceOf(Program.class, prog);
+        assertInstanceOf(Statement.class, prog.statements[0]);
+
+        assertEquals(expectedOutput, prog.toString());
     }
 
     @Test
@@ -662,7 +666,7 @@ public class ParserTest {
         checkParseErrors(p);
         checkProgHasExpectedNumStatements(prog, 1);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
         var literal = ((ExpressionStatement)stmt).expression;
         assertInstanceOf(Bool.class, literal);
@@ -679,7 +683,7 @@ public class ParserTest {
         checkParseErrors(p);
         checkProgHasExpectedNumStatements(prog, 1);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
         var literal = ((ExpressionStatement)stmt).expression;
         assertInstanceOf(Bool.class, literal);
@@ -748,7 +752,7 @@ public class ParserTest {
 
         checkProgHasExpectedNumStatements(prog, 1);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
 
         Expression expr = ((ExpressionStatement)stmt).expression;
@@ -756,9 +760,9 @@ public class ParserTest {
 
         IfExpression ifExpression = (IfExpression)expr;
         testInfixExpression(ifExpression.condition, "x", "<", "y");
-        assertEquals(1, ifExpression.consequence.statements.size());
+        assertEquals(1, ifExpression.consequence.statements.length);
 
-        Statement consequenceStmt = ifExpression.consequence.statements.get(0);
+        Statement consequenceStmt = ifExpression.consequence.statements[0];
         assertInstanceOf(ExpressionStatement.class,
             consequenceStmt);
 
@@ -777,7 +781,7 @@ public class ParserTest {
 
         checkProgHasExpectedNumStatements(prog, 1);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
 
         Expression expr = ((ExpressionStatement)stmt).expression;
@@ -785,18 +789,18 @@ public class ParserTest {
 
         IfExpression ifExpression = (IfExpression)expr;
         testInfixExpression(ifExpression.condition, "x", "<", "y");
-        assertEquals(1, ifExpression.consequence.statements.size());
+        assertEquals(1, ifExpression.consequence.statements.length);
 
-        Statement consequenceStmt = ifExpression.consequence.statements.get(0);
+        Statement consequenceStmt = ifExpression.consequence.statements[0];
         assertInstanceOf(ExpressionStatement.class, consequenceStmt);
 
         Expression consequenceExpr = ((ExpressionStatement)consequenceStmt).expression;
         testIdentifier(consequenceExpr, "x");
 
         assertNotNull(ifExpression.alternative);
-        assertEquals(1, ifExpression.alternative.statements.size());
+        assertEquals(1, ifExpression.alternative.statements.length);
 
-        Statement alternativeStmt = ifExpression.alternative.statements.get(0);
+        Statement alternativeStmt = ifExpression.alternative.statements[0];
         assertInstanceOf(ExpressionStatement.class, alternativeStmt);
 
         Expression alternativeExpr = ((ExpressionStatement)alternativeStmt).expression;
@@ -813,7 +817,7 @@ public class ParserTest {
         checkParseErrors(p);
         checkProgHasExpectedNumStatements(prog, 1);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
 
         Expression expr = ((ExpressionStatement)stmt).expression;
@@ -825,9 +829,9 @@ public class ParserTest {
         testLiteralExpression(func.parameters.get(0), "x");
         testLiteralExpression(func.parameters.get(1), "y");
 
-        assertEquals(1, func.body.statements.size());
+        assertEquals(1, func.body.statements.length);
 
-        Statement bodyStmt = func.body.statements.get(0);
+        Statement bodyStmt = func.body.statements[0];
         assertInstanceOf(ExpressionStatement.class, bodyStmt);
 
         Expression bodyExpr = ((ExpressionStatement)bodyStmt).expression;
@@ -988,7 +992,7 @@ public class ParserTest {
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
 
         Expression epxr = ((ExpressionStatement)stmt).expression;
@@ -1007,7 +1011,7 @@ public class ParserTest {
         var prog = p.parseProgram();
         checkParseErrors(p);
 
-        Statement stmt = prog.statements.get(0);
+        Statement stmt = prog.statements[0];
         assertInstanceOf(ExpressionStatement.class, stmt);
 
         Expression expr = ((ExpressionStatement)stmt).expression;
@@ -1028,8 +1032,8 @@ public class ParserTest {
         checkProgHasExpectedNumStatements(prog, 1);
 
         assertInstanceOf(ExpressionStatement.class,
-                         prog.statements.get(0));
-        ExpressionStatement stmt = ((ExpressionStatement)prog.statements.get(0));
+                         prog.statements[0]);
+        ExpressionStatement stmt = ((ExpressionStatement)prog.statements[0]);
 
         assertInstanceOf(IndexExpression.class, stmt.expression);
         IndexExpression expr = ((IndexExpression)(stmt.expression));
@@ -1059,9 +1063,9 @@ public class ParserTest {
         expectedOutput.put("three", 3l);
 
         Program p = parserTestHelperFunction(input);
-        assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
+        assertInstanceOf(ExpressionStatement.class, p.statements[0]);
 
-        ExpressionStatement stmt = (ExpressionStatement)(p.statements.get(0));
+        ExpressionStatement stmt = (ExpressionStatement)(p.statements[0]);
         assertInstanceOf(HashLiteral.class, stmt.expression);
 
         HashLiteral hash = (HashLiteral)(stmt.expression);
@@ -1087,9 +1091,9 @@ public class ParserTest {
         expectedOutput.put(3l, "three");
 
         Program p = parserTestHelperFunction(input);
-        assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
+        assertInstanceOf(ExpressionStatement.class, p.statements[0]);
 
-        ExpressionStatement stmt = (ExpressionStatement)(p.statements.get(0));
+        ExpressionStatement stmt = (ExpressionStatement)(p.statements[0]);
         assertInstanceOf(HashLiteral.class, stmt.expression);
 
         HashLiteral hash = (HashLiteral)(stmt.expression);
@@ -1114,9 +1118,9 @@ public class ParserTest {
         expectedOutput.put(false, "two");
 
         Program p = parserTestHelperFunction(input);
-        assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
+        assertInstanceOf(ExpressionStatement.class, p.statements[0]);
 
-        ExpressionStatement stmt = (ExpressionStatement)(p.statements.get(0));
+        ExpressionStatement stmt = (ExpressionStatement)(p.statements[0]);
         assertInstanceOf(HashLiteral.class, stmt.expression);
 
         HashLiteral hash = (HashLiteral)(stmt.expression);
@@ -1138,9 +1142,9 @@ public class ParserTest {
         String input = "{}";
 
         Program p = parserTestHelperFunction(input);
-        assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
+        assertInstanceOf(ExpressionStatement.class, p.statements[0]);
 
-        ExpressionStatement stmt = (ExpressionStatement)(p.statements.get(0));
+        ExpressionStatement stmt = (ExpressionStatement)(p.statements[0]);
         assertInstanceOf(HashLiteral.class, ((ExpressionStatement)stmt).expression);
         assertEquals(0, ((HashLiteral)(stmt.expression)).pairs.size());
     }
@@ -1154,9 +1158,9 @@ public class ParserTest {
         long[] expectedRights = { 1, 8, 5 };
 
         Program p = parserTestHelperFunction(input);
-        assertInstanceOf(ExpressionStatement.class, p.statements.get(0));
+        assertInstanceOf(ExpressionStatement.class, p.statements[0]);
 
-        ExpressionStatement stmt = (ExpressionStatement)(p.statements.get(0));
+        ExpressionStatement stmt = (ExpressionStatement)(p.statements[0]);
         assertInstanceOf(HashLiteral.class, stmt.expression);
 
         HashLiteral hash = (HashLiteral)(stmt.expression);

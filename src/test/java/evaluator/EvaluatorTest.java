@@ -28,7 +28,7 @@ class EvaluatorTest {
         Program prog = p.parseProgram();
         Environment env = new Environment();
 
-        return Evaluator.Eval(prog, env);
+        return Evaluator.eval(prog, env);
     }
 
     void testIntegerObject(MonkeyObject obj, long expected) {

@@ -13,7 +13,7 @@ public class StringLiteral implements Expression{
 
     public void expressionNode() {}
 
-    public String TokenLiteral() { return token.literal; }
+    public String getTokenLiteral() { return token.literal; }
 
     public String toString() { return token.literal; }
 }

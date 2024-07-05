@@ -14,7 +14,7 @@ public class HashLiteral implements Expression{
 
     public void expressionNode() {}
 
-    public String TokenLiteral() { return token.literal; }
+    public String getTokenLiteral() { return token.literal; }
 
     public String toString() {
         String[] items = new String[pairs.size()];

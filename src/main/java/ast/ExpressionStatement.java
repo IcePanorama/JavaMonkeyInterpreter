@@ -12,10 +12,11 @@ public class ExpressionStatement implements Statement{
 
    public void statementNode() {}
 
-   public String TokenLiteral() {
+   public String getTokenLiteral() {
     return token.literal;
    }
 
+   @Override
    public String toString() {
       return expression == null ? "" : expression.toString();
    }

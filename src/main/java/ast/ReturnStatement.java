@@ -14,12 +14,13 @@ public class ReturnStatement implements Statement{
         return;
     }
 
-    public String TokenLiteral() {
+    public String getTokenLiteral() {
         return token.literal;
     }
 
+    @Override
     public String toString() {
-        String output = TokenLiteral() + " ";
+        String output = getTokenLiteral() + " ";
         if (returnValue != null)
         {
             output += returnValue.toString();
